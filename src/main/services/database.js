@@ -1,6 +1,6 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const { app } = require('electron');
+import Database from 'better-sqlite3';
+import path from 'path';
+import { app } from 'electron';
 
 class PromptDB {
   constructor(dbPath) {
@@ -80,4 +80,4 @@ class PromptDB {
   }
 }
 
-module.exports = PromptDB;
+export default PromptDB;

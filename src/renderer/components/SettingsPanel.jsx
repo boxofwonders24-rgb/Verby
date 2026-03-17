@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { getSettings, setSetting } from '../lib/ipc';
 
 export default function SettingsPanel({ onBack }) {
   const [settings, setSettings] = useState({});
 
   useEffect(() => {
-    window.verby.getSettings().then(setSettings);
+    getSettings().then((s) => setSettings(s || {}));
   }, []);
 
   const update = (key, value) => {
     setSettings((s) => ({ ...s, [key]: value }));
-    window.verby.setSetting(key, value);
+    setSetting(key, value);
   };
 
   const inputStyle = {

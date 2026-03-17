@@ -1,7 +1,7 @@
-const OpenAI = require('openai');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+import OpenAI from 'openai';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 class WhisperService {
   constructor(apiKey) {
@@ -24,4 +24,4 @@ class WhisperService {
   }
 }
 
-module.exports = WhisperService;
+export default WhisperService;

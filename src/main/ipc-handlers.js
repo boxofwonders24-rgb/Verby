@@ -1,9 +1,9 @@
-const { ipcMain, clipboard } = require('electron');
-const Store = require('electron-store');
-const WhisperService = require('./services/whisper');
-const PromptEngine = require('./services/prompt-engine');
-const LLMDispatch = require('./services/llm-dispatch');
-const PromptDB = require('./services/database');
+import { ipcMain, clipboard } from 'electron';
+import Store from 'electron-store';
+import WhisperService from './services/whisper.js';
+import PromptEngine from './services/prompt-engine.js';
+import LLMDispatch from './services/llm-dispatch.js';
+import PromptDB from './services/database.js';
 
 const store = new Store({ name: 'verbyprompt-settings' });
 let whisper, engine, dispatch, db;
@@ -19,7 +19,7 @@ function initServices(settings) {
   db = new PromptDB();
 }
 
-function registerHandlers(mainWindow) {
+export function registerHandlers(mainWindow) {
   initServices({});
 
   ipcMain.handle('send-audio', async (_event, arrayBuffer) => {
@@ -87,5 +87,3 @@ function registerHandlers(mainWindow) {
     }
   });
 }
-
-module.exports = { registerHandlers };

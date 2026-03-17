@@ -1,6 +1,6 @@
-const Anthropic = require('@anthropic-ai/sdk');
-const OpenAI = require('openai');
-const { CATEGORIES, PROVIDERS } = require('../../shared/constants');
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import { CATEGORIES, PROVIDERS } from '../../shared/constants.js';
 
 const SYSTEM_PROMPT = `You are VerbyPrompt — an expert prompt engineer. Your job is to take raw, messy speech transcriptions and transform them into perfectly structured AI prompts.
 
@@ -80,4 +80,4 @@ class PromptEngine {
   }
 }
 
-module.exports = PromptEngine;
+export default PromptEngine;

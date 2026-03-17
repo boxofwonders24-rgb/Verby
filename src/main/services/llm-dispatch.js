@@ -1,6 +1,6 @@
-const Anthropic = require('@anthropic-ai/sdk');
-const OpenAI = require('openai');
-const { PROVIDERS } = require('../../shared/constants');
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import { PROVIDERS } from '../../shared/constants.js';
 
 class LLMDispatch {
   constructor({ anthropicKey, openaiKey }) {
@@ -31,4 +31,4 @@ class LLMDispatch {
   }
 }
 
-module.exports = LLMDispatch;
+export default LLMDispatch;

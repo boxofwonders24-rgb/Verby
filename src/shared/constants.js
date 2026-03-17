@@ -1,4 +1,4 @@
-const CATEGORIES = {
+export const CATEGORIES = {
   GENERAL: 'general',
   BUSINESS: 'business',
   CODING: 'coding',
@@ -6,9 +6,7 @@ const CATEGORIES = {
   AUTOMATION: 'automation',
 };
 
-const PROVIDERS = {
+export const PROVIDERS = {
   CLAUDE: 'claude',
   OPENAI: 'openai',
 };
-
-module.exports = { CATEGORIES, PROVIDERS };

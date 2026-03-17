@@ -1,19 +1,18 @@
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
-const { registerHandlers } = require('./ipc-handlers');
 
 let mainWindow = null;
 let tray = null;
 
+const isDev = !app.isPackaged;
+const DEV_URL = 'http://localhost:5173';
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 680,
-    height: 400,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    resizable: false,
-    skipTaskbar: true,
+    width: 720,
+    height: 500,
+    backgroundColor: '#000000',
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -21,18 +20,15 @@ const createWindow = () => {
     },
   });
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  if (isDev) {
+    mainWindow.loadURL(DEV_URL);
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-    );
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
 
-  mainWindow.on('blur', () => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.hide();
-    }
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
   });
 
   mainWindow.on('closed', () => {
@@ -45,7 +41,6 @@ const toggleWindow = () => {
     createWindow();
     return;
   }
-
   if (mainWindow.isVisible()) {
     mainWindow.hide();
   } else {
@@ -70,11 +65,14 @@ const createTray = () => {
 };
 
 app.whenReady().then(() => {
+  // Register IPC handlers
+  const { registerHandlers } = require('./ipc-handlers.cjs');
+
   createWindow();
   registerHandlers(mainWindow);
   createTray();
 
-  globalShortcut.register('CommandOrControl+Shift+Space', toggleWindow);
+  globalShortcut.register('Alt+Space', toggleWindow);
 });
 
 app.on('will-quit', () => {
