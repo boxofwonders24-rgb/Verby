@@ -1,5 +1,6 @@
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
+const { registerHandlers } = require('./ipc-handlers');
 
 let mainWindow = null;
 let tray = null;
@@ -70,6 +71,7 @@ const createTray = () => {
 
 app.whenReady().then(() => {
   createWindow();
+  registerHandlers(mainWindow);
   createTray();
 
   globalShortcut.register('CommandOrControl+Shift+Space', toggleWindow);
