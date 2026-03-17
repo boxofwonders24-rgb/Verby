@@ -353,7 +353,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
                   </div>
                   <div className="text-left">
                     <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Start Dictating</span>
-                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or press Ctrl + Option + Space</span>
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or press Fn key</span>
                   </div>
                 </>
               )}

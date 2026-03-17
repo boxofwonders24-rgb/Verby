@@ -1,8 +1,10 @@
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage } = require('electron');
+const { spawn } = require('child_process');
 const path = require('path');
 
 let mainWindow = null;
 let tray = null;
+let fnProcess = null;
 
 const isDev = !app.isPackaged;
 const DEV_URL = 'http://localhost:5173';
@@ -64,12 +66,58 @@ const createTray = () => {
   tray.on('click', toggleWindow);
 };
 
+// === Fn Key Capture via native Swift helper ===
+function startFnCapture() {
+  const fnBinary = isDev
+    ? path.join(__dirname, '..', '..', 'native', 'fn-capture')
+    : path.join(process.resourcesPath, 'native', 'fn-capture');
+
+  try {
+    fnProcess = spawn(fnBinary, [], { stdio: ['ignore', 'pipe', 'pipe'] });
+
+    let buffer = '';
+    fnProcess.stdout.on('data', (data) => {
+      buffer += data.toString();
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+
+      for (const line of lines) {
+        const event = line.trim();
+        if (event === 'fn_down') {
+          // Fn pressed — start dictation
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('toggle-dictation');
+          }
+        }
+        // fn_up can be used later for hold-to-talk (stop on release)
+      }
+    });
+
+    fnProcess.stderr.on('data', (data) => {
+      console.error('fn-capture error:', data.toString());
+    });
+
+    fnProcess.on('close', (code) => {
+      console.log('fn-capture exited with code', code);
+      fnProcess = null;
+    });
+
+    console.log('Fn key capture started');
+  } catch (err) {
+    console.error('Failed to start fn-capture:', err.message);
+    console.log('Fn key capture unavailable — use Alt+Space or Ctrl+Alt+Space instead');
+  }
+}
+
 app.whenReady().then(() => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
   createWindow();
   registerHandlers(mainWindow);
   createTray();
+
+  // Start native Fn key listener
+  startFnCapture();
 
   // Alt+Space = toggle prompt mode recording (shows window)
   globalShortcut.register('Alt+Space', () => {
@@ -92,6 +140,11 @@ app.whenReady().then(() => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  // Kill the fn-capture process
+  if (fnProcess) {
+    fnProcess.kill();
+    fnProcess = null;
+  }
 });
 
 app.on('window-all-closed', () => {
