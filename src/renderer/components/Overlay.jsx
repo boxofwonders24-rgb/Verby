@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PromptCard from './PromptCard';
 import useRecording from '../hooks/useRecording';
 import usePrompts from '../hooks/usePrompts';
+import useDictation from '../hooks/useDictation';
 import { transcribeAudio, onToggleRecording } from '../lib/ipc';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'automation'];
@@ -107,6 +108,7 @@ function ActivityItem({ entry, onCopy }) {
 export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const { isRecording, audioBlob, toggleRecording } = useRecording();
   const { history, loadHistory, optimize, toggleFav, remove, copy, sendLLM } = usePrompts();
+  const { isDictating, dictationStatus, lastInjected, toggleDictation } = useDictation();
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
@@ -151,7 +153,12 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         setStatus('idle');
         await loadHistory();
       } catch (err) {
-        setError(err.message || 'Something went wrong. Check your API keys.');
+        // Extract useful message from Electron IPC errors
+        let msg = err.message || 'Something went wrong.';
+        if (msg.includes('Error invoking remote method')) {
+          msg = 'API keys not configured. Go to Settings and add your OpenAI and/or Anthropic API keys.';
+        }
+        setError(msg);
         setStatus('error');
       }
     };
@@ -191,6 +198,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
       <div className="flex gap-1 mx-5 mb-4 p-1 rounded-xl" style={{ background: 'var(--bg-card)' }}>
         {[
           { key: 'main', label: 'Prompt' },
+          { key: 'dictate', label: 'Dictate' },
           { key: 'feed', label: 'Activity' },
           { key: 'history', label: 'History' },
         ].map((tab) => (
@@ -302,6 +310,101 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* === DICTATE TAB === */}
+      {view === 'dictate' && (
+        <div className="px-5 pb-5">
+          <div className="text-center mb-4">
+            <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
+              System-Wide Voice Typing
+            </p>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              Speak and your words appear in any app — wherever your cursor is
+            </p>
+          </div>
+
+          {/* Dictation button */}
+          <div className="flex flex-col items-center gap-4 mb-5">
+            <button
+              onClick={toggleDictation}
+              className={`rec-btn flex items-center gap-4 shine-on-hover ${isDictating ? 'recording' : ''}`}
+              style={{ padding: '20px 40px' }}
+            >
+              {isDictating ? (
+                <div className="flex items-center gap-4">
+                  <Waveform />
+                  <div className="text-left">
+                    <span className="text-sm font-medium block" style={{ color: 'var(--error)' }}>
+                      {dictationStatus === 'processing' ? 'Processing...' : 'Dictating...'}
+                    </span>
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Click to stop</span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="p-3 rounded-xl" style={{ background: 'rgba(6,182,212,0.1)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Start Dictating</span>
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or press Ctrl + Option + Space</span>
+                  </div>
+                </>
+              )}
+            </button>
+
+            {dictationStatus === 'processing' && <LoadingDots />}
+          </div>
+
+          {/* Voice commands reference */}
+          <div className="glass-card-sm p-4 mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2.5" style={{ color: 'var(--text-muted)' }}>
+              Voice Commands
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                ['"new line"', 'Line break'],
+                ['"new paragraph"', 'Double line break'],
+                ['"period"', 'Insert .'],
+                ['"comma"', 'Insert ,'],
+                ['"question mark"', 'Insert ?'],
+                ['"send message"', 'Press Enter'],
+              ].map(([cmd, desc]) => (
+                <div key={cmd} className="flex items-center gap-2 py-1">
+                  <code className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--bg-card)', color: 'var(--accent)' }}>
+                    {cmd}
+                  </code>
+                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Last injected */}
+          {lastInjected && (
+            <div className="glass-card-sm p-4 prompt-reveal">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: 'var(--success)' }}>
+                Last Injected
+              </p>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                {lastInjected.processed}
+              </p>
+              <p className="text-[10px] mt-1.5 font-mono" style={{ color: 'var(--text-muted)' }}>
+                {formatTime(lastInjected.time)}
+              </p>
+            </div>
+          )}
+
+          {/* Permissions note */}
+          <p className="text-[10px] text-center mt-4" style={{ color: 'var(--text-muted)' }}>
+            Requires Accessibility permissions: System Settings → Privacy & Security → Accessibility
+          </p>
         </div>
       )}
 

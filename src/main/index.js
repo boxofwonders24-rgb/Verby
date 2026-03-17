@@ -71,8 +71,7 @@ app.whenReady().then(() => {
   registerHandlers(mainWindow);
   createTray();
 
-  // Hold-to-talk: Alt+Space toggles recording
-  // keydown = start, next keydown = stop (toggle)
+  // Alt+Space = toggle prompt mode recording (shows window)
   globalShortcut.register('Alt+Space', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       if (!mainWindow.isVisible()) {
@@ -80,6 +79,13 @@ app.whenReady().then(() => {
         mainWindow.focus();
       }
       mainWindow.webContents.send('toggle-recording');
+    }
+  });
+
+  // Ctrl+Alt+Space = toggle dictation mode (type anywhere)
+  globalShortcut.register('Control+Alt+Space', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('toggle-dictation');
     }
   });
 });

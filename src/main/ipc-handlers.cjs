@@ -185,16 +185,20 @@ function registerHandlers(mainWindow) {
   initServices({});
 
   ipcMain.handle('send-audio', async (_event, arrayBuffer) => {
+    if (!whisper) throw new Error('OpenAI API key not set. Add it in Settings to enable voice transcription.');
     return await whisper.transcribe(arrayBuffer);
   });
 
   ipcMain.handle('optimize-prompt', async (_event, rawText, category) => {
+    if (!engine) throw new Error('No AI provider configured. Add API keys in Settings.');
     const optimized = await engine.optimize(rawText, { category });
+    if (!db) throw new Error('Database not initialized.');
     const id = db.save(rawText, optimized, category || 'general');
     return { id, optimized };
   });
 
   ipcMain.handle('send-to-llm', async (_event, prompt, provider) => {
+    if (!dispatch) throw new Error('No AI provider configured. Add API keys in Settings.');
     return await dispatch.send(prompt, provider);
   });
 
@@ -241,6 +245,57 @@ function registerHandlers(mainWindow) {
         defaultProvider: getSetting('defaultProvider', 'claude'),
       });
     }
+  });
+
+  // === System-wide text injection ===
+  // Saves old clipboard, sets new text, simulates Cmd+V, restores old clipboard
+  ipcMain.handle('inject-text', async (_event, text) => {
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
+
+    // Process voice commands
+    let processed = text;
+    processed = processed.replace(/\bnew line\b/gi, '\n');
+    processed = processed.replace(/\bnew paragraph\b/gi, '\n\n');
+    processed = processed.replace(/\bperiod\b/gi, '.');
+    processed = processed.replace(/\bcomma\b/gi, ',');
+    processed = processed.replace(/\bquestion mark\b/gi, '?');
+    processed = processed.replace(/\bexclamation point\b/gi, '!');
+    processed = processed.replace(/\bcolon\b/gi, ':');
+    processed = processed.replace(/\bsemicolon\b/gi, ';');
+    processed = processed.replace(/\bopen quote\b/gi, '"');
+    processed = processed.replace(/\bclose quote\b/gi, '"');
+
+    // Save current clipboard
+    const oldClipboard = clipboard.readText();
+
+    // Set text to clipboard
+    clipboard.writeText(processed);
+
+    // Simulate Cmd+V via AppleScript
+    try {
+      await execAsync(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`);
+    } catch (err) {
+      console.error('Injection failed, VerbyPrompt needs Accessibility permissions:', err.message);
+      throw new Error('Enable Accessibility permissions: System Settings → Privacy & Security → Accessibility → Enable VerbyPrompt');
+    }
+
+    // Restore old clipboard after a short delay
+    setTimeout(() => {
+      clipboard.writeText(oldClipboard);
+    }, 300);
+
+    // Handle "send message" command
+    if (/\bsend message\b/gi.test(text)) {
+      setTimeout(async () => {
+        try {
+          await execAsync(`osascript -e 'tell application "System Events" to keystroke return'`);
+        } catch (e) { /* ignore */ }
+      }, 150);
+    }
+
+    return processed;
   });
 }
 

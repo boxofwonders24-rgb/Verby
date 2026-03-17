@@ -25,4 +25,11 @@ contextBridge.exposeInMainWorld('verby', {
   // Utilities
   copyToClipboard: (text) => ipcRenderer.invoke('copy-to-clipboard', text),
   hideWindow: () => ipcRenderer.invoke('hide-window'),
+
+  // Dictation — system-wide text injection
+  injectText: (text) => ipcRenderer.invoke('inject-text', text),
+  onToggleDictation: (callback) => {
+    ipcRenderer.on('toggle-dictation', () => callback());
+    return () => ipcRenderer.removeAllListeners('toggle-dictation');
+  },
 });
