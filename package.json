@@ -4,9 +4,45 @@
   "description": "Voice-to-prompt desktop app",
   "main": "src/main/index.js",
   "scripts": {
-    "start": "concurrently --kill-others \"vite\" \"wait-on http://localhost:5173 && electron .\""
+    "start": "concurrently --kill-others \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build:renderer": "vite build",
+    "build:app": "electron-builder --mac --dir",
+    "build": "npm run build:renderer && npm run build:app",
+    "postinstall": "electron-builder install-app-deps"
   },
   "license": "MIT",
+  "build": {
+    "appId": "com.verby.prompt",
+    "productName": "VerbyPrompt",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dir",
+      "entitlements": null,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "VerbyPrompt needs microphone access to transcribe your speech.",
+        "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps."
+      },
+      "extraResources": [
+        {
+          "from": "native/fn-capture",
+          "to": "native/fn-capture"
+        },
+        {
+          "from": "native/text-inject",
+          "to": "native/text-inject"
+        }
+      ]
+    },
+    "files": [
+      "dist/renderer/**/*",
+      "src/main/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "out"
+    },
+    "asar": true
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
     "@electron-forge/maker-dmg": "^7.6.0",
@@ -16,6 +52,7 @@
     "autoprefixer": "^10.4.0",
     "concurrently": "^9.2.1",
     "electron": "^33.0.0",
+    "electron-builder": "^26.8.1",
     "electron-rebuild": "^3.2.9",
     "postcss": "^8.4.0",
     "tailwindcss": "^3.4.0",

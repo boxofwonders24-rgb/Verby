@@ -2,9 +2,11 @@ const { ipcMain, clipboard, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+const isDev = !app.isPackaged;
+
 let whisper, engine, dispatch, db;
 
-// Simple JSON settings store (replaces electron-store)
+// Simple JSON settings store
 function getSettingsPath() {
   return path.join(app.getPath('userData'), 'settings.json');
 }
@@ -49,7 +51,6 @@ function initServices(settings) {
     const client = new OpenAI({ apiKey: openaiKey });
     whisper = {
       async transcribe(audioBuffer) {
-        const fs = require('fs');
         const os = require('os');
         const tmpPath = path.join(os.tmpdir(), `verby-${Date.now()}.webm`);
         fs.writeFileSync(tmpPath, Buffer.from(audioBuffer));
@@ -58,6 +59,7 @@ function initServices(settings) {
             model: 'whisper-1',
             file: fs.createReadStream(tmpPath),
             response_format: 'text',
+            language: 'en',
           });
           return transcription.trim();
         } finally {
@@ -150,7 +152,6 @@ Return ONLY the optimized prompt text. No explanation, no preamble, no markdown 
   // Database
   if (!db) {
     const Database = require('better-sqlite3');
-    const { app } = require('electron');
     const dbPath = path.join(app.getPath('userData'), 'verbyprompt.db');
     const sqliteDb = new Database(dbPath);
     sqliteDb.pragma('journal_mode = WAL');
@@ -185,6 +186,49 @@ Return ONLY the optimized prompt text. No explanation, no preamble, no markdown 
       },
     };
   }
+}
+
+// === Text injection via native CGEventPost binary ===
+async function injectTextNative(text) {
+  const { execFile } = require('child_process');
+  const util = require('util');
+  const execFileAsync = util.promisify(execFile);
+
+  // Use the dev binary — it has Accessibility permission from the user's grant
+  const devBinary = '/Users/lotsofsocks/Development/verbyprompt/native/text-inject';
+  const injectBinary = fs.existsSync(devBinary)
+    ? devBinary
+    : (isDev
+      ? path.join(__dirname, '..', '..', 'native', 'text-inject')
+      : path.join(process.resourcesPath, 'native', 'text-inject'));
+
+  try {
+    const { stdout } = await execFileAsync(injectBinary, [text], { timeout: 5000 });
+    if (stdout.trim() === 'ok') return true;
+  } catch (err) {
+    console.error('Native inject failed:', err.message);
+  }
+  return false;
+}
+
+// === Fallback: AppleScript-based injection ===
+async function injectTextAppleScript(text) {
+  const { exec } = require('child_process');
+  const util = require('util');
+  const execAsync = util.promisify(exec);
+
+  const oldClipboard = clipboard.readText();
+  clipboard.writeText(text);
+
+  try {
+    await execAsync(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`);
+    setTimeout(() => clipboard.writeText(oldClipboard), 300);
+    return true;
+  } catch (err) {
+    clipboard.writeText(oldClipboard);
+    console.error('AppleScript inject failed:', err.message);
+  }
+  return false;
 }
 
 function registerHandlers(mainWindow) {
@@ -254,12 +298,8 @@ function registerHandlers(mainWindow) {
   });
 
   // === System-wide text injection ===
-  // Saves old clipboard, sets new text, simulates Cmd+V, restores old clipboard
+  // Tries native CGEventPost first, falls back to AppleScript, then clipboard-only
   ipcMain.handle('inject-text', async (_event, text) => {
-    const { exec } = require('child_process');
-    const util = require('util');
-    const execAsync = util.promisify(exec);
-
     // Process voice commands
     let processed = text;
     processed = processed.replace(/\bnew line\b/gi, '\n');
@@ -273,32 +313,50 @@ function registerHandlers(mainWindow) {
     processed = processed.replace(/\bopen quote\b/gi, '"');
     processed = processed.replace(/\bclose quote\b/gi, '"');
 
-    // Save current clipboard
-    const oldClipboard = clipboard.readText();
+    console.log('>>> Injecting text:', processed.substring(0, 50) + '...');
 
-    // Set text to clipboard
+    // Save old clipboard, set new text
+    const oldClipboard = clipboard.readText();
     clipboard.writeText(processed);
 
-    // Simulate Cmd+V via AppleScript
+    // Try AppleScript keystroke first (uses parent app's Accessibility)
+    let injected = false;
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
+
     try {
-      await execAsync(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`);
-    } catch (err) {
-      console.error('Injection failed, VerbyPrompt needs Accessibility permissions:', err.message);
-      throw new Error('Enable Accessibility permissions: System Settings → Privacy & Security → Accessibility → Enable VerbyPrompt');
+      await execAsync(`osascript -e 'delay 0.05' -e 'tell application "System Events" to keystroke "v" using command down'`);
+      injected = true;
+      console.log('>>> AppleScript inject: success');
+    } catch (e1) {
+      console.log('>>> AppleScript failed:', e1.message);
+      // Fallback to native binary
+      injected = await injectTextNative(processed);
+      console.log('>>> Native inject result:', injected);
     }
 
-    // Restore old clipboard after a short delay
-    setTimeout(() => {
-      clipboard.writeText(oldClipboard);
-    }, 300);
+    // Restore clipboard after paste completes
+    setTimeout(() => clipboard.writeText(oldClipboard), 500);
 
-    // Handle "send message" command
+    if (!injected) {
+      console.log('>>> All injection failed. Text left on clipboard — press Cmd+V.');
+      clipboard.writeText(processed);
+    }
+
+    // Handle "send message" voice command — press Enter after injection
     if (/\bsend message\b/gi.test(text)) {
       setTimeout(async () => {
+        // Try native Enter key press
+        const { execFile } = require('child_process');
+        const util = require('util');
+        const execFileAsync = util.promisify(execFile);
         try {
-          await execAsync(`osascript -e 'tell application "System Events" to keystroke return'`);
-        } catch (e) { /* ignore */ }
-      }, 150);
+          await execFileAsync('osascript', ['-e', 'tell application "System Events" to keystroke return']);
+        } catch {
+          // ignore
+        }
+      }, 300);
     }
 
     return processed;

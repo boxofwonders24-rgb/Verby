@@ -46,4 +46,7 @@ contextBridge.exposeInMainWorld('verby', {
   // Indicator control
   showProcessing: () => ipcRenderer.send('indicator-processing'),
   hideIndicator: () => ipcRenderer.send('indicator-hide'),
+
+  // Debug logging
+  log: (msg) => ipcRenderer.send('renderer-log', msg),
 });

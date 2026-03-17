@@ -1,3 +1,14 @@
+require('dotenv').config();
+
+// File-based logging so we can debug when launched via Finder
+const _fs = require('fs');
+const _logPath = '/tmp/verbyprompt-app.log';
+_fs.writeFileSync(_logPath, `=== VerbyPrompt started ${new Date().toISOString()} ===\n`);
+const _origLog = console.log;
+const _origErr = console.error;
+console.log = (...args) => { _origLog(...args); _fs.appendFileSync(_logPath, args.join(' ') + '\n'); };
+console.error = (...args) => { _origErr(...args); _fs.appendFileSync(_logPath, 'ERR: ' + args.join(' ') + '\n'); };
+
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -27,19 +38,28 @@ const createWindow = () => {
   if (isDev) {
     mainWindow.loadURL(DEV_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    mainWindow.loadFile(path.join(app.getAppPath(), 'dist', 'renderer', 'index.html'));
   }
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
+    // mainWindow.webContents.openDevTools({ mode: 'detach' });
+  });
+
+  // Hide instead of close — keeps renderer alive for Fn key recording
+  mainWindow.on('close', (e) => {
+    if (!app.isQuitting) {
+      e.preventDefault();
+      mainWindow.hide();
+    }
   });
 
   mainWindow.on('closed', () => { mainWindow = null; });
 };
 
 // === Floating Recording Indicator ===
-// Tiny pill that appears near the cursor while holding Fn
+// Tiny pill that appears near the cursor while holding Fn — never steals focus
 const createIndicator = () => {
   if (indicatorWindow && !indicatorWindow.isDestroyed()) return;
 
@@ -116,6 +136,10 @@ const createIndicator = () => {
           document.getElementById('pill').classList.add('processing');
           document.getElementById('label').textContent = 'Processing...';
         };
+        window.resetPill = () => {
+          document.getElementById('pill').classList.remove('processing');
+          document.getElementById('label').textContent = 'Listening...';
+        };
       </script>
     </body></html>
   `)}`;
@@ -134,7 +158,8 @@ const createIndicator = () => {
 const showIndicator = () => {
   createIndicator();
   if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.show();
+    indicatorWindow.webContents.executeJavaScript('window.resetPill && window.resetPill()').catch(() => {});
+    indicatorWindow.showInactive(); // showInactive = never steals focus
   }
 };
 
@@ -165,54 +190,138 @@ const createTray = () => {
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show/Hide', click: toggleWindow },
     { type: 'separator' },
-    { label: 'Quit', click: () => app.quit() },
+    { label: 'Quit', click: () => { app.isQuitting = true; app.quit(); } },
   ]);
   tray.setContextMenu(contextMenu);
   tray.on('click', toggleWindow);
 };
 
 // === Fn Key Capture ===
-function startFnCapture() {
-  const fnBinary = isDev
+// fn-capture needs Input Monitoring permission on macOS.
+// We run it as a launchd agent so it has its own identity —
+// the user grants Input Monitoring to fn-capture once, and it works
+// regardless of how VerbyPrompt is launched.
+
+const fs = require('fs');
+const { exec, execSync } = require('child_process');
+
+const FN_PIPE_PATH = '/tmp/verbyprompt-fn-events';
+const AGENT_LABEL = 'com.verby.fn-capture';
+const AGENT_PLIST = path.join(
+  app.getPath('home'), 'Library', 'LaunchAgents', `${AGENT_LABEL}.plist`
+);
+
+function getFnBinaryPath() {
+  // Use the binary the user granted Input Monitoring permission to.
+  // Check dev path first (already approved), then fall back.
+  const devBinary = '/Users/lotsofsocks/Development/verbyprompt/native/fn-capture';
+  if (fs.existsSync(devBinary)) return devBinary;
+
+  return isDev
     ? path.join(__dirname, '..', '..', 'native', 'fn-capture')
     : path.join(process.resourcesPath, 'native', 'fn-capture');
+}
+
+function startFnCapture() {
+  const fnBinary = getFnBinaryPath();
+  console.log('Fn binary path:', fnBinary);
 
   try {
-    fnProcess = spawn(fnBinary, [], { stdio: ['ignore', 'pipe', 'pipe'] });
+    // Clean up
+    try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
+    try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
+    try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
+    try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
 
-    let buffer = '';
-    fnProcess.stdout.on('data', (data) => {
-      buffer += data.toString();
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
+    // Create named pipe
+    execSync(`mkfifo "${FN_PIPE_PATH}"`);
 
-      for (const line of lines) {
-        const event = line.trim();
-        if (event === 'fn_down') {
-          // Fn pressed — show indicator + start recording in renderer
-          showIndicator();
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('fn-down');
-          }
-        } else if (event === 'fn_up') {
-          // Fn released — stop recording, process, inject
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('fn-up');
+    // Write launchd agent plist
+    const plist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>${AGENT_LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>${fnBinary}</string>
+    <string>--pipe</string>
+    <string>${FN_PIPE_PATH}</string>
+  </array>
+  <key>RunAtLoad</key>
+  <false/>
+  <key>KeepAlive</key>
+  <false/>
+</dict>
+</plist>`;
+    fs.writeFileSync(AGENT_PLIST, plist);
+
+    // Load and start the agent
+    execSync(`launchctl load "${AGENT_PLIST}"`);
+    execSync(`launchctl start ${AGENT_LABEL}`);
+
+    // Read events from named pipe
+    let retries = 0;
+    let fnEventReceived = false;
+
+    function connectPipe() {
+      const pipeStream = fs.createReadStream(FN_PIPE_PATH, { encoding: 'utf8' });
+      let buffer = '';
+
+      pipeStream.on('data', (data) => {
+        buffer += data;
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const event = line.trim();
+          if (event === 'fn_down') {
+            console.log('>>> Fn DOWN detected');
+            fnEventReceived = true;
+            showIndicator();
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('fn-down');
+            }
+          } else if (event === 'fn_up') {
+            console.log('>>> Fn UP detected');
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('fn-up');
+            }
+          } else if (event === 'fn_ready') {
+            console.log('Fn key capture ready');
+          } else if (event === 'fn_requesting_permission') {
+            console.log('Fn key: requesting Input Monitoring permission...');
+            // Notify user
+            const { Notification } = require('electron');
+            if (Notification.isSupported()) {
+              new Notification({
+                title: 'VerbyPrompt — Grant Permission',
+                body: 'Allow fn-capture in Input Monitoring (System Settings → Privacy → Input Monitoring)',
+              }).show();
+            }
           }
         }
-      }
-    });
+      });
 
-    fnProcess.stderr.on('data', (data) => {
-      console.error('fn-capture:', data.toString());
-    });
+      pipeStream.on('error', (err) => {
+        if (retries < 5 && !app.isQuitting) {
+          retries++;
+          setTimeout(connectPipe, 1000);
+        } else {
+          console.error('Fn pipe error:', err.message);
+        }
+      });
 
-    fnProcess.on('close', (code) => {
-      console.log('fn-capture exited:', code);
-      fnProcess = null;
-    });
+      pipeStream.on('close', () => {
+        if (!app.isQuitting) {
+          setTimeout(connectPipe, 2000);
+        }
+      });
+    }
 
-    console.log('Fn key capture started');
+    setTimeout(connectPipe, 500);
+    console.log('Fn key capture started (via launchd)');
   } catch (err) {
     console.error('fn-capture unavailable:', err.message);
   }
@@ -221,6 +330,11 @@ function startFnCapture() {
 // === IPC for indicator control ===
 ipcMain.on('indicator-processing', () => setIndicatorProcessing());
 ipcMain.on('indicator-hide', () => hideIndicator());
+
+// === Debug: forward renderer logs ===
+ipcMain.on('renderer-log', (_event, msg) => {
+  console.log('[renderer]', msg);
+});
 
 // === App Lifecycle ===
 app.whenReady().then(() => {
@@ -247,8 +361,17 @@ app.whenReady().then(() => {
   });
 });
 
+app.on('before-quit', () => {
+  app.isQuitting = true;
+});
+
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  // Stop launchd agent and clean up
+  try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
+  try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
+  try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
+  try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
   if (fnProcess) { fnProcess.kill(); fnProcess = null; }
 });
 
@@ -257,5 +380,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (!mainWindow || mainWindow.isDestroyed()) createWindow();
+  else mainWindow.show();
 });

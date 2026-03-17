@@ -1,56 +1,100 @@
 // fn-capture.swift
-// Native macOS helper that captures Fn/Globe key press & release
-// and outputs events to stdout for VerbyPrompt to read.
+// Captures Fn (Globe) key press/release on macOS using CGEventTap
+// Outputs events to stdout or to a named pipe (--pipe /path)
 //
-// Requires Accessibility permissions:
-// System Settings → Privacy & Security → Accessibility
-//
-// Usage: ./fn-capture
-// Output: "fn_down\n" when Fn pressed, "fn_up\n" when released
+// Requires: Input Monitoring permissions
+// System Settings → Privacy & Security → Input Monitoring
 
-import Cocoa
 import Foundation
+import CoreGraphics
 
-class FnKeyMonitor {
-    var fnDown = false
+setbuf(stdout, nil)
 
-    func start() {
-        // Monitor flagsChanged events globally (captures modifier key changes including Fn)
-        NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
-            self?.handleFlags(event)
-        }
+// Parse --pipe argument for named pipe output
+var pipeHandle: FileHandle?
+if let pipeIdx = CommandLine.arguments.firstIndex(of: "--pipe"),
+   pipeIdx + 1 < CommandLine.arguments.count {
+    let pipePath = CommandLine.arguments[pipeIdx + 1]
+    pipeHandle = FileHandle(forWritingAtPath: pipePath)
+}
 
-        // Also monitor locally in case
-        NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
-            self?.handleFlags(event)
-            return event
-        }
-
-        // Keep alive
-        print("fn_ready", terminator: "\n")
+func emit(_ msg: String) {
+    let line = msg + "\n"
+    if let handle = pipeHandle {
+        handle.write(line.data(using: .utf8)!)
+    } else {
+        print(msg)
         fflush(stdout)
     }
+}
 
-    func handleFlags(_ event: NSEvent) {
-        let fnPressed = event.modifierFlags.contains(.function)
+let fnModifierFlag: UInt64 = 0x800000
+var fnIsDown = false
+var tapRef: CFMachPort?
 
-        if fnPressed && !fnDown {
-            fnDown = true
-            print("fn_down", terminator: "\n")
-            fflush(stdout)
-        } else if !fnPressed && fnDown {
-            fnDown = false
-            print("fn_up", terminator: "\n")
-            fflush(stdout)
+func eventCallback(
+    proxy: CGEventTapProxy,
+    type: CGEventType,
+    event: CGEvent,
+    refcon: UnsafeMutableRawPointer?
+) -> Unmanaged<CGEvent>? {
+    if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+        if let tap = tapRef {
+            CGEvent.tapEnable(tap: tap, enable: true)
+        }
+        return Unmanaged.passRetained(event)
+    }
+
+    if type == .flagsChanged {
+        let flags = event.flags.rawValue
+        let fnNow = (flags & fnModifierFlag) != 0
+
+        if fnNow && !fnIsDown {
+            fnIsDown = true
+            emit("fn_down")
+        } else if !fnNow && fnIsDown {
+            fnIsDown = false
+            emit("fn_up")
+        }
+    }
+
+    return Unmanaged.passRetained(event)
+}
+
+// Request Input Monitoring permission — shows macOS system dialog if needed
+if #available(macOS 10.15, *) {
+    if !CGPreflightListenEventAccess() {
+        emit("fn_requesting_permission")
+        let granted = CGRequestListenEventAccess()
+        if !granted {
+            fputs("ERROR: Input Monitoring permission not granted.\n", stderr)
+            fputs("Go to System Settings → Privacy & Security → Input Monitoring\n", stderr)
+            fputs("and enable FnCapture.\n", stderr)
+            // Don't exit — keep trying, user might grant it
+            sleep(3)
         }
     }
 }
 
-// Disable buffering
-setbuf(stdout, nil)
+let eventMask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
 
-let monitor = FnKeyMonitor()
-monitor.start()
+guard let eventTap = CGEvent.tapCreate(
+    tap: .cgSessionEventTap,
+    place: .headInsertEventTap,
+    options: .listenOnly,
+    eventsOfInterest: eventMask,
+    callback: eventCallback,
+    userInfo: nil
+) else {
+    fputs("ERROR: Could not create event tap.\n", stderr)
+    exit(1)
+}
 
-// Run the event loop
-RunLoop.current.run()
+tapRef = eventTap
+
+let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+CGEvent.tapEnable(tap: eventTap, enable: true)
+
+emit("fn_ready")
+CFRunLoopRun()
