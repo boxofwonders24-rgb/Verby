@@ -32,4 +32,18 @@ contextBridge.exposeInMainWorld('verby', {
     ipcRenderer.on('toggle-dictation', () => callback());
     return () => ipcRenderer.removeAllListeners('toggle-dictation');
   },
+
+  // Fn key hold-to-talk events
+  onFnDown: (callback) => {
+    ipcRenderer.on('fn-down', () => callback());
+    return () => ipcRenderer.removeAllListeners('fn-down');
+  },
+  onFnUp: (callback) => {
+    ipcRenderer.on('fn-up', () => callback());
+    return () => ipcRenderer.removeAllListeners('fn-up');
+  },
+
+  // Indicator control
+  showProcessing: () => ipcRenderer.send('indicator-processing'),
+  hideIndicator: () => ipcRenderer.send('indicator-hide'),
 });

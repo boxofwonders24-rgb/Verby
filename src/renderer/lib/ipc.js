@@ -17,3 +17,11 @@ export const setSetting = (key, value) => (verby.setSetting || noopAsync)(key, v
 // Dictation
 export const injectText = (text) => (verby.injectText || noopAsync)(text);
 export const onToggleDictation = (cb) => (verby.onToggleDictation || noop)(cb);
+
+// Fn key hold-to-talk
+export const onFnDown = (cb) => (verby.onFnDown || noop)(cb);
+export const onFnUp = (cb) => (verby.onFnUp || noop)(cb);
+
+// Indicator control
+export const showProcessing = () => (verby.showProcessing || noop)();
+export const hideIndicator = () => (verby.hideIndicator || noop)();

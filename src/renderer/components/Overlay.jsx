@@ -108,7 +108,7 @@ function ActivityItem({ entry, onCopy }) {
 export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const { isRecording, audioBlob, toggleRecording } = useRecording();
   const { history, loadHistory, optimize, toggleFav, remove, copy, sendLLM } = usePrompts();
-  const { isDictating, dictationStatus, lastInjected, toggleDictation } = useDictation();
+  const { isDictating, dictationStatus, enhancedMode, setEnhancedMode, dictationLog, toggleDictation } = useDictation();
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
@@ -316,13 +316,35 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
       {/* === DICTATE TAB === */}
       {view === 'dictate' && (
         <div className="px-5 pb-5">
+          {/* Header */}
           <div className="text-center mb-4">
-            <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-              System-Wide Voice Typing
-            </p>
+            <p className="text-sm font-semibold mb-1 gradient-text">Voice → Type Anywhere</p>
             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Speak and your words appear in any app — wherever your cursor is
+              Hold Fn to speak — text appears wherever your cursor is
             </p>
+          </div>
+
+          {/* Enhanced mode toggle */}
+          <div className="flex items-center justify-between p-3 rounded-xl mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div>
+              <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Enhanced Writing</p>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                {enhancedMode ? 'AI polishes grammar, clarity & tone' : 'Raw transcription — exactly what you say'}
+              </p>
+            </div>
+            <button
+              onClick={() => setEnhancedMode(!enhancedMode)}
+              className="relative w-10 h-[22px] rounded-full transition-colors"
+              style={{ background: enhancedMode ? 'var(--accent)' : 'var(--bg-card-hover)', border: '1px solid var(--border)' }}
+            >
+              <div
+                className="absolute top-[2px] w-4 h-4 rounded-full transition-all"
+                style={{
+                  left: enhancedMode ? '21px' : '2px',
+                  background: enhancedMode ? '#fff' : 'var(--text-muted)',
+                }}
+              />
+            </button>
           </div>
 
           {/* Dictation button */}
@@ -336,10 +358,12 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
                 <div className="flex items-center gap-4">
                   <Waveform />
                   <div className="text-left">
-                    <span className="text-sm font-medium block" style={{ color: 'var(--error)' }}>
-                      {dictationStatus === 'processing' ? 'Processing...' : 'Dictating...'}
+                    <span className="text-sm font-medium block" style={{ color: dictationStatus === 'processing' ? 'var(--accent)' : 'var(--error)' }}>
+                      {dictationStatus === 'processing' ? 'Processing...' : 'Listening...'}
                     </span>
-                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Click to stop</span>
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                      {dictationStatus === 'processing' ? 'Transcribing & injecting' : 'Release Fn or click to stop'}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -352,58 +376,65 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Start Dictating</span>
-                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or press Fn key</span>
+                    <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Hold Fn to Dictate</span>
+                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or click here • text injects at cursor</span>
                   </div>
                 </>
               )}
             </button>
-
-            {dictationStatus === 'processing' && <LoadingDots />}
           </div>
 
-          {/* Voice commands reference */}
-          <div className="glass-card-sm p-4 mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2.5" style={{ color: 'var(--text-muted)' }}>
-              Voice Commands
-            </p>
-            <div className="grid grid-cols-2 gap-1.5">
+          {/* Dictation log */}
+          {dictationLog.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 px-1" style={{ color: 'var(--text-muted)' }}>
+                Recent Dictations
+              </p>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto">
+                {dictationLog.slice(0, 8).map((entry, i) => (
+                  <div key={i} className="glass-card-sm p-3 prompt-reveal" style={{ animationDelay: `${i * 30}ms` }}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[9px] font-mono" style={{ color: 'var(--text-muted)' }}>{formatTime(entry.time)}</span>
+                      {entry.enhanced && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>Enhanced</span>
+                      )}
+                    </div>
+                    {entry.enhanced && entry.raw !== entry.final && (
+                      <p className="text-[10px] italic mb-1" style={{ color: 'var(--text-muted)' }}>
+                        &ldquo;{entry.raw}&rdquo;
+                      </p>
+                    )}
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>{entry.final}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Voice commands */}
+          <details className="glass-card-sm">
+            <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+              Voice Commands Reference
+            </summary>
+            <div className="px-3 pb-3 grid grid-cols-2 gap-1.5">
               {[
                 ['"new line"', 'Line break'],
-                ['"new paragraph"', 'Double line break'],
-                ['"period"', 'Insert .'],
-                ['"comma"', 'Insert ,'],
-                ['"question mark"', 'Insert ?'],
-                ['"send message"', 'Press Enter'],
+                ['"new paragraph"', 'Double break'],
+                ['"period"', '.'],
+                ['"comma"', ','],
+                ['"question mark"', '?'],
+                ['"send message"', 'Enter key'],
               ].map(([cmd, desc]) => (
-                <div key={cmd} className="flex items-center gap-2 py-1">
-                  <code className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--bg-card)', color: 'var(--accent)' }}>
-                    {cmd}
-                  </code>
+                <div key={cmd} className="flex items-center gap-2 py-0.5">
+                  <code className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--bg-card)', color: 'var(--accent)' }}>{cmd}</code>
                   <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{desc}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </details>
 
-          {/* Last injected */}
-          {lastInjected && (
-            <div className="glass-card-sm p-4 prompt-reveal">
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: 'var(--success)' }}>
-                Last Injected
-              </p>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                {lastInjected.processed}
-              </p>
-              <p className="text-[10px] mt-1.5 font-mono" style={{ color: 'var(--text-muted)' }}>
-                {formatTime(lastInjected.time)}
-              </p>
-            </div>
-          )}
-
-          {/* Permissions note */}
-          <p className="text-[10px] text-center mt-4" style={{ color: 'var(--text-muted)' }}>
-            Requires Accessibility permissions: System Settings → Privacy & Security → Accessibility
+          <p className="text-[10px] text-center mt-3" style={{ color: 'var(--text-muted)' }}>
+            Requires Accessibility: System Settings → Privacy → Accessibility
           </p>
         </div>
       )}

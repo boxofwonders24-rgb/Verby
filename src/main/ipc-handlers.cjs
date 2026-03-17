@@ -33,9 +33,15 @@ function setSetting(key, value) {
 }
 
 function initServices(settings) {
-  const openaiKey = settings.openaiKey || getSetting('openaiKey') || process.env.OPENAI_API_KEY;
-  const anthropicKey = settings.anthropicKey || getSetting('anthropicKey') || process.env.ANTHROPIC_API_KEY;
-  const defaultProvider = settings.defaultProvider || getSetting('defaultProvider', 'claude') || process.env.DEFAULT_PROVIDER || 'claude';
+  const openaiKey = (settings && settings.openaiKey) || getSetting('openaiKey', '') || process.env.OPENAI_API_KEY || '';
+  const anthropicKey = (settings && settings.anthropicKey) || getSetting('anthropicKey', '') || process.env.ANTHROPIC_API_KEY || '';
+  const defaultProvider = (settings && settings.defaultProvider) || getSetting('defaultProvider', 'claude') || process.env.DEFAULT_PROVIDER || 'claude';
+
+  console.log('[VerbyPrompt] initServices:', {
+    hasOpenAI: !!openaiKey,
+    hasAnthropic: !!anthropicKey,
+    provider: defaultProvider,
+  });
 
   // Whisper
   if (openaiKey) {
