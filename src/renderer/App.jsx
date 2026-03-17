@@ -21,16 +21,21 @@ export default function App() {
 
   return (
     <div
-      className={`h-screen w-screen flex flex-col ${theme === 'light' ? 'light' : ''}`}
+      className={`h-screen w-screen flex flex-col relative ${theme === 'light' ? 'light' : ''}`}
       style={{ background: 'var(--bg-primary)' }}
     >
-      {/* Draggable title bar area */}
-      <div
-        className="h-8 w-full flex-shrink-0"
-        style={{ WebkitAppRegion: 'drag' }}
-      />
+      {/* Ambient aurora background */}
+      <div className="aurora-bg">
+        <div className="aurora-orb" />
+        <div className="aurora-orb" />
+        <div className="aurora-orb" />
+      </div>
 
-      <div className="flex-1 flex items-start justify-center px-4 pb-4 overflow-hidden">
+      {/* Draggable title bar */}
+      <div className="h-8 w-full flex-shrink-0 relative z-10" style={{ WebkitAppRegion: 'drag' }} />
+
+      {/* Content */}
+      <div className="flex-1 flex items-start justify-center px-5 pb-5 overflow-hidden relative z-10">
         {view === 'main' && (
           <Overlay
             onOpenSettings={() => setView('settings')}
@@ -39,13 +44,7 @@ export default function App() {
           />
         )}
         {view === 'settings' && (
-          <div
-            className="w-full max-w-[640px] rounded-2xl overflow-hidden"
-            style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)',
-            }}
-          >
+          <div className="w-full max-w-[640px] glass-card overflow-hidden prompt-reveal">
             <SettingsPanel onBack={() => setView('main')} />
           </div>
         )}

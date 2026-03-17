@@ -9,9 +9,9 @@ const DEV_URL = 'http://localhost:5173';
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 720,
-    height: 500,
-    backgroundColor: '#000000',
+    width: 780,
+    height: 620,
+    backgroundColor: '#050508',
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -65,14 +65,23 @@ const createTray = () => {
 };
 
 app.whenReady().then(() => {
-  // Register IPC handlers
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
   createWindow();
   registerHandlers(mainWindow);
   createTray();
 
-  globalShortcut.register('Alt+Space', toggleWindow);
+  // Hold-to-talk: Alt+Space toggles recording
+  // keydown = start, next keydown = stop (toggle)
+  globalShortcut.register('Alt+Space', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (!mainWindow.isVisible()) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+      mainWindow.webContents.send('toggle-recording');
+    }
+  });
 });
 
 app.on('will-quit', () => {
