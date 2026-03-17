@@ -7,7 +7,7 @@ import { transcribeAudio, onToggleRecording } from '../lib/ipc';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'automation'];
 
-export default function Overlay() {
+export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const { isRecording, audioBlob, toggleRecording } = useRecording();
   const { history, loading, loadHistory, optimize, toggleFav, remove, copy, sendLLM } = usePrompts();
   const [currentPrompt, setCurrentPrompt] = useState(null);
@@ -64,11 +64,27 @@ export default function Overlay() {
         </div>
         <div className="flex items-center gap-1">
           <button
+            onClick={onToggleTheme}
+            className="p-1.5 rounded-lg transition-colors text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? '\u2600' : '\u263E'}
+          </button>
+          <button
             onClick={() => setView(view === 'main' ? 'history' : 'main')}
             className="px-2 py-1 rounded-md text-xs"
             style={{ color: 'var(--text-secondary)' }}
           >
             {view === 'main' ? 'History' : 'Back'}
+          </button>
+          <button
+            onClick={onOpenSettings}
+            className="p-1.5 rounded-lg transition-colors text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+            title="Settings"
+          >
+            ⚙
           </button>
         </div>
       </div>

@@ -4,4 +4,5 @@ out/
 dist/
 .env
 *.log
+*.db
 .DS_Store
