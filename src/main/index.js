@@ -340,6 +340,14 @@ ipcMain.on('renderer-log', (_event, msg) => {
 app.whenReady().then(() => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
+  // Set dock icon
+  const iconPath = isDev
+    ? path.join(__dirname, '..', '..', 'assets', 'icon.icns')
+    : path.join(process.resourcesPath, 'icon.icns');
+  if (require('fs').existsSync(iconPath) && app.dock) {
+    app.dock.setIcon(nativeImage.createFromPath(iconPath));
+  }
+
   createWindow();
   registerHandlers(mainWindow);
   createTray();

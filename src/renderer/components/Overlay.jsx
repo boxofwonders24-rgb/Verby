@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PromptCard from './PromptCard';
+import Logo from './Logo';
 import useRecording from '../hooks/useRecording';
 import usePrompts from '../hooks/usePrompts';
 import useDictation from '../hooks/useDictation';
@@ -174,12 +175,9 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
 
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 mb-1">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-3))' }} />
-            <div className="absolute inset-0 w-2.5 h-2.5 rounded-full animate-ping opacity-30" style={{ background: 'var(--accent)' }} />
-          </div>
-          <span className="text-sm font-bold tracking-tight gradient-text">VerbyPrompt</span>
+        <div className="flex items-center gap-2.5">
+          <Logo size={22} />
+          <span className="text-sm font-bold tracking-tight gradient-text">Verby</span>
         </div>
         <div className="flex items-center gap-0.5">
           <button onClick={onToggleTheme} className="icon-btn">{theme === 'dark' ? Icons.sun : Icons.moon}</button>
