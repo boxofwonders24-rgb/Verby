@@ -7,6 +7,32 @@ const isDev = !app.isPackaged;
 let whisper, engine, dispatch, db;
 let _autoContext = null; // { appName, windowTitle } — set by main process
 
+// Usage tracking for freemium limits
+const FREE_DAILY_LIMIT = 20;
+const FREE_ENHANCED_LIMIT = 0; // enhanced mode is Pro-only
+
+function getUsageToday() {
+  if (!db) return { total: 0, enhanced: 0 };
+  const today = new Date().toISOString().split('T')[0];
+  const row = db.getUsageForDate(today);
+  return row || { total: 0, enhanced: 0 };
+}
+
+function checkUsageLimit(isEnhanced) {
+  const usage = getUsageToday();
+  // TODO: check license key for Pro status
+  const isPro = getSetting('licenseKey', '') !== '';
+  if (isPro) return { allowed: true, usage, isPro: true };
+
+  if (usage.total >= FREE_DAILY_LIMIT) {
+    return { allowed: false, reason: `Daily limit reached (${FREE_DAILY_LIMIT}/day). Upgrade to Pro for unlimited.`, usage, isPro: false };
+  }
+  if (isEnhanced && usage.enhanced >= FREE_ENHANCED_LIMIT) {
+    return { allowed: false, reason: 'AI enhancement is a Pro feature. Upgrade for enhanced writing.', usage, isPro: false };
+  }
+  return { allowed: true, usage, isPro: false };
+}
+
 // Simple JSON settings store
 function getSettingsPath() {
   return path.join(app.getPath('userData'), 'settings.json');
@@ -238,6 +264,12 @@ Return ONLY the JSON. No explanation, no markdown.`;
         active INTEGER DEFAULT 1,
         created_at TEXT DEFAULT (datetime('now'))
       );
+
+      CREATE TABLE IF NOT EXISTS usage (
+        date TEXT PRIMARY KEY,
+        total INTEGER DEFAULT 0,
+        enhanced INTEGER DEFAULT 0
+      );
     `);
 
     db = {
@@ -283,6 +315,19 @@ Return ONLY the JSON. No explanation, no markdown.`;
       },
       getAllContexts() {
         return sqliteDb.prepare('SELECT * FROM context ORDER BY created_at DESC LIMIT 20').all();
+      },
+      // Usage tracking
+      getUsageForDate(date) {
+        return sqliteDb.prepare('SELECT * FROM usage WHERE date = ?').get(date);
+      },
+      incrementUsage(isEnhanced) {
+        const today = new Date().toISOString().split('T')[0];
+        const existing = sqliteDb.prepare('SELECT * FROM usage WHERE date = ?').get(today);
+        if (existing) {
+          sqliteDb.prepare('UPDATE usage SET total = total + 1' + (isEnhanced ? ', enhanced = enhanced + 1' : '') + ' WHERE date = ?').run(today);
+        } else {
+          sqliteDb.prepare('INSERT INTO usage (date, total, enhanced) VALUES (?, 1, ?)').run(today, isEnhanced ? 1 : 0);
+        }
       },
     };
   }
@@ -333,28 +378,38 @@ function registerHandlers(mainWindow) {
 
   ipcMain.handle('send-audio', async (_event, arrayBuffer) => {
     if (!whisper) throw new Error('OpenAI API key not set. Add it in Settings to enable voice transcription.');
-    return await whisper.transcribe(arrayBuffer);
+    const limit = checkUsageLimit(false);
+    if (!limit.allowed) throw new Error(limit.reason);
+    const result = await whisper.transcribe(arrayBuffer);
+    db.incrementUsage(false);
+    return result;
   });
 
   ipcMain.handle('optimize-prompt', async (_event, rawText, category) => {
     if (!engine) throw new Error('No AI provider configured. Add API keys in Settings.');
+    // Check usage limits
+    const limit = checkUsageLimit(true);
+    if (!limit.allowed) throw new Error(limit.reason);
     const result = await engine.optimize(rawText, { category });
     if (!db) throw new Error('Database not initialized.');
     const detectedCat = result.detectedCategory || category || 'general';
     const id = db.save(rawText, result.optimized, detectedCat);
-    // Learn from this interaction
     db.recordPattern(detectedCat, rawText.substring(0, 200), result.optimized.substring(0, 200));
+    db.incrementUsage(true);
     return { id, optimized: result.optimized, category: detectedCat };
   });
 
   // Chat — type a prompt directly instead of voice
   ipcMain.handle('chat-optimize', async (_event, text) => {
     if (!engine) throw new Error('No AI provider configured.');
+    const limit = checkUsageLimit(true);
+    if (!limit.allowed) throw new Error(limit.reason);
     const result = await engine.optimize(text, {});
     if (!db) throw new Error('Database not initialized.');
     const cat = result.detectedCategory || 'general';
     const id = db.save(text, result.optimized, cat);
     db.recordPattern(cat, text.substring(0, 200), result.optimized.substring(0, 200));
+    db.incrementUsage(true);
     return { id, optimized: result.optimized, category: cat };
   });
 
@@ -373,6 +428,18 @@ function registerHandlers(mainWindow) {
 
   ipcMain.handle('get-patterns', async () => {
     return db.getTopPatterns(10);
+  });
+
+  // Usage info for renderer
+  ipcMain.handle('get-usage', async () => {
+    const usage = getUsageToday();
+    const isPro = getSetting('licenseKey', '') !== '';
+    return {
+      total: usage.total || 0,
+      enhanced: usage.enhanced || 0,
+      limit: isPro ? Infinity : FREE_DAILY_LIMIT,
+      isPro,
+    };
   });
 
   ipcMain.handle('send-to-llm', async (_event, prompt, provider) => {

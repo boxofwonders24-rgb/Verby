@@ -26,6 +26,9 @@ export const onFnUp = (cb) => (verby.onFnUp || noop)(cb);
 export const showProcessing = () => (verby.showProcessing || noop)();
 export const hideIndicator = () => (verby.hideIndicator || noop)();
 
+// Usage
+export const getUsage = () => (verby.getUsage || (() => Promise.resolve({ total: 0, limit: 20, isPro: false })))();
+
 // Chat — type-to-prompt
 export const chatOptimize = (text) => (verby.chatOptimize || noopAsync)(text);
 
