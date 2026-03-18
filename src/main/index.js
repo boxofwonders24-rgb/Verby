@@ -41,13 +41,10 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 780,
     height: 620,
-    backgroundColor: '#00000000',
-    transparent: true,
+    backgroundColor: '#050508',
     show: false,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 14 },
-    roundedCorners: true,
-    vibrancy: null,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

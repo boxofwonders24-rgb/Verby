@@ -60,16 +60,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-  background: transparent !important;
-}
-
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-primary);
-  border-radius: 12px;
   color: var(--text-primary);
   user-select: none;
   -webkit-app-region: no-drag;
