@@ -23,7 +23,7 @@ const HALLUCINATIONS = new Set([
 export default function useDictation() {
   const [isDictating, setIsDictating] = useState(false);
   const [dictationStatus, setDictationStatus] = useState('idle'); // idle | listening | processing
-  const [enhancedMode, setEnhancedMode] = useState(false);
+  const [enhancedMode, setEnhancedMode] = useState(true);
   const [dictationLog, setDictationLog] = useState([]);
   const mediaRecorder = useRef(null);
   const chunks = useRef([]);

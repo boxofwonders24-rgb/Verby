@@ -2,22 +2,36 @@
   "name": "verbyprompt",
   "version": "0.1.0",
   "description": "Voice-to-prompt desktop app",
+  "author": "Stephen Grandy",
   "main": "src/main/index.js",
   "scripts": {
     "start": "concurrently --kill-others \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build:renderer": "vite build",
-    "build:app": "electron-builder --mac --dir",
+    "build:app": "electron-builder --mac",
     "build": "npm run build:renderer && npm run build:app",
+    "release": "npm run build:renderer && electron-builder --mac --publish never",
     "postinstall": "electron-builder install-app-deps"
   },
   "license": "MIT",
   "build": {
     "appId": "com.verby.prompt",
     "productName": "VerbyPrompt",
+    "icon": "assets/icon.icns",
     "mac": {
       "category": "public.app-category.productivity",
-      "target": "dir",
-      "entitlements": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "identity": "Stephen Grandy (3AK8389YMS)",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
       "extendInfo": {
         "NSMicrophoneUsageDescription": "VerbyPrompt needs microphone access to transcribe your speech.",
         "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps."
@@ -32,6 +46,28 @@
           "to": "native/text-inject"
         }
       ]
+    },
+    "dmg": {
+      "background": null,
+      "icon": "assets/icon.icns",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 380,
+          "y": 180,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 180,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
     },
     "files": [
       "dist/renderer/**/*",
@@ -48,6 +84,7 @@
     "@electron-forge/maker-dmg": "^7.6.0",
     "@electron-forge/maker-zip": "^7.6.0",
     "@electron-forge/plugin-vite": "^7.6.0",
+    "@electron/notarize": "^2.5.0",
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.0",
     "concurrently": "^9.2.1",

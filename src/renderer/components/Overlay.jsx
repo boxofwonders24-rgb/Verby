@@ -113,7 +113,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
-  const [view, setView] = useState('main'); // main | history | feed
+  const [view, setView] = useState('dictate'); // dictate | main | history | feed
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
@@ -175,9 +175,9 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
 
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 mb-1">
-        <div className="flex items-center gap-2.5">
-          <Logo size={22} />
-          <span className="text-sm font-bold tracking-tight gradient-text">Verby</span>
+        <div className="flex items-center gap-3">
+          <Logo size={72} />
+          <span className="text-lg font-bold tracking-tight gradient-text">Verby</span>
         </div>
         <div className="flex items-center gap-0.5">
           <button onClick={onToggleTheme} className="icon-btn">{theme === 'dark' ? Icons.sun : Icons.moon}</button>
@@ -192,26 +192,23 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         </div>
       </div>
 
-      {/* Nav tabs */}
-      <div className="flex gap-1 mx-5 mb-4 p-1 rounded-xl" style={{ background: 'var(--bg-card)' }}>
+      {/* 3D Tab Bar */}
+      <div className="tab-bar mx-5 mb-5">
         {[
-          { key: 'main', label: 'Prompt' },
-          { key: 'dictate', label: 'Dictate' },
-          { key: 'feed', label: 'Activity' },
-          { key: 'history', label: 'History' },
+          { key: 'dictate', label: 'Dictate', icon: '🎙' },
+          { key: 'main', label: 'Prompt', icon: '✦' },
+          { key: 'feed', label: 'Activity', icon: '◎' },
+          { key: 'history', label: 'History', icon: '↻' },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setView(tab.key)}
-            className="flex-1 py-1.5 rounded-lg text-xs font-medium text-center transition-all"
-            style={view === tab.key
-              ? { background: 'var(--bg-elevated)', color: 'var(--text-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }
-              : { color: 'var(--text-muted)' }
-            }
+            className={`tab-item ${view === tab.key ? 'tab-active' : ''}`}
           >
+            <span className="block text-[10px] mb-0.5 opacity-70">{tab.icon}</span>
             {tab.label}
             {tab.key === 'feed' && sessionLog.length > 0 && (
-              <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full" style={{ background: 'var(--accent)', color: '#fff' }}>
+              <span className="ml-1 text-[8px] px-1.5 py-0.5 rounded-full inline-block" style={{ background: 'rgba(255,255,255,0.2)' }}>
                 {sessionLog.length}
               </span>
             )}

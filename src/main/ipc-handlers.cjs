@@ -195,12 +195,9 @@ async function injectTextNative(text) {
   const execFileAsync = util.promisify(execFile);
 
   // Use the dev binary — it has Accessibility permission from the user's grant
-  const devBinary = '/Users/lotsofsocks/Development/verbyprompt/native/text-inject';
-  const injectBinary = fs.existsSync(devBinary)
-    ? devBinary
-    : (isDev
-      ? path.join(__dirname, '..', '..', 'native', 'text-inject')
-      : path.join(process.resourcesPath, 'native', 'text-inject'));
+  const injectBinary = isDev
+    ? path.join(__dirname, '..', '..', 'native', 'text-inject')
+    : path.join(process.resourcesPath, 'native', 'text-inject');
 
   try {
     const { stdout } = await execFileAsync(injectBinary, [text], { timeout: 5000 });

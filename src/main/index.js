@@ -14,7 +14,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 let mainWindow = null;
-let indicatorWindow = null;
+// indicatorWindow removed — using tray icon for recording state instead
 let tray = null;
 let fnProcess = null;
 
@@ -58,121 +58,44 @@ const createWindow = () => {
   mainWindow.on('closed', () => { mainWindow = null; });
 };
 
-// === Floating Recording Indicator ===
-// Tiny pill that appears near the cursor while holding Fn — never steals focus
-const createIndicator = () => {
-  if (indicatorWindow && !indicatorWindow.isDestroyed()) return;
+// === Native macOS Indicator ===
+// Uses a Swift NSWindow for true transparency — no Electron BrowserWindow artifacts
+// Pulsing dot with glow, top-center of screen, animated natively
+let indicatorProcess = null;
 
-  indicatorWindow = new BrowserWindow({
-    width: 160,
-    height: 44,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    resizable: false,
-    focusable: false,
-    hasShadow: true,
-    roundedCorners: true,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
+function startIndicatorProcess() {
+  if (indicatorProcess) return;
+  const indicatorBin = isDev
+    ? path.join(__dirname, '..', '..', 'native', 'indicator')
+    : path.join(process.resourcesPath, 'native', 'indicator');
+
+  indicatorProcess = spawn(indicatorBin, [], { stdio: ['pipe', 'pipe', 'pipe'] });
+  indicatorProcess.stdout.on('data', (d) => {
+    const msg = d.toString().trim();
+    if (msg === 'indicator_ready') console.log('Native indicator ready');
   });
+  indicatorProcess.stderr.on('data', (d) => console.error('indicator:', d.toString().trim()));
+  indicatorProcess.on('close', () => { indicatorProcess = null; });
+}
 
-  indicatorWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  indicatorWindow.setAlwaysOnTop(true, 'floating', 1);
-
-  // Inline HTML for the indicator — no external file needed
-  const html = `data:text/html;charset=utf-8,${encodeURIComponent(`
-    <!DOCTYPE html><html><head><style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body {
-        background: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        font-family: -apple-system, Inter, sans-serif;
-        -webkit-app-region: no-drag;
-        user-select: none;
-      }
-      .pill {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background: rgba(10, 10, 18, 0.9);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(244, 63, 94, 0.3);
-        border-radius: 22px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 20px rgba(244, 63, 94, 0.15);
-      }
-      .dot {
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        background: #F43F5E;
-        animation: pulse 1s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(0.8); }
-      }
-      .label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #F1F5F9;
-        letter-spacing: 0.3px;
-      }
-      .processing .dot { background: #6366F1; }
-      .processing .label { color: #A5B4FC; }
-    </style></head><body>
-      <div class="pill" id="pill">
-        <div class="dot"></div>
-        <div class="label" id="label">Listening...</div>
-      </div>
-      <script>
-        window.setProcessing = () => {
-          document.getElementById('pill').classList.add('processing');
-          document.getElementById('label').textContent = 'Processing...';
-        };
-        window.resetPill = () => {
-          document.getElementById('pill').classList.remove('processing');
-          document.getElementById('label').textContent = 'Listening...';
-        };
-      </script>
-    </body></html>
-  `)}`;
-
-  indicatorWindow.loadURL(html);
-  indicatorWindow.setIgnoreMouseEvents(true);
-
-  // Position near top-center of screen
-  const { screen } = require('electron');
-  const display = screen.getPrimaryDisplay();
-  const x = Math.round(display.bounds.x + (display.bounds.width - 160) / 2);
-  const y = display.bounds.y + 60;
-  indicatorWindow.setPosition(x, y);
-};
+function sendIndicatorCmd(cmd) {
+  if (indicatorProcess && indicatorProcess.stdin.writable) {
+    indicatorProcess.stdin.write(cmd + '\n');
+  }
+}
 
 const showIndicator = () => {
-  createIndicator();
-  if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.webContents.executeJavaScript('window.resetPill && window.resetPill()').catch(() => {});
-    indicatorWindow.showInactive(); // showInactive = never steals focus
-  }
+  startIndicatorProcess();
+  // Small delay for process to init on first call
+  setTimeout(() => sendIndicatorCmd('show #6366F1'), indicatorProcess ? 0 : 500);
 };
 
 const hideIndicator = () => {
-  if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.hide();
-  }
+  sendIndicatorCmd('hide');
 };
 
 const setIndicatorProcessing = () => {
-  if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.webContents.executeJavaScript('window.setProcessing()').catch(() => {});
-  }
+  sendIndicatorCmd('color #14B8A6');
 };
 
 // === Toggle Main Window ===
@@ -184,13 +107,46 @@ const toggleWindow = () => {
 
 // === Tray ===
 const createTray = () => {
-  const icon = nativeImage.createEmpty();
+  const trayIconPath = isDev
+    ? path.join(__dirname, '..', '..', 'assets', 'tray-icon.png')
+    : path.join(process.resourcesPath, 'tray-icon.png');
+
+  let icon;
+  if (require('fs').existsSync(trayIconPath)) {
+    icon = nativeImage.createFromPath(trayIconPath);
+    icon = icon.resize({ width: 18, height: 18 });
+    icon.setTemplateImage(true); // adapts to dark/light menu bar
+  } else {
+    icon = nativeImage.createEmpty();
+  }
+
   tray = new Tray(icon);
-  tray.setToolTip('VerbyPrompt');
+  tray.setToolTip('Verby');
+
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show/Hide', click: toggleWindow },
+    { label: 'Verby', enabled: false },
     { type: 'separator' },
-    { label: 'Quit', click: () => { app.isQuitting = true; app.quit(); } },
+    { label: 'Show Window', accelerator: 'Alt+Space', click: () => {
+      if (mainWindow && !mainWindow.isDestroyed()) { mainWindow.show(); mainWindow.focus(); }
+    }},
+    { label: 'Settings', click: () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.show();
+        mainWindow.focus();
+        mainWindow.webContents.send('open-settings');
+      }
+    }},
+    { type: 'separator' },
+    { label: 'Dictation Mode', type: 'checkbox', checked: true, click: (item) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('toggle-dictation');
+      }
+    }},
+    { type: 'separator' },
+    { label: 'Quit Verby', accelerator: 'CmdOrCtrl+Q', click: () => {
+      app.isQuitting = true;
+      app.quit();
+    }},
   ]);
   tray.setContextMenu(contextMenu);
   tray.on('click', toggleWindow);
@@ -212,11 +168,6 @@ const AGENT_PLIST = path.join(
 );
 
 function getFnBinaryPath() {
-  // Use the binary the user granted Input Monitoring permission to.
-  // Check dev path first (already approved), then fall back.
-  const devBinary = '/Users/lotsofsocks/Development/verbyprompt/native/fn-capture';
-  if (fs.existsSync(devBinary)) return devBinary;
-
   return isDev
     ? path.join(__dirname, '..', '..', 'native', 'fn-capture')
     : path.join(process.resourcesPath, 'native', 'fn-capture');
@@ -340,12 +291,22 @@ ipcMain.on('renderer-log', (_event, msg) => {
 app.whenReady().then(() => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
-  // Set dock icon
-  const iconPath = isDev
+  // Set dock icon (use PNG for reliable nativeImage loading)
+  const iconPng = isDev
+    ? path.join(__dirname, '..', '..', 'assets', 'icon-512.png')
+    : path.join(process.resourcesPath, 'icon-512.png');
+  const iconIcns = isDev
     ? path.join(__dirname, '..', '..', 'assets', 'icon.icns')
     : path.join(process.resourcesPath, 'icon.icns');
-  if (require('fs').existsSync(iconPath) && app.dock) {
-    app.dock.setIcon(nativeImage.createFromPath(iconPath));
+  if (app.dock) {
+    const iconFile = require('fs').existsSync(iconPng) ? iconPng : iconIcns;
+    const icon = nativeImage.createFromPath(iconFile);
+    if (!icon.isEmpty()) {
+      app.dock.setIcon(icon);
+      console.log('Dock icon set from:', iconFile);
+    } else {
+      console.log('Dock icon failed to load from:', iconFile);
+    }
   }
 
   createWindow();
@@ -379,6 +340,7 @@ app.on('will-quit', () => {
   try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
   try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
   try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
+  if (indicatorProcess) { indicatorProcess.kill(); indicatorProcess = null; }
   try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
   if (fnProcess) { fnProcess.kill(); fnProcess = null; }
 });
