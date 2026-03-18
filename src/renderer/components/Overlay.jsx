@@ -113,7 +113,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
-  const [view, setView] = useState('dictate'); // dictate | main | history | feed
+  const [view, setView] = useState('home'); // home | feed | history
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
@@ -192,11 +192,10 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         </div>
       </div>
 
-      {/* 3D Tab Bar */}
+      {/* 3D Tab Bar — 3 tabs */}
       <div className="tab-bar mx-5 mb-5">
         {[
-          { key: 'dictate', label: 'Dictate', icon: '🎙' },
-          { key: 'main', label: 'Prompt', icon: '✦' },
+          { key: 'home', label: 'Home', icon: '🎙' },
           { key: 'feed', label: 'Activity', icon: '◎' },
           { key: 'history', label: 'History', icon: '↻' },
         ].map((tab) => (
@@ -216,86 +215,77 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         ))}
       </div>
 
-      {/* === PROMPT TAB === */}
-      {view === 'main' && (
-        <div className="px-5 pb-5">
-          <div className="flex gap-1.5 mb-5 flex-wrap">
-            {CATEGORIES.map((cat) => (
-              <button key={cat} onClick={() => setCategory(cat)} className={`pill-btn capitalize ${category === cat ? 'active' : ''}`}>
-                {cat}
+      {/* === HOME — Unified voice + type + results === */}
+      {view === 'home' && (
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
+
+          {/* Chat bar — type prompts */}
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const input = e.target.elements.chatInput;
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            setError(null);
+            setStatus('optimizing');
+            setTranscript(text);
+            try {
+              const result = await chatOptimize(text);
+              const entry = {
+                ...result,
+                raw_transcript: text,
+                optimized_prompt: result.optimized,
+                category: result.category || 'general',
+                created_at: new Date().toISOString(),
+              };
+              setCurrentPrompt(entry);
+              setSessionLog((prev) => [...prev, entry]);
+              setStatus('idle');
+              await loadHistory();
+            } catch (err) {
+              setError(err.message);
+              setStatus('error');
+            }
+          }}>
+            <div className="flex gap-2 mb-4">
+              <input
+                name="chatInput"
+                type="text"
+                placeholder="Type a prompt to optimize, or hold Fn to speak..."
+                className="flex-1 px-4 py-3 rounded-xl text-sm"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-xl text-xs font-semibold shine-on-hover"
+                style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff', boxShadow: '0 2px 10px var(--accent-glow)' }}
+              >
+                ✦
               </button>
-            ))}
-          </div>
+            </div>
+          </form>
 
-          <div className="flex flex-col items-center justify-center mb-4">
-            {(status === 'idle' || status === 'error') && !currentPrompt && (
-              <>
-                <button
-                  onClick={() => { setError(null); setStatus('idle'); toggleRecording(); }}
-                  className={`rec-btn flex items-center gap-4 shine-on-hover ${isRecording ? 'recording' : ''}`}
-                >
-                  {isRecording ? (
-                    <div className="flex items-center gap-4">
-                      <Waveform />
-                      <span className="text-sm font-medium" style={{ color: 'var(--error)' }}>Listening... click to stop</span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="p-2.5 rounded-xl" style={{ background: 'var(--accent-subtle)' }}>
-                        <MicIcon color="var(--accent)" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Tap to speak</span>
-                        <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or hold Option + Space</span>
-                      </div>
-                    </>
-                  )}
-                </button>
-                {error && (
-                  <div className="mt-4 px-4 py-3 rounded-xl text-xs max-w-md text-center prompt-reveal"
-                    style={{ background: 'rgba(244,63,94,0.06)', color: 'var(--error)', border: '1px solid rgba(244,63,94,0.12)' }}>
-                    {error}
-                  </div>
-                )}
+          {/* Status — transcribing/optimizing */}
+          {status === 'transcribing' && (
+            <div className="flex flex-col items-center gap-4 py-8 prompt-reveal">
+              <LoadingDots />
+              <p className="text-sm font-medium" style={{ color: 'var(--accent)' }}>Transcribing...</p>
+            </div>
+          )}
 
-                {/* Session stats */}
-                {sessionLog.length > 0 && (
-                  <div className="mt-5 flex gap-4">
-                    <div className="text-center">
-                      <p className="text-lg font-bold gradient-text">{sessionLog.length}</p>
-                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Prompts crafted</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold" style={{ color: 'var(--success)' }}>
-                        {Math.round(sessionLog.reduce((acc, e) => acc + (e.optimized_prompt?.length || 0) - (e.raw_transcript?.length || 0), 0) / Math.max(sessionLog.length, 1))}+
-                      </p>
-                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Avg chars added</p>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+          {status === 'optimizing' && (
+            <div className="flex flex-col items-center gap-4 py-8 prompt-reveal">
+              <p className="text-xs italic px-6 text-center leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                &ldquo;{transcript}&rdquo;
+              </p>
+              <LoadingDots />
+              <p className="text-sm font-medium gradient-text">Optimizing...</p>
+            </div>
+          )}
 
-            {status === 'transcribing' && (
-              <div className="flex flex-col items-center gap-4 py-6 prompt-reveal">
-                <LoadingDots />
-                <p className="text-sm font-medium" style={{ color: 'var(--accent)' }}>Transcribing your voice...</p>
-              </div>
-            )}
-
-            {status === 'optimizing' && (
-              <div className="flex flex-col items-center gap-4 py-6 prompt-reveal">
-                <p className="text-xs italic px-6 text-center leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                  &ldquo;{transcript}&rdquo;
-                </p>
-                <LoadingDots />
-                <p className="text-sm font-medium gradient-text">Crafting the perfect prompt...</p>
-              </div>
-            )}
-          </div>
-
+          {/* Result card */}
           {currentPrompt && status === 'idle' && (
-            <div className="prompt-reveal">
+            <div className="prompt-reveal mb-4">
               <PromptCard prompt={currentPrompt} onCopy={handleCopy} onSendLLM={sendLLM} onToggleFav={toggleFav} onDelete={remove} />
               <button
                 onClick={() => { setCurrentPrompt(null); setTranscript(''); setError(null); }}
@@ -305,149 +295,93 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
               </button>
             </div>
           )}
-        </div>
-      )}
 
-      {/* === DICTATE TAB === */}
-      {view === 'dictate' && (
-        <div className="px-5 pb-5">
-          {/* Chat bar — type prompts directly */}
-          <div className="mb-4">
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const input = e.target.elements.chatInput;
-              const text = input.value.trim();
-              if (!text) return;
-              input.value = '';
-              setStatus('optimizing');
-              setTranscript(text);
-              try {
-                const result = await chatOptimize(text);
-                const entry = {
-                  ...result,
-                  raw_transcript: text,
-                  optimized_prompt: result.optimized,
-                  category: result.category || 'general',
-                  created_at: new Date().toISOString(),
-                };
-                setCurrentPrompt(entry);
-                setSessionLog((prev) => [...prev, entry]);
-                setStatus('idle');
-                setView('main');
-              } catch (err) {
-                setError(err.message);
-                setStatus('error');
-              }
-            }}>
-              <div className="flex gap-2">
-                <input
-                  name="chatInput"
-                  type="text"
-                  placeholder="Type a prompt to optimize..."
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2.5 rounded-xl text-xs font-medium"
-                  style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff' }}
-                >
-                  ✦ Optimize
-                </button>
-              </div>
-            </form>
-          </div>
+          {/* Error */}
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-xs text-center prompt-reveal"
+              style={{ background: 'rgba(244,63,94,0.06)', color: 'var(--error)', border: '1px solid rgba(244,63,94,0.12)' }}>
+              {error}
+            </div>
+          )}
 
-          <div className="section-divider mb-4" />
+          {/* Dictation hero — only when idle and no result showing */}
+          {(status === 'idle' || status === 'error') && !currentPrompt && (
+            <div className="flex flex-col items-center gap-4 mb-5">
+              <button
+                onClick={toggleDictation}
+                className={`rec-btn flex items-center gap-4 shine-on-hover ${isDictating ? 'recording' : ''}`}
+                style={{ padding: '20px 40px' }}
+              >
+                {isDictating ? (
+                  <div className="flex items-center gap-4">
+                    <Waveform />
+                    <div className="text-left">
+                      <span className="text-sm font-medium block" style={{ color: dictationStatus === 'processing' ? 'var(--accent)' : 'var(--error)' }}>
+                        {dictationStatus === 'processing' ? 'Processing...' : 'Listening...'}
+                      </span>
+                      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                        {dictationStatus === 'processing' ? 'Transcribing & injecting' : 'Release Fn or click to stop'}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="p-3 rounded-xl" style={{ background: 'var(--accent-subtle)' }}>
+                      <MicIcon size={24} color="var(--accent)" />
+                    </div>
+                    <div className="text-left">
+                      <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Hold Fn to Dictate</span>
+                      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or click here • text injects at cursor</span>
+                    </div>
+                  </>
+                )}
+              </button>
 
-          {/* Header */}
-          <div className="text-center mb-4">
-            <p className="text-sm font-semibold mb-1 gradient-text">Voice → Type Anywhere</p>
-            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Hold Fn to speak — or type above
-            </p>
-          </div>
+              {/* Session stats */}
+              {sessionLog.length > 0 && (
+                <div className="flex gap-4">
+                  <div className="text-center">
+                    <p className="text-lg font-bold gradient-text">{sessionLog.length}</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Prompts</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Enhanced mode toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          {/* Enhanced mode + options */}
+          <div className="flex items-center justify-between p-3 rounded-xl mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div>
               <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Enhanced Writing</p>
               <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                {enhancedMode ? 'AI polishes grammar, clarity & tone' : 'Raw transcription — exactly what you say'}
+                {enhancedMode ? 'AI polishes before injecting' : 'Raw transcription'}
               </p>
             </div>
             <button
               onClick={() => setEnhancedMode(!enhancedMode)}
-              className="relative w-10 h-[22px] rounded-full transition-colors"
+              className="relative w-10 h-[22px] rounded-full transition-colors flex-shrink-0"
               style={{ background: enhancedMode ? 'var(--accent)' : 'var(--bg-card-hover)', border: '1px solid var(--border)' }}
             >
-              <div
-                className="absolute top-[2px] w-4 h-4 rounded-full transition-all"
-                style={{
-                  left: enhancedMode ? '21px' : '2px',
-                  background: enhancedMode ? '#fff' : 'var(--text-muted)',
-                }}
-              />
+              <div className="absolute top-[2px] w-4 h-4 rounded-full transition-all"
+                style={{ left: enhancedMode ? '21px' : '2px', background: enhancedMode ? '#fff' : 'var(--text-muted)' }} />
             </button>
           </div>
 
-          {/* Dictation button */}
-          <div className="flex flex-col items-center gap-4 mb-5">
-            <button
-              onClick={toggleDictation}
-              className={`rec-btn flex items-center gap-4 shine-on-hover ${isDictating ? 'recording' : ''}`}
-              style={{ padding: '20px 40px' }}
-            >
-              {isDictating ? (
-                <div className="flex items-center gap-4">
-                  <Waveform />
-                  <div className="text-left">
-                    <span className="text-sm font-medium block" style={{ color: dictationStatus === 'processing' ? 'var(--accent)' : 'var(--error)' }}>
-                      {dictationStatus === 'processing' ? 'Processing...' : 'Listening...'}
-                    </span>
-                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                      {dictationStatus === 'processing' ? 'Transcribing & injecting' : 'Release Fn or click to stop'}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="p-3 rounded-xl" style={{ background: 'rgba(6,182,212,0.1)' }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                      <line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" />
-                    </svg>
-                  </div>
-                  <div className="text-left">
-                    <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Hold Fn to Dictate</span>
-                    <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or click here • text injects at cursor</span>
-                  </div>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Dictation log */}
+          {/* Recent dictations */}
           {dictationLog.length > 0 && (
-            <div className="mb-4">
+            <div className="mb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 px-1" style={{ color: 'var(--text-muted)' }}>
-                Recent Dictations
+                Recent
               </p>
-              <div className="space-y-2 max-h-[180px] overflow-y-auto">
-                {dictationLog.slice(0, 8).map((entry, i) => (
+              <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                {dictationLog.slice(0, 5).map((entry, i) => (
                   <div key={i} className="glass-card-sm p-3 prompt-reveal" style={{ animationDelay: `${i * 30}ms` }}>
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 mb-1">
                       <span className="text-[9px] font-mono" style={{ color: 'var(--text-muted)' }}>{formatTime(entry.time)}</span>
                       {entry.enhanced && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>Enhanced</span>
                       )}
                     </div>
-                    {entry.enhanced && entry.raw !== entry.final && (
-                      <p className="text-[10px] italic mb-1" style={{ color: 'var(--text-muted)' }}>
-                        &ldquo;{entry.raw}&rdquo;
-                      </p>
-                    )}
                     <p className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>{entry.final}</p>
                   </div>
                 ))}
@@ -455,65 +389,29 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
             </div>
           )}
 
-          {/* Voice commands */}
-          <details className="glass-card-sm">
-            <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-              Voice Commands Reference
-            </summary>
-            <div className="px-3 pb-3 grid grid-cols-2 gap-1.5">
-              {[
-                ['"new line"', 'Line break'],
-                ['"new paragraph"', 'Double break'],
-                ['"period"', '.'],
-                ['"comma"', ','],
-                ['"question mark"', '?'],
-                ['"send message"', 'Enter key'],
-              ].map(([cmd, desc]) => (
-                <div key={cmd} className="flex items-center gap-2 py-0.5">
-                  <code className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'var(--bg-card)', color: 'var(--accent)' }}>{cmd}</code>
-                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{desc}</span>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          {/* Project Context */}
-          <details className="glass-card-sm mt-3">
+          {/* Project context */}
+          <details className="glass-card-sm mb-3">
             <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
               Project Context
             </summary>
             <div className="px-3 pb-3">
               <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
-                Set a project context so Verby generates prompts relevant to your current work.
+                Prompts will be tailored to your current project.
               </p>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const name = e.target.elements.ctxName.value.trim();
                 const desc = e.target.elements.ctxDesc.value.trim();
-                if (name) {
-                  setContext(name, desc);
-                  showToast('Context set: ' + name);
-                }
+                if (name) { setContext(name, desc); showToast('Context: ' + name); }
               }}>
-                <input
-                  name="ctxName"
-                  type="text"
-                  placeholder="Project name (e.g., Verby App)"
+                <input name="ctxName" type="text" placeholder="Project name"
                   className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
-                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                />
-                <input
-                  name="ctxDesc"
-                  type="text"
-                  placeholder="What you're working on (e.g., Electron voice-to-text app)"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
+                <input name="ctxDesc" type="text" placeholder="What you're working on"
                   className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
-                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
-                />
-                <button
-                  type="submit"
-                  className="w-full py-2 rounded-lg text-[11px] font-medium"
-                  style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}
-                >
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
+                <button type="submit" className="w-full py-2 rounded-lg text-[11px] font-medium"
+                  style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}>
                   Set Context
                 </button>
               </form>
