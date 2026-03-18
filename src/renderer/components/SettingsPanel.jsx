@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl } from '../lib/ipc';
+import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, installUpdate } from '../lib/ipc';
 
 const SectionHeader = ({ children }) => (
   <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -129,6 +129,47 @@ export default function SettingsPanel({ onBack }) {
   useEffect(() => {
     getSettings().then((s) => setSettings(s || {}));
   }, []);
+
+  const [appVersion, setAppVersion] = useState('...');
+  const [updateState, setUpdateState] = useState('idle'); // idle | available | downloading | ready | error | blocked
+  const [updateVersion, setUpdateVersion] = useState('');
+  const [downloadPercent, setDownloadPercent] = useState(0);
+
+  useEffect(() => {
+    getAppVersion().then(setAppVersion);
+  }, []);
+
+  useEffect(() => {
+    const cleanups = [
+      onUpdateAvailable((data) => {
+        setUpdateVersion(data.version);
+        setUpdateState('downloading');
+      }),
+      onUpdateProgress((data) => {
+        setDownloadPercent(data.percent);
+      }),
+      onUpdateDownloaded((data) => {
+        setUpdateVersion(data.version);
+        setUpdateState('ready');
+      }),
+      onUpdateError(() => {
+        setUpdateState('error');
+      }),
+      onUpdateBlockedRecording(() => {
+        setUpdateState('blocked');
+        setTimeout(() => setUpdateState('ready'), 3000);
+      }),
+    ];
+    return () => cleanups.forEach((fn) => fn && fn());
+  }, []);
+
+  const handleInstallUpdate = async () => {
+    const result = await installUpdate();
+    if (result && result.blocked) {
+      setUpdateState('blocked');
+      setTimeout(() => setUpdateState('ready'), 3000);
+    }
+  };
 
   const update = (key, value) => {
     setSettings((s) => ({ ...s, [key]: value }));
@@ -422,8 +463,47 @@ export default function SettingsPanel({ onBack }) {
         <div className="pt-4 pb-2 text-center" style={{ borderTop: '1px solid var(--border)' }}>
           <p className="text-xs font-semibold gradient-text mb-1">Verby</p>
           <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-            v0.1.0 — Voice to perfect prompts
+            v{appVersion} — Voice to perfect prompts
           </p>
+
+          {updateState === 'downloading' && (
+            <div className="mt-2">
+              <p className="text-[10px] mb-1" style={{ color: 'var(--accent)' }}>
+                Downloading v{updateVersion}... {downloadPercent}%
+              </p>
+              <div className="w-32 mx-auto h-1 rounded-full" style={{ background: 'var(--bg-elevated)' }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${downloadPercent}%`, background: 'var(--accent)' }} />
+              </div>
+            </div>
+          )}
+
+          {updateState === 'ready' && (
+            <div className="mt-2">
+              <p className="text-[10px] mb-1.5" style={{ color: 'var(--success)' }}>
+                v{updateVersion} ready to install
+              </p>
+              <button
+                onClick={handleInstallUpdate}
+                className="px-4 py-1.5 rounded-lg text-[11px] font-medium"
+                style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}
+              >
+                Restart to Update
+              </button>
+            </div>
+          )}
+
+          {updateState === 'blocked' && (
+            <p className="text-[10px] mt-2" style={{ color: 'var(--error)' }}>
+              Finish recording first, then restart
+            </p>
+          )}
+
+          {updateState === 'error' && (
+            <p className="text-[10px] mt-2" style={{ color: 'var(--error)' }}>
+              Update check failed — download manually at verbyai.com
+            </p>
+          )}
+
           <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
             Built by Stephen Grandy
           </p>
