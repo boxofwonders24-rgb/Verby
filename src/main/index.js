@@ -17,6 +17,7 @@ console.error = (...args) => { _origErr(...args); _fs.appendFileSync(_logPath, '
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+const { initAutoUpdater, stopAutoUpdater } = require('./auto-updater');
 
 let mainWindow = null;
 // indicatorWindow removed — using tray icon for recording state instead
@@ -31,7 +32,7 @@ app.setName('Verby');
 if (process.platform === 'darwin') {
   app.setAboutPanelOptions({
     applicationName: 'Verby',
-    applicationVersion: '0.1.0',
+    applicationVersion: app.getVersion(),
     copyright: 'Stephen Grandy',
   });
 }
@@ -62,6 +63,7 @@ const createWindow = () => {
     mainWindow.show();
     mainWindow.focus();
     // mainWindow.webContents.openDevTools({ mode: 'detach' });
+    if (!isDev) initAutoUpdater(mainWindow);
   });
 
   // Hide instead of close — keeps renderer alive for Fn key recording
@@ -453,6 +455,7 @@ app.on('before-quit', () => {
 });
 
 app.on('will-quit', () => {
+  stopAutoUpdater();
   globalShortcut.unregisterAll();
   // Stop launchd agent and clean up
   try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
