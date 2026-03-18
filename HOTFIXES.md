@@ -18,12 +18,14 @@
   - Or: offer a local speech-to-text option (macOS built-in dictation API)
   - The 20 free prompts should work out of the box with zero setup
 
-## 3. App Icon Issues
-- Current: Icon sometimes shows as generic/white square
+## 3. App Icon — Square Instead of Rounded
+- Current: Icon renders as a hard square — no rounded corners like native macOS apps
+- Problem: The .icns has rounded corners baked into the SVG (rx="112"), but macOS expects a FULL SQUARE icon and applies its OWN superellipse mask on top
 - Fix needed:
-  - Verify icon renders correctly on fresh install (both Intel and ARM)
-  - Test on different macOS versions (13, 14, 15)
-  - Ensure DMG volume icon is also set
+  - Remove rx/ry from the SVG background rect — make it a full 512x512 square
+  - macOS will clip it to the rounded superellipse shape automatically
+  - This is why it looks square — the dark background fills the square, and macOS sees no reason to clip it differently
+  - Regenerate .icns, rebuild DMGs, re-notarize, redeploy
 
 ## 4. Hotkey to Toggle Enhanced vs Raw Mode
 - Add a keyboard shortcut to switch between:
