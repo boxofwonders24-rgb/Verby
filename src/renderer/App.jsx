@@ -31,8 +31,8 @@ export default function App() {
         <div className="aurora-orb" />
       </div>
 
-      {/* Draggable title bar */}
-      <div className="h-8 w-full flex-shrink-0 relative z-10" style={{ WebkitAppRegion: 'drag' }} />
+      {/* Draggable title bar — taller for hiddenInset traffic lights */}
+      <div className="h-10 w-full flex-shrink-0 relative z-10" style={{ WebkitAppRegion: 'drag' }} />
 
       {/* Content */}
       <div className="flex-1 flex items-start justify-center px-5 pb-5 overflow-hidden relative z-10">

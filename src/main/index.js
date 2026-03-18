@@ -3,7 +3,7 @@ require('dotenv').config();
 // File-based logging so we can debug when launched via Finder
 const _fs = require('fs');
 const _logPath = '/tmp/verbyprompt-app.log';
-_fs.writeFileSync(_logPath, `=== VerbyPrompt started ${new Date().toISOString()} ===\n`);
+_fs.writeFileSync(_logPath, `=== Verby started ${new Date().toISOString()} ===\n`);
 const _origLog = console.log;
 const _origErr = console.error;
 console.log = (...args) => { _origLog(...args); _fs.appendFileSync(_logPath, args.join(' ') + '\n'); };
@@ -21,6 +21,16 @@ let fnProcess = null;
 const isDev = !app.isPackaged;
 const DEV_URL = 'http://localhost:5173';
 
+// Set app name (overrides "Electron" in dev mode)
+app.setName('Verby');
+if (process.platform === 'darwin') {
+  app.setAboutPanelOptions({
+    applicationName: 'Verby',
+    applicationVersion: '0.1.0',
+    copyright: 'Stephen Grandy',
+  });
+}
+
 // === Main Window ===
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -28,6 +38,9 @@ const createWindow = () => {
     height: 620,
     backgroundColor: '#050508',
     show: false,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 16, y: 14 },
+    roundedCorners: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -156,7 +169,7 @@ const createTray = () => {
 // fn-capture needs Input Monitoring permission on macOS.
 // We run it as a launchd agent so it has its own identity —
 // the user grants Input Monitoring to fn-capture once, and it works
-// regardless of how VerbyPrompt is launched.
+// regardless of how Verby is launched.
 
 const fs = require('fs');
 const { exec, execSync } = require('child_process');
@@ -247,7 +260,7 @@ function startFnCapture() {
             const { Notification } = require('electron');
             if (Notification.isSupported()) {
               new Notification({
-                title: 'VerbyPrompt — Grant Permission',
+                title: 'Verby — Grant Permission',
                 body: 'Allow fn-capture in Input Monitoring (System Settings → Privacy → Input Monitoring)',
               }).show();
             }
@@ -290,6 +303,44 @@ ipcMain.on('renderer-log', (_event, msg) => {
 // === App Lifecycle ===
 app.whenReady().then(() => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
+
+  // Override macOS app menu — replaces "Electron" with "Verby" in top-left
+  const appMenu = Menu.buildFromTemplate([
+    {
+      label: 'Verby',
+      submenu: [
+        { role: 'about', label: 'About Verby' },
+        { type: 'separator' },
+        { label: 'Settings...', accelerator: 'CmdOrCtrl+,', click: () => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.show();
+            mainWindow.focus();
+            mainWindow.webContents.send('open-settings');
+          }
+        }},
+        { type: 'separator' },
+        { role: 'hide', label: 'Hide Verby' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { label: 'Quit Verby', accelerator: 'CmdOrCtrl+Q', click: () => { app.isQuitting = true; app.quit(); } },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+        { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' },
+      ],
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' }, { role: 'close' },
+      ],
+    },
+  ]);
+  Menu.setApplicationMenu(appMenu);
 
   // Set dock icon (use PNG for reliable nativeImage loading)
   const iconPng = isDev
