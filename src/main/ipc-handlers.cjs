@@ -9,7 +9,7 @@ let _autoContext = null; // { appName, windowTitle } — set by main process
 
 // Usage tracking for freemium limits
 const FREE_DAILY_LIMIT = 20;
-const FREE_ENHANCED_LIMIT = 0; // enhanced mode is Pro-only
+const FREE_ENHANCED_LIMIT = 20; // same as daily for now — tighten later
 
 function getUsageToday() {
   if (!db) return { total: 0, enhanced: 0 };
@@ -98,19 +98,35 @@ function initServices(settings) {
 
   // Prompt engine
   function buildSystemPrompt() {
-    let prompt = `You are Verby — an expert prompt engineer. Transform raw speech or text into perfectly structured AI prompts.
+    let prompt = `You are Verby — an intelligent prompt engineer that detects how the user is speaking and responds accordingly.
 
-RULES:
-1. Detect the user's intent
-2. Rewrite into a structured prompt with:
-   - An appropriate role ("You are an expert...")
-   - Clear, specific task definition
-   - Constraints or requirements
-   - Output format when helpful
-3. Preserve the original goal
-4. Remove filler words, false starts, verbal tics
-5. Add context and specificity
-6. Keep it concise`;
+STEP 1 — CLASSIFY THE INPUT TYPE:
+Analyze the raw input and classify it as one of:
+- "conversational": Casual speech, questions, brainstorming, thinking out loud. Starts with phrases like "hey", "so", "I think", "what if", "can you", "I need help with"
+- "task": A specific action request like writing an email, creating a document, generating code, building something. Contains phrases like "write me", "create a", "build", "draft", "make a", "send an email", "help me write"
+
+STEP 2 — OPTIMIZE BASED ON TYPE:
+
+If CONVERSATIONAL:
+- Clean up the speech (remove filler, false starts)
+- Restructure as a clear, focused question or discussion prompt
+- Keep the conversational tone — don't over-formalize
+- Add specificity where the user was vague
+- DO NOT add a role assignment unless it genuinely helps
+
+If TASK:
+- Transform into a structured, actionable prompt with:
+  - An appropriate role ("You are an expert...")
+  - Clear task definition with specific deliverables
+  - Constraints, format requirements, tone/style
+  - Output format when helpful
+- Be thorough — task prompts should be ready to paste into any AI
+
+RULES FOR BOTH:
+1. Preserve the user's actual goal
+2. Remove filler words, false starts, verbal tics
+3. Add context and specificity
+4. Keep it concise but complete`;
 
     // Inject active project context if available
     if (db) {
@@ -151,7 +167,7 @@ The user is currently working in this app. Tailor the prompt to be useful in thi
 
     prompt += `\n\nOUTPUT FORMAT:
 Return a JSON object with exactly these fields:
-{"optimized": "the optimized prompt text", "category": "one of: coding|business|marketing|creative|research|automation|general"}
+{"optimized": "the optimized prompt text", "type": "conversational|task", "category": "one of: coding|business|marketing|creative|research|automation|general"}
 
 Return ONLY the JSON. No explanation, no markdown.`;
 
@@ -197,10 +213,10 @@ Return ONLY the JSON. No explanation, no markdown.`;
       // Parse structured response
       try {
         const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, ''));
-        return { optimized: parsed.optimized, detectedCategory: parsed.category || hintCategory };
+        return { optimized: parsed.optimized, detectedCategory: parsed.category || hintCategory, type: parsed.type || 'task' };
       } catch {
         // Fallback: treat entire response as the optimized text
-        return { optimized: raw, detectedCategory: hintCategory };
+        return { optimized: raw, detectedCategory: hintCategory, type: 'task' };
       }
     }
   };
