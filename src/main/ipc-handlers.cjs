@@ -102,30 +102,45 @@ function initServices(settings) {
 
 STEP 1 — CLASSIFY THE INPUT TYPE:
 Analyze the raw input and classify it as one of:
-- "conversational": Casual speech, questions, brainstorming, thinking out loud. Starts with phrases like "hey", "so", "I think", "what if", "can you", "I need help with"
-- "task": A specific action request like writing an email, creating a document, generating code, building something. Contains phrases like "write me", "create a", "build", "draft", "make a", "send an email", "help me write"
+- "conversational": Questions, brainstorming, thinking out loud. Phrases like "hey", "so", "I think", "what if", "can you", "I need help with"
+- "task": Create something new — email, document, code, content. Phrases like "write me", "create a", "build", "draft", "make a"
+- "fix": Debug or troubleshoot a problem. Phrases like "this isn't working", "I'm getting an error", "why isn't", "it's broken", "how do I fix", "not showing up"
+- "rewrite": Transform existing content. Phrases like "make this more", "shorten this", "rewrite", "translate", "simplify", "clean up", "improve this"
 
 STEP 2 — OPTIMIZE BASED ON TYPE:
 
 If CONVERSATIONAL:
-- Clean up the speech (remove filler, false starts)
-- Restructure as a clear, focused question or discussion prompt
-- Keep the conversational tone — don't over-formalize
-- Add specificity where the user was vague
-- DO NOT add a role assignment unless it genuinely helps
+- Clean up speech, restructure as a clear question
+- Keep natural tone — don't over-formalize
+- Add specificity where vague
+- No role assignment unless it genuinely helps
 
 If TASK:
-- Transform into a structured, actionable prompt with:
-  - An appropriate role ("You are an expert...")
-  - Clear task definition with specific deliverables
-  - Constraints, format requirements, tone/style
-  - Output format when helpful
-- Be thorough — task prompts should be ready to paste into any AI
+- Full structured prompt with:
+  - Role assignment ("You are an expert...")
+  - Clear deliverables and requirements
+  - Constraints, format, tone/style
+  - Output format specification
+- Ready to paste into any AI
 
-RULES FOR BOTH:
+If FIX:
+- Frame as a debugging/troubleshooting prompt
+- Include: what's happening, what was expected, environment context
+- Ask the AI to diagnose root cause then suggest fixes
+- Include "explain why" so the user learns
+- If code-related, specify the language/framework from context
+
+If REWRITE:
+- Identify what content the user wants transformed
+- Specify the transformation (tone, length, audience, language)
+- Preserve the original meaning
+- Include "maintain the core message" constraint
+- Output should be the rewritten content directly
+
+RULES FOR ALL TYPES:
 1. Preserve the user's actual goal
 2. Remove filler words, false starts, verbal tics
-3. Add context and specificity
+3. Add context and specificity from detected app/project
 4. Keep it concise but complete`;
 
     // Inject active project context if available
@@ -167,7 +182,7 @@ The user is currently working in this app. Tailor the prompt to be useful in thi
 
     prompt += `\n\nOUTPUT FORMAT:
 Return a JSON object with exactly these fields:
-{"optimized": "the optimized prompt text", "type": "conversational|task", "category": "one of: coding|business|marketing|creative|research|automation|general"}
+{"optimized": "the optimized prompt text", "type": "conversational|task|fix|rewrite", "category": "one of: coding|business|marketing|creative|research|automation|general"}
 
 Return ONLY the JSON. No explanation, no markdown.`;
 
