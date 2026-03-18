@@ -8,8 +8,8 @@ let whisper, engine, dispatch, db;
 let _autoContext = null; // { appName, windowTitle } — set by main process
 
 // Usage tracking for freemium limits
-const FREE_DAILY_LIMIT = 20;
-const FREE_ENHANCED_LIMIT = 20; // same as daily for now — tighten later
+const FREE_DAILY_LIMIT = isDev ? 9999 : 20; // unlimited in dev mode
+const FREE_ENHANCED_LIMIT = isDev ? 9999 : 20;
 
 function getUsageToday() {
   if (!db) return { total: 0, enhanced: 0 };
