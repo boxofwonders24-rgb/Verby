@@ -30,13 +30,12 @@
   - This is why it looks square — the dark background fills the square, and macOS sees no reason to clip it differently
   - Regenerate .icns, rebuild DMGs, re-notarize, redeploy
 
-## 4. Hotkey to Toggle Enhanced vs Raw Mode
-- Add a keyboard shortcut to switch between:
-  - **Enhanced mode**: AI optimizes your speech into structured prompts
-  - **Raw mode**: Exact transcription, just types what you say
-- Suggested shortcut: Cmd+E or Fn double-tap
-- Should show a brief indicator ("Enhanced ON" / "Raw Mode") when toggled
-- Persistent — remembers the setting between sessions
+## 4. Dual Hotkeys — Fn for Prompts, Ctrl for Raw Dictation
+- **Hold Fn** → speech is AI-enhanced into a structured prompt, then injected
+- **Hold Ctrl** → raw speech-to-text, exactly what you say, injected as-is
+- Same flow for both: hold → speak → release → text appears at cursor
+- Ctrl needs its own CGEventTap listener in fn-capture.swift (Ctrl modifier flag = 0x40000)
+- Indicator dot color difference: indigo for Fn (prompt), teal for Ctrl (raw)
 
 ## 5. Other Potential Issues to Audit
 - [ ] Text injection not working without Accessibility permission — need clear error message
