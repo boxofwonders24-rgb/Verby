@@ -163,52 +163,39 @@ export default function SettingsPanel({ onBack }) {
 
         <Divider />
 
-        {/* ═══ API Keys ═══ */}
-        <div>
-          <SectionHeader>API Keys</SectionHeader>
-          <div className="space-y-3">
+        {/* ═══ Advanced (API Keys) — hidden by default ═══ */}
+        <details className="glass-card-sm">
+          <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+            Advanced — Use Your Own API Keys
+          </summary>
+          <div className="px-3 pb-3 space-y-3">
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Optional. Verby works without API keys. Add your own for faster processing or to use your own quota.
+            </p>
             <div>
               <Label hint="Whisper + GPT">OpenAI API Key</Label>
-              <div className="relative">
-                <input
-                  type={showKeys.openai ? 'text' : 'password'}
-                  value={settings.openaiKey || ''}
-                  onChange={(e) => update('openaiKey', e.target.value)}
-                  placeholder="sk-..."
-                  className="w-full px-4 py-2.5 pr-16 rounded-xl text-sm"
-                  style={inputStyle}
-                />
-                <button
-                  onClick={() => toggleKeyVisibility('openai')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] px-2 py-1 rounded-lg"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  {showKeys.openai ? 'Hide' : 'Show'}
-                </button>
-              </div>
+              <input
+                type="password"
+                value={settings.openaiKey || ''}
+                onChange={(e) => update('openaiKey', e.target.value)}
+                placeholder="sk-..."
+                className="w-full px-4 py-2.5 rounded-xl text-sm"
+                style={inputStyle}
+              />
             </div>
             <div>
               <Label hint="Claude">Anthropic API Key</Label>
-              <div className="relative">
-                <input
-                  type={showKeys.anthropic ? 'text' : 'password'}
-                  value={settings.anthropicKey || ''}
-                  onChange={(e) => update('anthropicKey', e.target.value)}
-                  placeholder="sk-ant-..."
-                  className="w-full px-4 py-2.5 pr-16 rounded-xl text-sm"
-                  style={inputStyle}
-                />
-                <button
-                  onClick={() => toggleKeyVisibility('anthropic')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] px-2 py-1 rounded-lg"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  {showKeys.anthropic ? 'Hide' : 'Show'}
-                </button>
-              </div>
+              <input
+                type="password"
+                value={settings.anthropicKey || ''}
+                onChange={(e) => update('anthropicKey', e.target.value)}
+                placeholder="sk-ant-..."
+                className="w-full px-4 py-2.5 rounded-xl text-sm"
+                style={inputStyle}
+              />
             </div>
           </div>
-        </div>
+        </details>
 
         <Divider />
 

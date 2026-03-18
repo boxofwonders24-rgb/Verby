@@ -131,7 +131,9 @@ function initServices(settings) {
     provider: defaultProvider,
   });
 
-  // Whisper
+  // Whisper — use local key if available, otherwise proxy through verbyai.com
+  const PROXY_BASE = 'https://verbyai.com/api';
+
   if (openaiKey) {
     const OpenAI = require('openai');
     const client = new OpenAI({ apiKey: openaiKey });
@@ -151,6 +153,21 @@ function initServices(settings) {
         } finally {
           fs.unlinkSync(tmpPath);
         }
+      }
+    };
+  } else {
+    // No local key — use server proxy
+    whisper = {
+      async transcribe(audioBuffer) {
+        const https = require('https');
+        const resp = await fetch(`${PROXY_BASE}/transcribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'audio/webm' },
+          body: Buffer.from(audioBuffer),
+        });
+        if (!resp.ok) throw new Error('Transcription failed — server error');
+        const data = await resp.json();
+        return data.text?.trim() || '';
       }
     };
   }
@@ -281,7 +298,15 @@ Return ONLY the JSON. No explanation, no markdown.`;
         });
         raw = response.choices[0].message.content.trim();
       } else {
-        throw new Error('No AI provider configured. Add API keys in Settings.');
+        // No local keys — use server proxy
+        const resp = await fetch(`${PROXY_BASE}/optimize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: userMessage, category: hintCategory }),
+        });
+        if (!resp.ok) throw new Error('Server optimization failed');
+        const data = await resp.json();
+        return { optimized: data.optimized, detectedCategory: data.category || hintCategory, type: data.type || 'task' };
       }
 
       // Parse structured response
@@ -476,7 +501,6 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('optimize-prompt', async (_event, rawText, category) => {
-    if (!engine) throw new Error('No AI provider configured. Add API keys in Settings.');
     // Check usage limits
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
@@ -491,7 +515,6 @@ function registerHandlers(mainWindow) {
 
   // Chat — type a prompt directly instead of voice
   ipcMain.handle('chat-optimize', async (_event, text) => {
-    if (!engine) throw new Error('No AI provider configured.');
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
     const result = await engine.optimize(text, {});
