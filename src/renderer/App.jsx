@@ -21,8 +21,8 @@ export default function App() {
 
   return (
     <div
-      className={`h-screen w-screen flex flex-col relative ${theme === 'light' ? 'light' : ''}`}
-      style={{ background: 'var(--bg-primary)' }}
+      className={`h-screen w-screen flex flex-col relative overflow-hidden ${theme === 'light' ? 'light' : ''}`}
+      style={{ background: 'var(--bg-primary)', borderRadius: '12px' }}
     >
       {/* Ambient aurora background */}
       <div className="aurora-bg">
