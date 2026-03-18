@@ -18,11 +18,70 @@ function getUsageToday() {
   return row || { total: 0, enhanced: 0 };
 }
 
+let _proStatusCache = { valid: false, checkedAt: 0 };
+
+async function checkProStatus() {
+  // Cache for 1 hour
+  if (Date.now() - _proStatusCache.checkedAt < 3600000) return _proStatusCache.valid;
+
+  const email = getSetting('licenseEmail', '');
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!email || !stripeKey) {
+    _proStatusCache = { valid: false, checkedAt: Date.now() };
+    return false;
+  }
+
+  try {
+    const https = require('https');
+    const data = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'api.stripe.com',
+        path: `/v1/customers/search?query=email:'${encodeURIComponent(email)}'`,
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${stripeKey}` },
+      }, (res) => {
+        let body = '';
+        res.on('data', (c) => body += c);
+        res.on('end', () => resolve(JSON.parse(body)));
+      });
+      req.on('error', reject);
+      req.end();
+    });
+
+    if (data.data && data.data.length > 0) {
+      const customerId = data.data[0].id;
+      // Check for active subscriptions
+      const subs = await new Promise((resolve, reject) => {
+        const req = https.request({
+          hostname: 'api.stripe.com',
+          path: `/v1/subscriptions?customer=${customerId}&status=active&limit=1`,
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${stripeKey}` },
+        }, (res) => {
+          let body = '';
+          res.on('data', (c) => body += c);
+          res.on('end', () => resolve(JSON.parse(body)));
+        });
+        req.on('error', reject);
+        req.end();
+      });
+
+      const isActive = subs.data && subs.data.length > 0;
+      _proStatusCache = { valid: isActive, checkedAt: Date.now() };
+      return isActive;
+    }
+  } catch (err) {
+    console.error('Stripe check failed:', err.message);
+  }
+
+  _proStatusCache = { valid: false, checkedAt: Date.now() };
+  return false;
+}
+
 function checkUsageLimit(isEnhanced) {
   const usage = getUsageToday();
-  // TODO: check license key for Pro status
-  const isPro = getSetting('licenseKey', '') !== '';
-  if (isPro) return { allowed: true, usage, isPro: true };
+  // Pro status is cached — checked async on app start and after license email change
+  if (_proStatusCache.valid) return { allowed: true, usage, isPro: true };
 
   if (usage.total >= FREE_DAILY_LIMIT) {
     return { allowed: false, reason: `Daily limit reached (${FREE_DAILY_LIMIT}/day). Upgrade to Pro for unlimited.`, usage, isPro: false };
@@ -462,14 +521,16 @@ function registerHandlers(mainWindow) {
   });
 
   // Usage info for renderer
+  // Check Pro status on app start
+  checkProStatus().then((isPro) => console.log('Pro status:', isPro));
+
   ipcMain.handle('get-usage', async () => {
     const usage = getUsageToday();
-    const isPro = getSetting('licenseKey', '') !== '';
     return {
       total: usage.total || 0,
       enhanced: usage.enhanced || 0,
-      limit: isPro ? Infinity : FREE_DAILY_LIMIT,
-      isPro,
+      limit: _proStatusCache.valid ? Infinity : FREE_DAILY_LIMIT,
+      isPro: _proStatusCache.valid,
     };
   });
 
@@ -586,6 +647,17 @@ function registerHandlers(mainWindow) {
     }
 
     return processed;
+  });
+
+  ipcMain.handle('activate-license', async (_event, email) => {
+    setSetting('licenseEmail', email);
+    _proStatusCache = { valid: false, checkedAt: 0 };
+    const isPro = await checkProStatus();
+    return { isPro, email };
+  });
+
+  ipcMain.handle('get-upgrade-url', async () => {
+    return process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/test_eVq14n2Mvc4G9tZet38Vi00';
   });
 }
 

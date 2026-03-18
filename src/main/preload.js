@@ -47,8 +47,10 @@ contextBridge.exposeInMainWorld('verby', {
   showProcessing: () => ipcRenderer.send('indicator-processing'),
   hideIndicator: () => ipcRenderer.send('indicator-hide'),
 
-  // Usage
+  // Usage + licensing
   getUsage: () => ipcRenderer.invoke('get-usage'),
+  activateLicense: (email) => ipcRenderer.invoke('activate-license', email),
+  getUpgradeUrl: () => ipcRenderer.invoke('get-upgrade-url'),
 
   // Chat — type-to-prompt
   chatOptimize: (text) => ipcRenderer.invoke('chat-optimize', text),

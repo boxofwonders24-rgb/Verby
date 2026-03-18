@@ -26,8 +26,10 @@ export const onFnUp = (cb) => (verby.onFnUp || noop)(cb);
 export const showProcessing = () => (verby.showProcessing || noop)();
 export const hideIndicator = () => (verby.hideIndicator || noop)();
 
-// Usage
+// Usage + licensing
 export const getUsage = () => (verby.getUsage || (() => Promise.resolve({ total: 0, limit: 20, isPro: false })))();
+export const activateLicense = (email) => (verby.activateLicense || noopAsync)(email);
+export const getUpgradeUrl = () => (verby.getUpgradeUrl || (() => Promise.resolve('')))();
 
 // Chat — type-to-prompt
 export const chatOptimize = (text) => (verby.chatOptimize || noopAsync)(text);

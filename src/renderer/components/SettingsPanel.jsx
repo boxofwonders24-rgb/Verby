@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSettings, setSetting } from '../lib/ipc';
+import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl } from '../lib/ipc';
 
 const SectionHeader = ({ children }) => (
   <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -41,6 +41,86 @@ const Toggle = ({ checked, onChange, label, description }) => (
 
 const Divider = () => <div className="section-divider" />;
 
+function ProSection() {
+  const [usage, setUsage] = useState({ total: 0, limit: 20, isPro: false });
+  const [email, setEmail] = useState('');
+  const [activating, setActivating] = useState(false);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    getUsage().then(setUsage);
+    getSettings().then((s) => { if (s && s.licenseEmail) setEmail(s.licenseEmail); });
+  }, []);
+
+  const handleActivate = async () => {
+    if (!email.includes('@')) return;
+    setActivating(true);
+    setResult(null);
+    try {
+      const res = await activateLicense(email);
+      setResult(res.isPro ? 'Pro activated!' : 'No active subscription found for this email.');
+      getUsage().then(setUsage);
+    } catch (err) {
+      setResult('Error: ' + err.message);
+    }
+    setActivating(false);
+  };
+
+  const handleUpgrade = async () => {
+    const url = await getUpgradeUrl();
+    if (url) window.open(url);
+  };
+
+  return (
+    <div>
+      <SectionHeader>Plan</SectionHeader>
+      {usage.isPro ? (
+        <div className="p-4 rounded-xl text-center" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid var(--border-accent)' }}>
+          <p className="text-sm font-semibold gradient-text mb-1">Verby Pro</p>
+          <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Unlimited dictations & AI enhancement</p>
+          <p className="text-[10px] mt-2" style={{ color: 'var(--text-muted)' }}>{usage.total} prompts today</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="p-4 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Free Plan</p>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
+                {usage.total}/{usage.limit} today
+              </span>
+            </div>
+            {/* Usage bar */}
+            <div className="w-full h-1.5 rounded-full mb-3" style={{ background: 'var(--bg-elevated)' }}>
+              <div className="h-full rounded-full transition-all" style={{
+                width: `${Math.min(100, (usage.total / usage.limit) * 100)}%`,
+                background: usage.total > usage.limit * 0.8 ? 'var(--error)' : 'var(--accent)',
+              }} />
+            </div>
+            <button onClick={handleUpgrade} className="w-full py-2.5 rounded-xl text-xs font-semibold"
+              style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff', boxShadow: '0 2px 10px var(--accent-glow)' }}>
+              Upgrade to Pro — $9/mo
+            </button>
+          </div>
+
+          <div>
+            <Label hint="from your Stripe purchase">Activate with email</Label>
+            <div className="flex gap-2">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com" className="flex-1 px-3 py-2 rounded-xl text-sm" style={inputStyle} />
+              <button onClick={handleActivate} disabled={activating}
+                className="px-4 py-2 rounded-xl text-xs font-medium"
+                style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}>
+                {activating ? '...' : 'Activate'}
+              </button>
+            </div>
+            {result && <p className="text-[11px] mt-1.5" style={{ color: result.includes('Pro') ? 'var(--success)' : 'var(--error)' }}>{result}</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SettingsPanel({ onBack }) {
   const [settings, setSettings] = useState({});
   const [saved, setSaved] = useState(false);
@@ -77,6 +157,11 @@ export default function SettingsPanel({ onBack }) {
       </div>
 
       <div className="space-y-6">
+
+        {/* ═══ Pro Status ═══ */}
+        <ProSection />
+
+        <Divider />
 
         {/* ═══ API Keys ═══ */}
         <div>
