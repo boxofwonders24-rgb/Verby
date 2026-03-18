@@ -9,14 +9,17 @@
   - Fallback to a keyboard shortcut (Cmd+Shift+Space?) if Fn doesn't work
   - Also: Globe key setting ("Press Globe key to → Do Nothing") isn't obvious
 
-## 2. API Key Errors on Free Tier
-- Current: Free users get 20 dictations/day but the app still requires OpenAI key for Whisper
-- Problem: Users without API keys can't use the app AT ALL — even the free tier
+## 2. Remove API Key Requirement — Use Bundled Keys
+- Current: ALL users must enter their own OpenAI + Anthropic API keys
+- Problem: Nobody should need to get their own API keys — free OR paid
 - Fix needed:
-  - Bundle API keys for free tier (use YOUR keys, rate-limited)
-  - Or: use a proxy server that handles Whisper calls for free-tier users
-  - Or: offer a local speech-to-text option (macOS built-in dictation API)
-  - The 20 free prompts should work out of the box with zero setup
+  - Bundle YOUR API keys in the app (or better: proxy through a simple server)
+  - Free users: 20 calls/day through your keys
+  - Pro users: unlimited calls through your keys, paid for by their $9/month
+  - Remove API key input fields from Settings entirely
+  - Keep an "Advanced" option for power users who want to use their own keys
+  - Cost: ~$3-5/month per active user in API costs (covered by $9 Pro fee)
+  - Consider a lightweight proxy (Cloudflare Worker or Vercel Edge Function) to keep keys off the client
 
 ## 3. App Icon — Square Instead of Rounded
 - Current: Icon renders as a hard square — no rounded corners like native macOS apps
