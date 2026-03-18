@@ -22,7 +22,7 @@ exports.default = async function notarizing(context) {
     appPath,
     appleId: process.env.APPLE_ID,
     appleIdPassword: process.env.APPLE_APP_PASSWORD,
-    teamId: '3AK8389YMS',
+    teamId: process.env.APPLE_TEAM_ID || '3AK8389YMS',
   });
 
   console.log('Notarization complete.');
