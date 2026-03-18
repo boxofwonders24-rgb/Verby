@@ -10,18 +10,44 @@ let mainWindow = null;
 let isRecording = false;
 let checkInterval = null;
 let errorCount = 0;
+let handlersRegistered = false;
 
 function initAutoUpdater(window) {
   mainWindow = window;
+
+  // Guard: skip if token not set (prevents shipping broken builds)
+  if (GH_READ_TOKEN === 'PLACEHOLDER_TOKEN') {
+    console.error('[updater] No GH_READ_TOKEN set — auto-update disabled');
+    return;
+  }
 
   // Configure for private repo
   autoUpdater.requestHeaders = { Authorization: `token ${GH_READ_TOKEN}` };
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
-  // --- Recording state sync ---
-  ipcMain.on('recording-started', () => { isRecording = true; });
-  ipcMain.on('recording-stopped', () => { isRecording = false; });
+  // --- IPC handlers (register once to avoid crash on window re-creation) ---
+  if (!handlersRegistered) {
+    handlersRegistered = true;
+
+    ipcMain.on('recording-started', () => { isRecording = true; });
+    ipcMain.on('recording-stopped', () => { isRecording = false; });
+
+    ipcMain.handle('install-update', () => {
+      if (isRecording) {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('update-blocked-recording');
+        }
+        return { blocked: true };
+      }
+      autoUpdater.quitAndInstall();
+      return { blocked: false };
+    });
+
+    ipcMain.handle('get-app-version', () => {
+      return app.getVersion();
+    });
+  }
 
   // --- Update events ---
   autoUpdater.on('checking-for-update', () => {
@@ -57,27 +83,10 @@ function initAutoUpdater(window) {
   autoUpdater.on('error', (err) => {
     console.error('[updater] Error:', err.message);
     errorCount++;
-    // Surface to user only after repeated failures (3+)
+    // Surface to user only after repeated failures (3+) — no raw error details to renderer
     if (errorCount >= 3 && mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('update-error', { message: err.message });
+      mainWindow.webContents.send('update-error');
     }
-  });
-
-  // --- Install handler (gated on recording state) ---
-  ipcMain.handle('install-update', () => {
-    if (isRecording) {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('update-blocked-recording');
-      }
-      return { blocked: true };
-    }
-    autoUpdater.quitAndInstall();
-    return { blocked: false };
-  });
-
-  // --- IPC: get app version ---
-  ipcMain.handle('get-app-version', () => {
-    return app.getVersion();
   });
 
   // Initial check after window is ready

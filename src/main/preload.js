@@ -88,26 +88,31 @@ contextBridge.exposeInMainWorld('verby', {
   // Debug logging
   log: (msg) => ipcRenderer.send('renderer-log', msg),
 
-  // Auto-updates
+  // Auto-updates (use removeListener with specific handler to avoid wiping other listeners)
   onUpdateAvailable: (callback) => {
-    ipcRenderer.on('update-available', (_e, data) => callback(data));
-    return () => ipcRenderer.removeAllListeners('update-available');
+    const handler = (_e, data) => callback(data);
+    ipcRenderer.on('update-available', handler);
+    return () => ipcRenderer.removeListener('update-available', handler);
   },
   onUpdateProgress: (callback) => {
-    ipcRenderer.on('update-progress', (_e, data) => callback(data));
-    return () => ipcRenderer.removeAllListeners('update-progress');
+    const handler = (_e, data) => callback(data);
+    ipcRenderer.on('update-progress', handler);
+    return () => ipcRenderer.removeListener('update-progress', handler);
   },
   onUpdateDownloaded: (callback) => {
-    ipcRenderer.on('update-downloaded', (_e, data) => callback(data));
-    return () => ipcRenderer.removeAllListeners('update-downloaded');
+    const handler = (_e, data) => callback(data);
+    ipcRenderer.on('update-downloaded', handler);
+    return () => ipcRenderer.removeListener('update-downloaded', handler);
   },
   onUpdateError: (callback) => {
-    ipcRenderer.on('update-error', (_e, data) => callback(data));
-    return () => ipcRenderer.removeAllListeners('update-error');
+    const handler = () => callback();
+    ipcRenderer.on('update-error', handler);
+    return () => ipcRenderer.removeListener('update-error', handler);
   },
   onUpdateBlockedRecording: (callback) => {
-    ipcRenderer.on('update-blocked-recording', () => callback());
-    return () => ipcRenderer.removeAllListeners('update-blocked-recording');
+    const handler = () => callback();
+    ipcRenderer.on('update-blocked-recording', handler);
+    return () => ipcRenderer.removeListener('update-blocked-recording', handler);
   },
   installUpdate: () => ipcRenderer.invoke('install-update'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
