@@ -1,5 +1,10 @@
 require('dotenv').config();
 
+// Force process name to 'Verby' — fixes "Electron" in macOS menu bar during dev
+if (process.platform === 'darwin') {
+  try { process.setTitle && process.setTitle('Verby'); } catch {}
+}
+
 // File-based logging so we can debug when launched via Finder
 const _fs = require('fs');
 const _logPath = '/tmp/verbyprompt-app.log';

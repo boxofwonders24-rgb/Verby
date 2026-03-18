@@ -4,9 +4,9 @@ import Logo from './Logo';
 import useRecording from '../hooks/useRecording';
 import usePrompts from '../hooks/usePrompts';
 import useDictation from '../hooks/useDictation';
-import { transcribeAudio, onToggleRecording } from '../lib/ipc';
+import { transcribeAudio, onToggleRecording, chatOptimize, setContext, getContext, onOpenSettings } from '../lib/ipc';
 
-const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'automation'];
+const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'creative', 'research', 'automation'];
 
 const MicIcon = ({ size = 22, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -311,11 +311,60 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
       {/* === DICTATE TAB === */}
       {view === 'dictate' && (
         <div className="px-5 pb-5">
+          {/* Chat bar — type prompts directly */}
+          <div className="mb-4">
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const input = e.target.elements.chatInput;
+              const text = input.value.trim();
+              if (!text) return;
+              input.value = '';
+              setStatus('optimizing');
+              setTranscript(text);
+              try {
+                const result = await chatOptimize(text);
+                const entry = {
+                  ...result,
+                  raw_transcript: text,
+                  optimized_prompt: result.optimized,
+                  category: result.category || 'general',
+                  created_at: new Date().toISOString(),
+                };
+                setCurrentPrompt(entry);
+                setSessionLog((prev) => [...prev, entry]);
+                setStatus('idle');
+                setView('main');
+              } catch (err) {
+                setError(err.message);
+                setStatus('error');
+              }
+            }}>
+              <div className="flex gap-2">
+                <input
+                  name="chatInput"
+                  type="text"
+                  placeholder="Type a prompt to optimize..."
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 rounded-xl text-xs font-medium"
+                  style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff' }}
+                >
+                  ✦ Optimize
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="section-divider mb-4" />
+
           {/* Header */}
           <div className="text-center mb-4">
             <p className="text-sm font-semibold mb-1 gradient-text">Voice → Type Anywhere</p>
             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Hold Fn to speak — text appears wherever your cursor is
+              Hold Fn to speak — or type above
             </p>
           </div>
 
@@ -428,9 +477,48 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
             </div>
           </details>
 
-          <p className="text-[10px] text-center mt-3" style={{ color: 'var(--text-muted)' }}>
-            Requires Accessibility: System Settings → Privacy → Accessibility
-          </p>
+          {/* Project Context */}
+          <details className="glass-card-sm mt-3">
+            <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+              Project Context
+            </summary>
+            <div className="px-3 pb-3">
+              <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+                Set a project context so Verby generates prompts relevant to your current work.
+              </p>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const name = e.target.elements.ctxName.value.trim();
+                const desc = e.target.elements.ctxDesc.value.trim();
+                if (name) {
+                  setContext(name, desc);
+                  showToast('Context set: ' + name);
+                }
+              }}>
+                <input
+                  name="ctxName"
+                  type="text"
+                  placeholder="Project name (e.g., Verby App)"
+                  className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                />
+                <input
+                  name="ctxDesc"
+                  type="text"
+                  placeholder="What you're working on (e.g., Electron voice-to-text app)"
+                  className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                />
+                <button
+                  type="submit"
+                  className="w-full py-2 rounded-lg text-[11px] font-medium"
+                  style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}
+                >
+                  Set Context
+                </button>
+              </form>
+            </div>
+          </details>
         </div>
       )}
 

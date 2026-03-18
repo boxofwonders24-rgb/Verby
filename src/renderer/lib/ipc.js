@@ -25,3 +25,17 @@ export const onFnUp = (cb) => (verby.onFnUp || noop)(cb);
 // Indicator control
 export const showProcessing = () => (verby.showProcessing || noop)();
 export const hideIndicator = () => (verby.hideIndicator || noop)();
+
+// Chat — type-to-prompt
+export const chatOptimize = (text) => (verby.chatOptimize || noopAsync)(text);
+
+// Context — project awareness
+export const setContext = (name, desc) => (verby.setContext || noopAsync)(name, desc);
+export const getContext = () => (verby.getContext || noopAsync)();
+export const getAllContexts = () => (verby.getAllContexts || (() => Promise.resolve([])))();
+
+// Patterns
+export const getPatterns = () => (verby.getPatterns || (() => Promise.resolve([])))();
+
+// Settings nav
+export const onOpenSettings = (cb) => (verby.onOpenSettings || noop)(cb);

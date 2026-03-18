@@ -70,27 +70,59 @@ function initServices(settings) {
   }
 
   // Prompt engine
-  const SYSTEM_PROMPT = `You are VerbyPrompt — an expert prompt engineer. Your job is to take raw, messy speech transcriptions and transform them into perfectly structured AI prompts.
+  function buildSystemPrompt() {
+    let prompt = `You are Verby — an expert prompt engineer. Transform raw speech or text into perfectly structured AI prompts.
 
 RULES:
-1. Detect the user's intent from their raw speech
-2. Rewrite into a structured prompt that includes:
-   - An appropriate role assignment ("You are an expert...")
-   - A clear, specific task definition
-   - Relevant constraints or requirements
-   - A specified output format when helpful
-3. Preserve the user's actual goal
-4. Remove filler words, false starts, and verbal tics
+1. Detect the user's intent
+2. Rewrite into a structured prompt with:
+   - An appropriate role ("You are an expert...")
+   - Clear, specific task definition
+   - Constraints or requirements
+   - Output format when helpful
+3. Preserve the original goal
+4. Remove filler words, false starts, verbal tics
 5. Add context and specificity
-6. Keep it concise
+6. Keep it concise`;
 
-OUTPUT FORMAT:
-Return ONLY the optimized prompt text. No explanation, no preamble, no markdown wrapping.`;
+    // Inject active project context if available
+    if (db) {
+      const ctx = db.getActiveContext();
+      if (ctx) {
+        prompt += `\n\nACTIVE PROJECT CONTEXT:
+Project: ${ctx.project_name}
+Description: ${ctx.description}
+Use this context to make prompts more relevant and specific to the user's current work.`;
+      }
+
+      // Inject learned patterns
+      const patterns = db.getTopPatterns(3);
+      if (patterns.length > 0) {
+        prompt += `\n\nUSER'S COMMON PROMPT PATTERNS (learn from these):`;
+        for (const p of patterns) {
+          prompt += `\n- Category "${p.category}" (used ${p.frequency}x): "${p.example_raw}" → "${p.example_optimized}"`;
+        }
+      }
+    }
+
+    prompt += `\n\nOUTPUT FORMAT:
+Return a JSON object with exactly these fields:
+{"optimized": "the optimized prompt text", "category": "one of: coding|business|marketing|creative|research|automation|general"}
+
+Return ONLY the JSON. No explanation, no markdown.`;
+
+    return prompt;
+  }
 
   engine = {
     async optimize(rawText, opts = {}) {
-      const category = opts.category || 'general';
-      const userMessage = category !== 'general' ? `[Category: ${category}]\n\n${rawText}` : rawText;
+      const hintCategory = opts.category || 'general';
+      const userMessage = hintCategory !== 'general'
+        ? `[Hint: user selected "${hintCategory}" category]\n\n${rawText}`
+        : rawText;
+
+      const systemPrompt = buildSystemPrompt();
+      let raw;
 
       if (defaultProvider === 'claude' && anthropicKey) {
         const Anthropic = require('@anthropic-ai/sdk');
@@ -98,27 +130,34 @@ Return ONLY the optimized prompt text. No explanation, no preamble, no markdown 
         const response = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 1024,
-          system: SYSTEM_PROMPT,
+          system: systemPrompt,
           messages: [{ role: 'user', content: userMessage }],
         });
-        return response.content[0].text.trim();
-      }
-
-      if (openaiKey) {
+        raw = response.content[0].text.trim();
+      } else if (openaiKey) {
         const OpenAI = require('openai');
         const client = new OpenAI({ apiKey: openaiKey });
         const response = await client.chat.completions.create({
           model: 'gpt-4o',
           max_tokens: 1024,
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },
           ],
         });
-        return response.choices[0].message.content.trim();
+        raw = response.choices[0].message.content.trim();
+      } else {
+        throw new Error('No AI provider configured. Add API keys in Settings.');
       }
 
-      throw new Error('No AI provider configured. Add API keys in Settings.');
+      // Parse structured response
+      try {
+        const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, ''));
+        return { optimized: parsed.optimized, detectedCategory: parsed.category || hintCategory };
+      } catch {
+        // Fallback: treat entire response as the optimized text
+        return { optimized: raw, detectedCategory: hintCategory };
+      }
     }
   };
 
@@ -164,6 +203,23 @@ Return ONLY the optimized prompt text. No explanation, no preamble, no markdown 
         is_favorite INTEGER DEFAULT 0,
         created_at TEXT DEFAULT (datetime('now'))
       );
+
+      CREATE TABLE IF NOT EXISTS patterns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT NOT NULL,
+        frequency INTEGER DEFAULT 1,
+        example_raw TEXT,
+        example_optimized TEXT,
+        last_used TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS context (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        project_name TEXT,
+        description TEXT,
+        active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
     `);
 
     db = {
@@ -183,6 +239,32 @@ Return ONLY the optimized prompt text. No explanation, no preamble, no markdown 
       },
       delete(id) {
         sqliteDb.prepare('DELETE FROM prompts WHERE id = ?').run(id);
+      },
+      // Pattern learning
+      recordPattern(category, raw, optimized) {
+        const existing = sqliteDb.prepare('SELECT * FROM patterns WHERE category = ?').get(category);
+        if (existing) {
+          sqliteDb.prepare('UPDATE patterns SET frequency = frequency + 1, last_used = datetime(\'now\'), example_raw = ?, example_optimized = ? WHERE id = ?')
+            .run(raw, optimized, existing.id);
+        } else {
+          sqliteDb.prepare('INSERT INTO patterns (category, example_raw, example_optimized) VALUES (?, ?, ?)')
+            .run(category, raw, optimized);
+        }
+      },
+      getTopPatterns(limit = 5) {
+        return sqliteDb.prepare('SELECT * FROM patterns ORDER BY frequency DESC LIMIT ?').all(limit);
+      },
+      // Context management
+      setContext(projectName, description) {
+        sqliteDb.prepare('UPDATE context SET active = 0');
+        sqliteDb.prepare('INSERT INTO context (project_name, description, active) VALUES (?, ?, 1)')
+          .run(projectName, description);
+      },
+      getActiveContext() {
+        return sqliteDb.prepare('SELECT * FROM context WHERE active = 1 ORDER BY id DESC LIMIT 1').get();
+      },
+      getAllContexts() {
+        return sqliteDb.prepare('SELECT * FROM context ORDER BY created_at DESC LIMIT 20').all();
       },
     };
   }
@@ -238,10 +320,41 @@ function registerHandlers(mainWindow) {
 
   ipcMain.handle('optimize-prompt', async (_event, rawText, category) => {
     if (!engine) throw new Error('No AI provider configured. Add API keys in Settings.');
-    const optimized = await engine.optimize(rawText, { category });
+    const result = await engine.optimize(rawText, { category });
     if (!db) throw new Error('Database not initialized.');
-    const id = db.save(rawText, optimized, category || 'general');
-    return { id, optimized };
+    const detectedCat = result.detectedCategory || category || 'general';
+    const id = db.save(rawText, result.optimized, detectedCat);
+    // Learn from this interaction
+    db.recordPattern(detectedCat, rawText.substring(0, 200), result.optimized.substring(0, 200));
+    return { id, optimized: result.optimized, category: detectedCat };
+  });
+
+  // Chat — type a prompt directly instead of voice
+  ipcMain.handle('chat-optimize', async (_event, text) => {
+    if (!engine) throw new Error('No AI provider configured.');
+    const result = await engine.optimize(text, {});
+    if (!db) throw new Error('Database not initialized.');
+    const cat = result.detectedCategory || 'general';
+    const id = db.save(text, result.optimized, cat);
+    db.recordPattern(cat, text.substring(0, 200), result.optimized.substring(0, 200));
+    return { id, optimized: result.optimized, category: cat };
+  });
+
+  // Context management
+  ipcMain.handle('set-context', async (_event, projectName, description) => {
+    db.setContext(projectName, description);
+  });
+
+  ipcMain.handle('get-context', async () => {
+    return db.getActiveContext() || null;
+  });
+
+  ipcMain.handle('get-all-contexts', async () => {
+    return db.getAllContexts();
+  });
+
+  ipcMain.handle('get-patterns', async () => {
+    return db.getTopPatterns(10);
   });
 
   ipcMain.handle('send-to-llm', async (_event, prompt, provider) => {

@@ -47,6 +47,23 @@ contextBridge.exposeInMainWorld('verby', {
   showProcessing: () => ipcRenderer.send('indicator-processing'),
   hideIndicator: () => ipcRenderer.send('indicator-hide'),
 
+  // Chat — type-to-prompt
+  chatOptimize: (text) => ipcRenderer.invoke('chat-optimize', text),
+
+  // Context — project awareness
+  setContext: (name, desc) => ipcRenderer.invoke('set-context', name, desc),
+  getContext: () => ipcRenderer.invoke('get-context'),
+  getAllContexts: () => ipcRenderer.invoke('get-all-contexts'),
+
+  // Patterns — learned usage
+  getPatterns: () => ipcRenderer.invoke('get-patterns'),
+
+  // Settings navigation from tray
+  onOpenSettings: (callback) => {
+    ipcRenderer.on('open-settings', () => callback());
+    return () => ipcRenderer.removeAllListeners('open-settings');
+  },
+
   // Debug logging
   log: (msg) => ipcRenderer.send('renderer-log', msg),
 });
