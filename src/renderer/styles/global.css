@@ -16,6 +16,10 @@
   --accent-glow: rgba(99, 102, 241, 0.35);
   --accent-subtle: rgba(99, 102, 241, 0.08);
   --accent-2: #14B8A6;
+  --accent-2-hover: #2DD4BF;
+  --accent-2-glow: rgba(20, 184, 166, 0.3);
+  --accent-2-subtle: rgba(20, 184, 166, 0.08);
+  --border-accent-2: rgba(20, 184, 166, 0.25);
   --gradient-1: #6366F1;
   --gradient-2: #8B5CF6;
   --gradient-3: #14B8A6;
@@ -47,6 +51,11 @@
   --border: rgba(0, 0, 0, 0.06);
   --border-hover: rgba(0, 0, 0, 0.12);
   --border-accent: rgba(99, 102, 241, 0.2);
+  --accent-2: #0D9488;
+  --accent-2-hover: #14B8A6;
+  --accent-2-glow: rgba(13, 148, 136, 0.2);
+  --accent-2-subtle: rgba(13, 148, 136, 0.06);
+  --border-accent-2: rgba(13, 148, 136, 0.2);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -202,7 +211,7 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
 
 .tab-active {
   color: #fff;
-  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3));
   box-shadow:
     0 4px 16px var(--accent-glow),
     0 1px 2px rgba(0, 0, 0, 0.2),
@@ -219,8 +228,8 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
   width: 16px;
   height: 3px;
   border-radius: 2px;
-  background: var(--accent);
-  opacity: 0.6;
+  background: var(--accent-2);
+  opacity: 0.7;
 }
 
 /* === Pill Button === */
@@ -243,7 +252,7 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
 }
 
 .pill-btn.active {
-  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3));
   border-color: transparent;
   color: #fff;
   box-shadow: 0 3px 14px var(--accent-glow);
@@ -268,8 +277,8 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
 
 /* === Record Button === */
 @keyframes rec-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.3); }
+  50% { box-shadow: 0 0 0 20px rgba(20, 184, 166, 0); }
 }
 
 .rec-btn {
@@ -289,8 +298,8 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
 }
 
 .rec-btn.recording {
-  background: rgba(99, 102, 241, 0.06);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(20, 184, 166, 0.06);
+  border-color: rgba(20, 184, 166, 0.2);
   animation: rec-glow 2s ease-in-out infinite;
 }
 
@@ -303,7 +312,7 @@ input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(
 .waveform-bar {
   width: 3px;
   border-radius: 2px;
-  background: linear-gradient(to top, var(--accent), var(--accent-hover));
+  background: linear-gradient(to top, var(--accent-2), var(--accent-2-hover));
   animation: wave 0.6s ease-in-out infinite;
 }
 
