@@ -223,39 +223,28 @@ function startFnCapture() {
   console.log('Fn binary path:', fnBinary);
 
   try {
-    // Clean up
+    // Clean up any old launchd agents and processes
     try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
     try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
     try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
+    try { fs.unlinkSync(AGENT_PLIST); } catch {}
     try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
 
     // Create named pipe
     execSync(`mkfifo "${FN_PIPE_PATH}"`);
 
-    // Write launchd agent plist
-    const plist = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>${AGENT_LABEL}</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>${fnBinary}</string>
-    <string>--pipe</string>
-    <string>${FN_PIPE_PATH}</string>
-  </array>
-  <key>RunAtLoad</key>
-  <false/>
-  <key>KeepAlive</key>
-  <false/>
-</dict>
-</plist>`;
-    fs.writeFileSync(AGENT_PLIST, plist);
-
-    // Load and start the agent
-    execSync(`launchctl load "${AGENT_PLIST}"`);
-    execSync(`launchctl start ${AGENT_LABEL}`);
+    // Spawn fn-capture as a direct child process writing to the pipe
+    // In dev mode this inherits iTerm's Input Monitoring permission
+    // In production the .app needs Input Monitoring granted
+    const fnChild = spawn(fnBinary, ['--pipe', FN_PIPE_PATH], {
+      stdio: ['ignore', 'ignore', 'pipe'],
+      detached: true,
+    });
+    fnChild.unref();
+    fnChild.stderr.on('data', (d) => console.error('fn-capture:', d.toString().trim()));
+    fnChild.on('close', (code, signal) => {
+      console.log(`fn-capture exited: code=${code} signal=${signal}`);
+    });
 
     // Read events from named pipe
     let retries = 0;
