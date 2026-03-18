@@ -10,6 +10,8 @@ import {
   onCtrlUp,
   showProcessing,
   hideIndicator,
+  notifyRecordingStarted,
+  notifyRecordingStopped,
 } from '../lib/ipc';
 
 // Whisper hallucinates these on short/silent audio
@@ -79,6 +81,7 @@ export default function useDictation() {
 
       mediaRecorder.current.onstop = async () => {
         isRecordingRef.current = false;
+        notifyRecordingStopped();
         // Clean up mic
         if (streamRef.current) {
           streamRef.current.getTracks().forEach((t) => t.stop());
@@ -154,6 +157,7 @@ export default function useDictation() {
       mediaRecorder.current.start(250); // request data every 250ms
       recordingStartTime.current = Date.now();
       isRecordingRef.current = true;
+      notifyRecordingStarted();
       setIsDictating(true);
       setDictationStatus('listening');
 

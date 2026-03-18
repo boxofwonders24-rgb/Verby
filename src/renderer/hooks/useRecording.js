@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { notifyRecordingStarted, notifyRecordingStopped } from '../lib/ipc';
 
 export default function useRecording() {
   const [isRecording, setIsRecording] = useState(false);
@@ -20,12 +21,14 @@ export default function useRecording() {
     };
     mediaRecorder.current.start();
     setIsRecording(true);
+    notifyRecordingStarted();
   }, []);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
       mediaRecorder.current.stop();
       setIsRecording(false);
+      notifyRecordingStopped();
     }
   }, []);
 
