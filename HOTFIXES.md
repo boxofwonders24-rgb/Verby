@@ -25,7 +25,15 @@
   - Test on different macOS versions (13, 14, 15)
   - Ensure DMG volume icon is also set
 
-## 4. Other Potential Issues to Audit
+## 4. Hotkey to Toggle Enhanced vs Raw Mode
+- Add a keyboard shortcut to switch between:
+  - **Enhanced mode**: AI optimizes your speech into structured prompts
+  - **Raw mode**: Exact transcription, just types what you say
+- Suggested shortcut: Cmd+E or Fn double-tap
+- Should show a brief indicator ("Enhanced ON" / "Raw Mode") when toggled
+- Persistent — remembers the setting between sessions
+
+## 5. Other Potential Issues to Audit
 - [ ] Text injection not working without Accessibility permission — need clear error message
 - [ ] App shows "Electron" in menu bar in some contexts
 - [ ] First launch experience — no guidance on what to do
