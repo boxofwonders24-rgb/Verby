@@ -15,8 +15,8 @@
     </linearGradient>
   </defs>
 
-  <!-- Rounded background — 22% radius matches macOS icon shape -->
-  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+  <!-- Full square background — macOS applies its own rounded superellipse mask -->
+  <rect width="512" height="512" fill="url(#bg)"/>
 
   <!-- Soundwave bars -->
   <g transform="translate(236, 256)">

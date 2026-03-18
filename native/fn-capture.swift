@@ -29,7 +29,9 @@ func emit(_ msg: String) {
 }
 
 let fnModifierFlag: UInt64 = 0x800000
+let ctrlModifierFlag: UInt64 = 0x40000
 var fnIsDown = false
+var ctrlIsDown = false
 var tapRef: CFMachPort?
 
 func eventCallback(
@@ -47,14 +49,25 @@ func eventCallback(
 
     if type == .flagsChanged {
         let flags = event.flags.rawValue
-        let fnNow = (flags & fnModifierFlag) != 0
 
+        // Fn key — AI-enhanced prompts
+        let fnNow = (flags & fnModifierFlag) != 0
         if fnNow && !fnIsDown {
             fnIsDown = true
             emit("fn_down")
         } else if !fnNow && fnIsDown {
             fnIsDown = false
             emit("fn_up")
+        }
+
+        // Ctrl key — raw dictation (no AI)
+        let ctrlNow = (flags & ctrlModifierFlag) != 0
+        if ctrlNow && !ctrlIsDown && !fnIsDown {
+            ctrlIsDown = true
+            emit("ctrl_down")
+        } else if !ctrlNow && ctrlIsDown {
+            ctrlIsDown = false
+            emit("ctrl_up")
         }
     }
 

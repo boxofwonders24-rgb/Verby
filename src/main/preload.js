@@ -43,6 +43,16 @@ contextBridge.exposeInMainWorld('verby', {
     return () => ipcRenderer.removeAllListeners('fn-up');
   },
 
+  // Ctrl key hold-to-dictate (raw, no AI)
+  onCtrlDown: (callback) => {
+    ipcRenderer.on('ctrl-down', () => callback());
+    return () => ipcRenderer.removeAllListeners('ctrl-down');
+  },
+  onCtrlUp: (callback) => {
+    ipcRenderer.on('ctrl-up', () => callback());
+    return () => ipcRenderer.removeAllListeners('ctrl-up');
+  },
+
   // Indicator control
   showProcessing: () => ipcRenderer.send('indicator-processing'),
   hideIndicator: () => ipcRenderer.send('indicator-hide'),

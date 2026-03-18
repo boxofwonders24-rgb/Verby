@@ -22,6 +22,10 @@ export const onToggleDictation = (cb) => (verby.onToggleDictation || noop)(cb);
 export const onFnDown = (cb) => (verby.onFnDown || noop)(cb);
 export const onFnUp = (cb) => (verby.onFnUp || noop)(cb);
 
+// Ctrl key hold-to-dictate (raw)
+export const onCtrlDown = (cb) => (verby.onCtrlDown || noop)(cb);
+export const onCtrlUp = (cb) => (verby.onCtrlUp || noop)(cb);
+
 // Indicator control
 export const showProcessing = () => (verby.showProcessing || noop)();
 export const hideIndicator = () => (verby.hideIndicator || noop)();

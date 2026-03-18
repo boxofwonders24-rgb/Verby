@@ -6,6 +6,8 @@ import {
   onToggleDictation,
   onFnDown,
   onFnUp,
+  onCtrlDown,
+  onCtrlUp,
   showProcessing,
   hideIndicator,
 } from '../lib/ipc';
@@ -34,6 +36,8 @@ export default function useDictation() {
   const recordingStartTime = useRef(0);
   // Track if fn_up arrived while mic was still initializing
   const pendingStop = useRef(false);
+  // Track if current recording is raw (Ctrl) or enhanced (Fn)
+  const isRawMode = useRef(false);
 
   const log = (msg) => {
     console.log('[dictation]', msg);
@@ -113,8 +117,8 @@ export default function useDictation() {
 
           let finalText = cleaned;
 
-          // If enhanced mode, run through AI to polish
-          if (enhancedMode) {
+          // If enhanced mode AND not raw mode (Ctrl), run through AI
+          if (enhancedMode && !isRawMode.current) {
             try {
               const result = await optimizePrompt(cleaned, 'general');
               if (result && result.optimized) {
@@ -186,12 +190,28 @@ export default function useDictation() {
     return cleanup;
   }, [toggleDictation]);
 
-  // Listen for Fn hold-to-talk — use ref to avoid stale closure
+  // Listen for Fn hold-to-talk (enhanced prompts)
   useEffect(() => {
     const cleanupDown = onFnDown(() => {
+      isRawMode.current = false;
       if (!isRecordingRef.current) startRecording();
     });
     const cleanupUp = onFnUp(() => {
+      stopRecording();
+    });
+    return () => {
+      if (cleanupDown) cleanupDown();
+      if (cleanupUp) cleanupUp();
+    };
+  }, [startRecording, stopRecording]);
+
+  // Listen for Ctrl hold-to-talk (raw dictation, no AI)
+  useEffect(() => {
+    const cleanupDown = onCtrlDown(() => {
+      isRawMode.current = true;
+      if (!isRecordingRef.current) startRecording();
+    });
+    const cleanupUp = onCtrlUp(() => {
       stopRecording();
     });
     return () => {

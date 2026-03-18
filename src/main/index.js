@@ -286,6 +286,18 @@ function startFnCapture() {
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send('fn-up');
             }
+          } else if (event === 'ctrl_down') {
+            console.log('>>> Ctrl DOWN detected (raw dictation)');
+            showIndicator();
+            detectFrontmostApp();
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('ctrl-down');
+            }
+          } else if (event === 'ctrl_up') {
+            console.log('>>> Ctrl UP detected');
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('ctrl-up');
+            }
           } else if (event === 'fn_ready') {
             console.log('Fn key capture ready');
           } else if (event === 'fn_requesting_permission') {
