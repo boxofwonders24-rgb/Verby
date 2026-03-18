@@ -9,7 +9,7 @@
     "build:renderer": "vite build",
     "build:app": "electron-builder --mac",
     "build": "npm run build:renderer && npm run build:app",
-    "release": "npm run build:renderer && electron-builder --mac --publish never",
+    "release": "npm run build:renderer && electron-builder --mac --publish always",
     "postinstall": "electron-builder install-app-deps"
   },
   "license": "MIT",
@@ -26,6 +26,13 @@
             "arm64",
             "x64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "identity": "Stephen Grandy (3AK8389YMS)",
@@ -33,7 +40,9 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "electronLanguages": ["en"],
+      "electronLanguages": [
+        "en"
+      ],
       "extendInfo": {
         "NSMicrophoneUsageDescription": "VerbyPrompt needs microphone access to transcribe your speech.",
         "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps."
@@ -46,6 +55,10 @@
         {
           "from": "native/text-inject",
           "to": "native/text-inject"
+        },
+        {
+          "from": "native/indicator",
+          "to": "native/indicator"
         }
       ]
     },
@@ -79,7 +92,14 @@
     "directories": {
       "output": "out"
     },
-    "asar": true
+    "asar": true,
+    "publish": {
+      "provider": "github",
+      "owner": "boxofwonders24-rgb",
+      "repo": "verby",
+      "private": true
+    },
+    "afterSign": "scripts/notarize.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
@@ -103,6 +123,7 @@
     "better-sqlite3": "^12.8.0",
     "dotenv": "^17.3.1",
     "electron-store": "^11.0.2",
+    "electron-updater": "^6.8.3",
     "openai": "^6.31.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
