@@ -103,6 +103,15 @@ Use this context to make prompts more relevant and specific to the user's curren
           prompt += `\n- Category "${p.category}" (used ${p.frequency}x): "${p.example_raw}" → "${p.example_optimized}"`;
         }
       }
+
+      // Inject recent prompts for recency awareness
+      const recent = db.getHistory(5);
+      if (recent.length > 0) {
+        prompt += `\n\nRECENT PROMPTS (for continuity — the user may be building on these):`;
+        for (const r of recent) {
+          prompt += `\n- [${r.category}] "${r.raw_transcript.substring(0, 80)}" → "${r.optimized_prompt.substring(0, 100)}"`;
+        }
+      }
     }
 
     prompt += `\n\nOUTPUT FORMAT:
