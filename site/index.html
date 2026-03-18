@@ -77,6 +77,8 @@
       background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+    .teal { color: #14B8A6; }
+    .violet { color: #A78BFA; }
     .subtitle {
       font-size: 18px; color: var(--text-2); line-height: 1.6;
       max-width: 540px; margin: 0 auto 40px;
@@ -135,9 +137,13 @@
     .feature {
       padding: 24px; border-radius: 16px;
       background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-      transition: all 0.25s;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .feature:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+    .feature:hover {
+      background: rgba(255,255,255,0.04); transform: translateY(-3px);
+      border-color: rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.08);
+    }
     .feature-icon { font-size: 24px; margin-bottom: 12px; }
     .feature h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
     .feature p { font-size: 12px; color: var(--text-3); line-height: 1.5; }
@@ -154,6 +160,15 @@
     .price-card.pro {
       border-color: rgba(99,102,241,0.3);
       background: rgba(99,102,241,0.04);
+      box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
+      position: relative;
+    }
+    .price-card.pro::before {
+      content: 'MOST POPULAR';
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+      padding: 4px 14px; border-radius: 100px;
     }
     .price-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
     .price-amount { font-size: 36px; font-weight: 800; margin: 12px 0 4px; }
@@ -219,8 +234,8 @@
     <!-- Hero -->
     <section class="hero">
       <div class="badge">Voice-to-Prompt AI for macOS</div>
-      <h1>Speak. <span class="gradient">Verby optimizes.</span><br>Text appears.</h1>
-      <p class="subtitle">Hold Fn, say what you need, release. Verby transforms your speech into perfectly structured AI prompts and injects them right where your cursor is.</p>
+      <h1>Talk to any app.<br><span class="gradient">Verby writes the prompt.</span></h1>
+      <p class="subtitle">Hold Fn and speak naturally. Verby turns your voice into perfectly structured AI prompts — injected instantly wherever your cursor is. No typing. No copy-paste.</p>
       <div class="ctas">
         <a href="#download" class="btn btn-primary">Download for Mac</a>
         <a href="#pricing" class="btn btn-secondary">See Pricing</a>
@@ -258,13 +273,13 @@
       <div class="feature-grid">
         <div class="feature">
           <div class="feature-icon">🎙</div>
-          <h3>Hold Fn to Speak</h3>
-          <p>System-wide hotkey. Works in any app. No window switching needed.</p>
+          <h3>Hold <span class="teal">Fn</span> to Speak</h3>
+          <p>System-wide hotkey. Works in <strong>any app</strong>. No window switching needed.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">🧠</div>
           <h3>Smart Classification</h3>
-          <p>Detects if you're asking a question, requesting a task, debugging, or rewriting — optimizes differently for each.</p>
+          <p>Detects if you're <span class="violet">asking</span>, <span class="teal">creating</span>, <span style="color:#F43F5E">debugging</span>, or rewriting — optimizes differently for each.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">📍</div>
@@ -274,7 +289,7 @@
         <div class="feature">
           <div class="feature-icon">⚡</div>
           <h3>Instant Injection</h3>
-          <p>Text appears at your cursor — ChatGPT, Slack, VS Code, email. No copy-paste.</p>
+          <p>Text appears at your cursor — <strong>ChatGPT, Slack, VS Code, email</strong>. No copy-paste.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">📝</div>
