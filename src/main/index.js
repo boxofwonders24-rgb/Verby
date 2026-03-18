@@ -170,6 +170,34 @@ const createTray = () => {
   tray.on('click', toggleWindow);
 };
 
+// === Auto-detect frontmost app for context ===
+let lastDetectedApp = '';
+
+function detectFrontmostApp() {
+  exec(`osascript -e 'tell application "System Events" to get {name, title of first window} of first application process whose frontmost is true' 2>/dev/null`, (err, stdout) => {
+    if (err || !stdout) return;
+    const raw = stdout.trim();
+    // Output looks like: "Google Chrome, My Page - Google Chrome"
+    // or "Code, main.js — verbyprompt"
+    if (raw === lastDetectedApp) return;
+    lastDetectedApp = raw;
+
+    const parts = raw.split(', ');
+    const appName = parts[0] || '';
+    const windowTitle = parts.slice(1).join(', ') || '';
+
+    console.log(`>>> Auto-context: ${appName} — ${windowTitle}`);
+
+    // Send to renderer for display
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('auto-context', { appName, windowTitle });
+    }
+    // Push to ipc-handlers for system prompt injection
+    const { setAutoContext } = require('./ipc-handlers.cjs');
+    setAutoContext({ appName, windowTitle });
+  });
+}
+
 // === Fn Key Capture ===
 // fn-capture needs Input Monitoring permission on macOS.
 // We run it as a launchd agent so it has its own identity —
@@ -249,6 +277,8 @@ function startFnCapture() {
             console.log('>>> Fn DOWN detected');
             fnEventReceived = true;
             showIndicator();
+            // Detect frontmost app for auto-context
+            detectFrontmostApp();
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send('fn-down');
             }

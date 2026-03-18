@@ -58,6 +58,12 @@ contextBridge.exposeInMainWorld('verby', {
   // Patterns — learned usage
   getPatterns: () => ipcRenderer.invoke('get-patterns'),
 
+  // Auto-detected app context
+  onAutoContext: (callback) => {
+    ipcRenderer.on('auto-context', (_e, data) => callback(data));
+    return () => ipcRenderer.removeAllListeners('auto-context');
+  },
+
   // Settings navigation from tray
   onOpenSettings: (callback) => {
     ipcRenderer.on('open-settings', () => callback());

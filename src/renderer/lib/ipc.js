@@ -37,5 +37,8 @@ export const getAllContexts = () => (verby.getAllContexts || (() => Promise.reso
 // Patterns
 export const getPatterns = () => (verby.getPatterns || (() => Promise.resolve([])))();
 
+// Auto-detected context
+export const onAutoContext = (cb) => (verby.onAutoContext || noop)(cb);
+
 // Settings nav
 export const onOpenSettings = (cb) => (verby.onOpenSettings || noop)(cb);

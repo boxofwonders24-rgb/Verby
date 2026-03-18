@@ -5,6 +5,7 @@ const fs = require('fs');
 const isDev = !app.isPackaged;
 
 let whisper, engine, dispatch, db;
+let _autoContext = null; // { appName, windowTitle } — set by main process
 
 // Simple JSON settings store
 function getSettingsPath() {
@@ -93,6 +94,14 @@ RULES:
 Project: ${ctx.project_name}
 Description: ${ctx.description}
 Use this context to make prompts more relevant and specific to the user's current work.`;
+      }
+
+      // Inject auto-detected app context
+      if (_autoContext && _autoContext.appName) {
+        prompt += `\n\nCURRENT APP (auto-detected):
+App: ${_autoContext.appName}
+Window: ${_autoContext.windowTitle}
+The user is currently working in this app. Tailor the prompt to be useful in this context.`;
       }
 
       // Inject learned patterns
@@ -482,4 +491,8 @@ function registerHandlers(mainWindow) {
   });
 }
 
-module.exports = { registerHandlers };
+function setAutoContext(ctx) {
+  _autoContext = ctx;
+}
+
+module.exports = { registerHandlers, setAutoContext };
