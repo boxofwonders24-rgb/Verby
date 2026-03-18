@@ -51,3 +51,16 @@ export const onAutoContext = (cb) => (verby.onAutoContext || noop)(cb);
 
 // Settings nav
 export const onOpenSettings = (cb) => (verby.onOpenSettings || noop)(cb);
+
+// Auto-updates
+export const onUpdateAvailable = (cb) => (verby.onUpdateAvailable || noop)(cb);
+export const onUpdateProgress = (cb) => (verby.onUpdateProgress || noop)(cb);
+export const onUpdateDownloaded = (cb) => (verby.onUpdateDownloaded || noop)(cb);
+export const onUpdateError = (cb) => (verby.onUpdateError || noop)(cb);
+export const onUpdateBlockedRecording = (cb) => (verby.onUpdateBlockedRecording || noop)(cb);
+export const installUpdate = () => (verby.installUpdate || noopAsync)();
+export const getAppVersion = () => (verby.getAppVersion || (() => Promise.resolve('0.0.0')))();
+
+// Recording state sync
+export const notifyRecordingStarted = () => (verby.notifyRecordingStarted || noop)();
+export const notifyRecordingStopped = () => (verby.notifyRecordingStopped || noop)();

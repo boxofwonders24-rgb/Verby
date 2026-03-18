@@ -87,4 +87,32 @@ contextBridge.exposeInMainWorld('verby', {
 
   // Debug logging
   log: (msg) => ipcRenderer.send('renderer-log', msg),
+
+  // Auto-updates
+  onUpdateAvailable: (callback) => {
+    ipcRenderer.on('update-available', (_e, data) => callback(data));
+    return () => ipcRenderer.removeAllListeners('update-available');
+  },
+  onUpdateProgress: (callback) => {
+    ipcRenderer.on('update-progress', (_e, data) => callback(data));
+    return () => ipcRenderer.removeAllListeners('update-progress');
+  },
+  onUpdateDownloaded: (callback) => {
+    ipcRenderer.on('update-downloaded', (_e, data) => callback(data));
+    return () => ipcRenderer.removeAllListeners('update-downloaded');
+  },
+  onUpdateError: (callback) => {
+    ipcRenderer.on('update-error', (_e, data) => callback(data));
+    return () => ipcRenderer.removeAllListeners('update-error');
+  },
+  onUpdateBlockedRecording: (callback) => {
+    ipcRenderer.on('update-blocked-recording', () => callback());
+    return () => ipcRenderer.removeAllListeners('update-blocked-recording');
+  },
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+
+  // Recording state sync (for update safety)
+  notifyRecordingStarted: () => ipcRenderer.send('recording-started'),
+  notifyRecordingStopped: () => ipcRenderer.send('recording-stopped'),
 });
