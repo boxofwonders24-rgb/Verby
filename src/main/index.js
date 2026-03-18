@@ -300,15 +300,39 @@ function startFnCapture() {
             }
           } else if (event === 'fn_ready') {
             console.log('Fn key capture ready');
+            // If no Fn events after 15 seconds, user probably needs permissions
+            setTimeout(() => {
+              if (!fnEventReceived && !app.isQuitting) {
+                console.log('No Fn events detected — prompting user for permissions');
+                const { Notification, shell } = require('electron');
+                if (Notification.isSupported()) {
+                  const notif = new Notification({
+                    title: 'Verby — Fn Key Setup',
+                    body: 'Hold Fn to dictate. If it\'s not working, click here to grant Input Monitoring permission.',
+                  });
+                  notif.on('click', () => {
+                    shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent');
+                  });
+                  notif.show();
+                }
+                // Also notify renderer to show in-app guidance
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                  mainWindow.webContents.send('fn-permission-needed');
+                }
+              }
+            }, 15000);
           } else if (event === 'fn_requesting_permission') {
             console.log('Fn key: requesting Input Monitoring permission...');
-            // Notify user
-            const { Notification } = require('electron');
+            const { Notification, shell } = require('electron');
             if (Notification.isSupported()) {
-              new Notification({
+              const notif = new Notification({
                 title: 'Verby — Grant Permission',
-                body: 'Allow fn-capture in Input Monitoring (System Settings → Privacy → Input Monitoring)',
-              }).show();
+                body: 'Verby needs Input Monitoring to detect the Fn key. Click to open Settings.',
+              });
+              notif.on('click', () => {
+                shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent');
+              });
+              notif.show();
             }
           }
         }
@@ -421,6 +445,14 @@ app.whenReady().then(() => {
 
   // Ctrl+Alt+Space = dictation mode toggle (backup for Fn key)
   globalShortcut.register('Control+Alt+Space', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('toggle-dictation');
+    }
+  });
+
+  // Cmd+Shift+Space = fallback for Fn key (enhanced dictation toggle)
+  // Works without Input Monitoring — for users who can't get Fn working
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('toggle-dictation');
     }
