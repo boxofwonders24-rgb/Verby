@@ -4,6 +4,7 @@ import {
   injectText,
   optimizePrompt,
   generateSmart,
+  cleanupSpeech,
   onToggleDictation,
   onFnDown,
   onFnUp,
@@ -122,7 +123,7 @@ export default function useDictation() {
           let finalText = cleaned;
           let intentType = null;
 
-          // If enhanced mode AND not raw mode (Ctrl), run through AI
+          // Fn path: full AI enhancement (intent detection + email/prompt generation)
           if (enhancedMode && !isRawMode.current) {
             try {
               const response = await generateSmart(cleaned);
@@ -135,9 +136,22 @@ export default function useDictation() {
               // Fall back to raw transcript
             }
           }
+          // Ctrl path: light speech cleanup (grammar, filler words, punctuation)
+          else if (isRawMode.current) {
+            try {
+              const cleanedText = await cleanupSpeech(cleaned);
+              if (cleanedText) {
+                finalText = cleanedText;
+                intentType = 'cleanup';
+              }
+            } catch (err) {
+              console.error('[dictation] cleanupSpeech failed:', err);
+              // Fall back to raw transcript
+            }
+          }
 
-          // Inject into active field (skip voice commands for email output)
-          const injectOptions = intentType === 'email' ? { skipVoiceCommands: true } : undefined;
+          // Inject into active field (skip voice commands for AI-generated content)
+          const injectOptions = (intentType === 'email' || intentType === 'cleanup') ? { skipVoiceCommands: true } : undefined;
           const injected = await injectText(finalText, injectOptions);
 
           // Log it

@@ -91,6 +91,9 @@ contextBridge.exposeInMainWorld('verby', {
   // Intent-aware generation (email or prompt)
   generateSmart: (text) => ipcRenderer.invoke('generate-smart', text),
 
+  // Light speech cleanup (Ctrl path)
+  cleanupSpeech: (text) => ipcRenderer.invoke('cleanup-speech', text),
+
   // Auto-updates (use removeListener with specific handler to avoid wiping other listeners)
   onUpdateAvailable: (callback) => {
     const handler = (_e, data) => callback(data);

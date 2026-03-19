@@ -409,6 +409,47 @@ Return ONLY the JSON. No explanation, no markdown fences.`;
       } catch {
         return { type: 'prompt', result: raw };
       }
+    },
+
+    async cleanupSpeech(rawText) {
+      const systemPrompt = `You are a speech cleanup assistant. The user dictated text via microphone. Clean it up naturally:
+
+- Fix grammar, punctuation, and capitalization
+- Remove filler words (um, uh, like, you know, so, basically)
+- Remove false starts and repetitions
+- Keep the user's natural tone and meaning — do NOT rephrase or rewrite
+- Do NOT add anything the user didn't say
+- Do NOT turn it into a formal prompt or structured output
+- Just make it read like clean, natural written text
+
+Return ONLY the cleaned text. No JSON, no explanation.`;
+
+      if (defaultProvider === 'claude' && anthropicKey) {
+        const Anthropic = require('@anthropic-ai/sdk');
+        const client = new Anthropic({ apiKey: anthropicKey });
+        const response = await client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: rawText }],
+        });
+        return response.content[0].text.trim();
+      } else if (openaiKey) {
+        const OpenAI = require('openai');
+        const client = new OpenAI({ apiKey: openaiKey });
+        const response = await client.chat.completions.create({
+          model: 'gpt-4o',
+          max_tokens: 1024,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: rawText },
+          ],
+        });
+        return response.choices[0].message.content.trim();
+      } else {
+        // No local keys — just return the raw text (cleanup is a nice-to-have)
+        return rawText;
+      }
     }
   };
 
@@ -617,6 +658,22 @@ function registerHandlers(mainWindow) {
     } catch (err) {
       console.error('[generate-smart] Failed:', err.message);
       throw err;
+    }
+  });
+
+  ipcMain.handle('cleanup-speech', async (_event, rawText) => {
+    const limit = checkUsageLimit(true);
+    if (!limit.allowed) throw new Error(limit.reason);
+    try {
+      const cleaned = await engine.cleanupSpeech(rawText);
+      if (db) {
+        db.save(rawText, cleaned, 'dictation');
+        db.incrementUsage(true);
+      }
+      return cleaned;
+    } catch (err) {
+      console.error('[cleanup-speech] Failed:', err.message);
+      return rawText; // fallback to raw on error
     }
   });
 

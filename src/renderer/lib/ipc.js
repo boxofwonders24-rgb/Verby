@@ -55,6 +55,9 @@ export const onOpenSettings = (cb) => (verby.onOpenSettings || noop)(cb);
 // Intent-aware generation
 export const generateSmart = (text) => (verby.generateSmart || noopAsync)(text);
 
+// Light speech cleanup (Ctrl path)
+export const cleanupSpeech = (text) => (verby.cleanupSpeech || noopAsync)(text);
+
 // Auto-updates
 export const onUpdateAvailable = (cb) => (verby.onUpdateAvailable || noop)(cb);
 export const onUpdateProgress = (cb) => (verby.onUpdateProgress || noop)(cb);
