@@ -561,7 +561,7 @@ Return ONLY the cleaned text. No JSON, no explanation.`;
       },
       // Context management
       setContext(projectName, description) {
-        sqliteDb.prepare('UPDATE context SET active = 0');
+        sqliteDb.prepare('UPDATE context SET active = 0').run();
         sqliteDb.prepare('INSERT INTO context (project_name, description, active) VALUES (?, ?, 1)')
           .run(projectName, description);
       },
@@ -669,13 +669,13 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('cleanup-speech', async (_event, rawText) => {
-    const limit = checkUsageLimit(true);
+    const limit = checkUsageLimit(false);
     if (!limit.allowed) throw new Error(limit.reason);
     try {
       const cleaned = await engine.cleanupSpeech(rawText);
       if (db) {
         db.save(rawText, cleaned, 'dictation');
-        db.incrementUsage(true);
+        db.incrementUsage(false);
       }
       return cleaned;
     } catch (err) {
@@ -764,6 +764,7 @@ function registerHandlers(mainWindow) {
       defaultProvider: getSetting('defaultProvider', 'claude'),
       hotkey: getSetting('hotkey', 'Alt+Space'),
       theme: getSetting('theme', 'dark'),
+      licenseEmail: getSetting('licenseEmail', ''),
     };
   });
 

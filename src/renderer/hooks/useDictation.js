@@ -2,7 +2,6 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   transcribeAudio,
   injectText,
-  optimizePrompt,
   generateSmart,
   cleanupSpeech,
   onToggleDictation,

@@ -121,6 +121,7 @@ Return ONLY the JSON. No explanation, no markdown fences.`;
       return res.status(200).json({ type: 'prompt', result });
     }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[generate] Error:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
