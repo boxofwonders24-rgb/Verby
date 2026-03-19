@@ -3,6 +3,7 @@ import {
   transcribeAudio,
   injectText,
   optimizePrompt,
+  generateSmart,
   onToggleDictation,
   onFnDown,
   onFnUp,
@@ -119,21 +120,25 @@ export default function useDictation() {
           }
 
           let finalText = cleaned;
+          let intentType = null;
 
           // If enhanced mode AND not raw mode (Ctrl), run through AI
           if (enhancedMode && !isRawMode.current) {
             try {
-              const result = await optimizePrompt(cleaned, 'general');
-              if (result && result.optimized) {
-                finalText = result.optimized;
+              const response = await generateSmart(cleaned);
+              if (response && response.result) {
+                finalText = response.result;
+                intentType = response.type || 'prompt';
               }
-            } catch {
+            } catch (err) {
+              console.error('[dictation] generateSmart failed:', err);
               // Fall back to raw transcript
             }
           }
 
-          // Inject into active field
-          const injected = await injectText(finalText);
+          // Inject into active field (skip voice commands for email output)
+          const injectOptions = intentType === 'email' ? { skipVoiceCommands: true } : undefined;
+          const injected = await injectText(finalText, injectOptions);
 
           // Log it
           setDictationLog((prev) => [
@@ -141,6 +146,7 @@ export default function useDictation() {
               raw: cleaned,
               final: injected || finalText,
               enhanced: enhancedMode,
+              intentType: intentType,
               time: new Date().toISOString(),
             },
             ...prev,
