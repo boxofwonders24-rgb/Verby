@@ -39,10 +39,24 @@ If EMAIL:
 - Sign off with just a first name placeholder like "Best,\\n[Your name]"
 
 If PROMPT:
-- Clean up the speech into a well-structured prompt
-- Remove filler words, false starts, verbal tics
-- Add specificity and structure
-- Keep the user's intent and tone
+First classify the prompt type:
+- "conversational": Questions, brainstorming, thinking out loud ("hey", "what if", "can you", "I need help with")
+- "task": Create something new — code, document, content ("write me", "create a", "build", "draft", "make a")
+- "fix": Debug or troubleshoot ("not working", "error", "broken", "how do I fix")
+- "rewrite": Transform existing content ("make this more", "shorten", "rewrite", "simplify")
+
+Then optimize based on type:
+- CONVERSATIONAL: Clean up speech, keep natural tone, add specificity, restructure as a clear question
+- TASK: Full structured prompt with role assignment ("You are an expert..."), clear deliverables, constraints, format, output specification. Ready to paste into any AI.
+- FIX: Frame as debugging prompt — what's happening, what was expected, ask AI to diagnose root cause then suggest fixes with explanations
+- REWRITE: Identify content to transform, specify the transformation (tone, length, audience), preserve original meaning
+
+Rules for all prompt types:
+1. Preserve the user's actual goal
+2. Remove filler words, false starts, verbal tics
+3. Add context and specificity
+4. Keep it concise but complete
+5. The result should be a BETTER version of what the user asked for, not a literal transcription
 
 OUTPUT FORMAT:
 Return a JSON object:
