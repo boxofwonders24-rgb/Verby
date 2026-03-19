@@ -4,7 +4,7 @@ const { app, ipcMain } = require('electron');
 // Read-only fine-grained GitHub token (contents:read on verby repo only)
 // If compromised: revoke on GitHub, embed new token, ship update.
 // Users on old version see "download manually at verbyai.com" fallback.
-const GH_READ_TOKEN = 'PLACEHOLDER_TOKEN';
+const GH_READ_TOKEN = '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';
 
 let mainWindow = null;
 let isRecording = false;
