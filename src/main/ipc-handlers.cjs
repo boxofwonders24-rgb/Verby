@@ -318,6 +318,84 @@ Return ONLY the JSON. No explanation, no markdown.`;
         return { optimized: raw, detectedCategory: hintCategory, type: 'task' };
       }
     }
+    ,
+    // Intent detection + generation (keep system prompt in sync with site/api/generate.js)
+    async generateSmart(rawText) {
+      const systemPrompt = `You are Verby — an intent-aware voice assistant. The user spoke into a microphone and their speech was transcribed. Analyze what they want and respond accordingly.
+
+STEP 1 — DETECT INTENT:
+- EMAIL: The user wants to send an email or message to someone. Look for phrases like "email", "write to", "send a message to", "tell [person] about", "draft an email", "reply to [person]".
+- PROMPT: Anything else — questions, tasks, brainstorming, commands. This is the default.
+
+If you are not confident the user wants an email, choose PROMPT. Never guess — false positives are worse than missed emails.
+
+STEP 2 — GENERATE:
+
+If EMAIL:
+- Extract the recipient name, topic, and key points from their speech
+- Write a complete email: greeting, body, sign-off
+- CRITICAL TONE RULE: Mirror how the user spoke. If they were casual ("hey can you tell Mike we're pushing back"), write casually. If they were formal ("please inform the client of the schedule adjustment"), write formally. The user's words ARE the tone guide.
+- Do NOT add a subject line
+- Do NOT invent facts, dates, commitments, or details the user did not mention
+- Do NOT use corporate filler: "I hope this email finds you well", "per our previous discussion", "as per", "please do not hesitate"
+- Keep length proportional to what the user said
+- When the user is vague, keep the email general rather than fabricating specifics
+- Sign off with just a first name placeholder like "Best,\\n[Your name]"
+
+If PROMPT:
+- Clean up the speech into a well-structured prompt
+- Remove filler words, false starts, verbal tics
+- Add specificity and structure
+- Keep the user's intent and tone
+
+OUTPUT FORMAT:
+Return a JSON object:
+{"type": "email" or "prompt", "result": "the generated text"}
+Return ONLY the JSON. No explanation, no markdown fences.`;
+
+      let raw;
+
+      if (defaultProvider === 'claude' && anthropicKey) {
+        const Anthropic = require('@anthropic-ai/sdk');
+        const client = new Anthropic({ apiKey: anthropicKey });
+        const response = await client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: rawText }],
+        });
+        raw = response.content[0].text.trim();
+      } else if (openaiKey) {
+        const OpenAI = require('openai');
+        const client = new OpenAI({ apiKey: openaiKey });
+        const response = await client.chat.completions.create({
+          model: 'gpt-4o',
+          max_tokens: 2048,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: rawText },
+          ],
+        });
+        raw = response.choices[0].message.content.trim();
+      } else {
+        // No local keys — use server proxy
+        const resp = await fetch(`${PROXY_BASE}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: rawText }),
+        });
+        if (!resp.ok) throw new Error('Server generation failed');
+        const data = await resp.json();
+        return { type: data.type || 'prompt', result: data.result || '' };
+      }
+
+      try {
+        const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, ''));
+        return { type: parsed.type || 'prompt', result: parsed.result || raw };
+      } catch {
+        return { type: 'prompt', result: raw };
+      }
+    }
   };
 
   // LLM dispatch
@@ -513,6 +591,21 @@ function registerHandlers(mainWindow) {
     return { id, optimized: result.optimized, category: detectedCat };
   });
 
+  ipcMain.handle('generate-smart', async (_event, rawText) => {
+    const limit = checkUsageLimit(true);
+    if (!limit.allowed) throw new Error(limit.reason);
+    try {
+      const result = await engine.generateSmart(rawText);
+      if (!db) throw new Error('Database not initialized.');
+      db.save(rawText, result.result, result.type === 'email' ? 'email' : 'general');
+      db.incrementUsage(true);
+      return result;
+    } catch (err) {
+      console.error('[generate-smart] Failed:', err.message);
+      throw err;
+    }
+  });
+
   // Chat — type a prompt directly instead of voice
   ipcMain.handle('chat-optimize', async (_event, text) => {
     const limit = checkUsageLimit(true);
@@ -609,9 +702,11 @@ function registerHandlers(mainWindow) {
 
   // === System-wide text injection ===
   // Tries native CGEventPost first, falls back to AppleScript, then clipboard-only
-  ipcMain.handle('inject-text', async (_event, text) => {
-    // Process voice commands
+  ipcMain.handle('inject-text', async (_event, text, options) => {
     let processed = text;
+
+    // Process voice commands (skip for AI-generated content like emails)
+    if (!options || !options.skipVoiceCommands) {
     processed = processed.replace(/\bnew line\b/gi, '\n');
     processed = processed.replace(/\bnew paragraph\b/gi, '\n\n');
     processed = processed.replace(/\bperiod\b/gi, '.');
@@ -622,6 +717,7 @@ function registerHandlers(mainWindow) {
     processed = processed.replace(/\bsemicolon\b/gi, ';');
     processed = processed.replace(/\bopen quote\b/gi, '"');
     processed = processed.replace(/\bclose quote\b/gi, '"');
+    } // end if !skipVoiceCommands
 
     console.log('>>> Injecting text:', processed.substring(0, 50) + '...');
 
@@ -655,7 +751,7 @@ function registerHandlers(mainWindow) {
     }
 
     // Handle "send message" voice command — press Enter after injection
-    if (/\bsend message\b/gi.test(text)) {
+    if ((!options || !options.skipVoiceCommands) && /\bsend message\b/gi.test(text)) {
       setTimeout(async () => {
         // Try native Enter key press
         const { execFile } = require('child_process');
