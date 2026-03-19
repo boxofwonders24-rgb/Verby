@@ -15,7 +15,7 @@ export const getSettings = () => (verby.getSettings || (() => Promise.resolve({}
 export const setSetting = (key, value) => (verby.setSetting || noopAsync)(key, value);
 
 // Dictation
-export const injectText = (text) => (verby.injectText || noopAsync)(text);
+export const injectText = (text, options) => (verby.injectText || noopAsync)(text, options);
 export const onToggleDictation = (cb) => (verby.onToggleDictation || noop)(cb);
 
 // Fn key hold-to-talk
@@ -51,6 +51,9 @@ export const onAutoContext = (cb) => (verby.onAutoContext || noop)(cb);
 
 // Settings nav
 export const onOpenSettings = (cb) => (verby.onOpenSettings || noop)(cb);
+
+// Intent-aware generation
+export const generateSmart = (text) => (verby.generateSmart || noopAsync)(text);
 
 // Auto-updates
 export const onUpdateAvailable = (cb) => (verby.onUpdateAvailable || noop)(cb);

@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld('verby', {
   hideWindow: () => ipcRenderer.invoke('hide-window'),
 
   // Dictation — system-wide text injection
-  injectText: (text) => ipcRenderer.invoke('inject-text', text),
+  injectText: (text, options) => ipcRenderer.invoke('inject-text', text, options),
   onToggleDictation: (callback) => {
     ipcRenderer.on('toggle-dictation', () => callback());
     return () => ipcRenderer.removeAllListeners('toggle-dictation');
@@ -87,6 +87,9 @@ contextBridge.exposeInMainWorld('verby', {
 
   // Debug logging
   log: (msg) => ipcRenderer.send('renderer-log', msg),
+
+  // Intent-aware generation (email or prompt)
+  generateSmart: (text) => ipcRenderer.invoke('generate-smart', text),
 
   // Auto-updates (use removeListener with specific handler to avoid wiping other listeners)
   onUpdateAvailable: (callback) => {
