@@ -8,7 +8,7 @@
 
 Add intent detection to Verby's AI-enhanced (Fn) path so that when a user says something like "email John about the deadline", Verby generates a complete email matching their natural speaking tone and injects it at the cursor. Non-email speech continues through the current prompt enhancement path unchanged.
 
-This is the first "intent" in a framework designed for future expansion (search, message drafting, etc.).
+This is the first "intent" — the system prompt can be extended with new intent types in the future without client changes, as long as the response shape remains `{ type, result }`.
 
 ## Decisions
 
@@ -19,13 +19,13 @@ This is the first "intent" in a framework designed for future expansion (search,
 | Tone style | Match user's voice | Casual speech → casual email, formal speech → formal email. No personality stripping. |
 | Architecture | Single LLM call (Approach 1) | Intent detection + generation in one prompt. Simplest, fits existing pipeline. |
 | Server vs client detection | Server-side | Easy to update intents without app releases. All intelligence on Vercel. |
-| API budget | Server proxy only | Same as current architecture. User's API keys not involved. |
+| API path | Dual-path (same as optimize-prompt) | Uses local API keys if configured; falls back to Vercel proxy. Matches existing architecture. |
 
 ## Server-Side: New Vercel Endpoint
 
 ### `/api/generate` (new file: `site/api/generate.js`)
 
-Receives the raw transcript from the Fn (AI-enhanced) path. Performs intent detection and generation in a single LLM call.
+Vercel proxy fallback endpoint. Only called when the user has no local API keys configured.
 
 **Request:** Same shape as current `/api/optimize` — receives transcript text.
 
@@ -37,6 +37,8 @@ Receives the raw transcript from the Fn (AI-enhanced) path. Performs intent dete
 }
 ```
 
+**`maxDuration: 45`** — email generation with intent classification is slower than plain optimization. 45 seconds provides headroom over the current 30s on `/api/optimize`.
+
 **Single system prompt handles:**
 
 1. **Intent classification:**
@@ -47,7 +49,7 @@ Receives the raw transcript from the Fn (AI-enhanced) path. Performs intent dete
    - Extract: recipient, topic, key points from natural speech
    - Mirror the user's speaking tone (casual → casual, formal → formal)
    - Structure: greeting, body, sign-off
-   - No subject line in output (email clients handle that)
+   - No subject line in output (user adds subject manually in their email client)
 
 3. **Prompt enhancement (fallback):**
    - Same behavior as current `/api/optimize` — clean up and enhance the prompt
@@ -55,7 +57,7 @@ Receives the raw transcript from the Fn (AI-enhanced) path. Performs intent dete
 ### Safety Guidelines (Baked Into Prompt)
 
 - Never invent commitments, dates, or facts the user didn't say
-- No corporate filler ("per our previous discussion", "I hope this finds you well", "I hope this email finds you well")
+- No corporate filler ("per our previous discussion", "I hope this finds you well")
 - Keep it proportional — 10-second voice note doesn't produce 5-paragraph email
 - When user is vague ("email Mike about the thing"), keep email short and general rather than fabricating specifics
 - No generic robotic language — preserve the human quality of what was said
@@ -65,25 +67,53 @@ Receives the raw transcript from the Fn (AI-enhanced) path. Performs intent dete
 - `/api/optimize` — stays untouched. Still used by any code that calls it directly.
 - `/api/transcribe` — unchanged.
 
+## Client-Side: IPC Handler
+
+### `ipc-handlers.cjs` — New `generate-smart` Handler
+
+Follows the **same dual-path pattern** as existing `optimize-prompt`:
+1. Check if user has local API keys (Anthropic or OpenAI)
+2. If yes: build the intent-detection + generation prompt locally and call the API directly
+3. If no: proxy to Vercel `/api/generate`
+
+**Usage accounting (same as optimize-prompt):**
+- Check `checkUsageLimit(true)` before calling — enforces freemium daily limit
+- Call `db.incrementUsage(true)` after — counts as an enhanced usage
+- Call `db.save()` to persist the result to history
+- Do NOT call `db.recordPattern()` — email outputs are not meaningful for pattern learning
+
+**Response shape:** `{ type: 'email' | 'prompt', result: '...' }` — same whether local or proxied.
+
 ## Client-Side: Fn Path Modification
 
 ### `useDictation.js` Change
 
 Current Fn flow:
 1. Transcribe audio → raw text
-2. Call `optimizePrompt(text, 'general')` → enhanced text
-3. Inject enhanced text at cursor
+2. **If `enhancedMode` is on AND not raw mode:** call `optimizePrompt(text, 'general')` → read `result.optimized`
+3. Inject text at cursor via `injectText()`
 
 New Fn flow:
 1. Transcribe audio → raw text
-2. Call new `generateSmart(text)` → `{ type, result }`
-3. Inject `result` at cursor (same as before)
+2. **If `enhancedMode` is on AND not raw mode:** call `generateSmart(text)` → read `response.result`
+3. If `response.type === 'email'`: inject via `injectText()` with `skipVoiceCommands: true` flag
+4. If `response.type === 'prompt'` or fallback: inject via `injectText()` as normal
 
-The only behavioral difference: step 2 calls a different endpoint that may return an email instead of an enhanced prompt. The injection step is identical either way.
+**Critical: the `enhancedMode && !isRawMode.current` guard must be preserved.** When enhanced mode is off, raw transcript is injected unchanged (current behavior).
 
-### `ipc-handlers.cjs` Change
+**Note:** The `toggleDictation` (Cmd+Shift+Space) path shares the same `onstop` handler, so it will also use `generateSmart` when enhanced mode is on. This is intentional — all AI-enhanced paths should benefit from intent detection.
 
-Add a new IPC handler (`generate-smart`) that calls the Vercel `/api/generate` endpoint (or localhost in dev). Same pattern as existing `optimize-prompt` handler.
+### Voice Command Substitution Fix
+
+The existing `inject-text` handler in `ipc-handlers.cjs` applies voice command substitutions (e.g., "period" → `.`, "new line" → `\n`). These substitutions will corrupt AI-generated email prose — "The deadline is end of period." would become "The deadline is end of .."
+
+**Fix:** Add a `skipVoiceCommands` parameter to `inject-text`. When true, skip all voice command substitutions. The renderer passes this flag when injecting email output (`type === 'email'`). Prompt-enhanced output and raw dictation continue to use voice commands as before.
+
+### Error Handling
+
+The current `optimizePrompt` call has a bare `catch {}` that silently falls back to raw transcript. For email intent, this means the user's raw speech ("email John about the deadline") would be injected as literal text.
+
+**Fix:** On error, log the failure and fall through to injecting the raw transcript (same as current), but prefix with a brief note in the console log. The user sees their raw text and can re-try. No UI error needed — this matches current error behavior and the raw fallback is acceptable.
 
 ### `preload.js` + `ipc.js` Changes
 
@@ -91,47 +121,28 @@ Add `generateSmart` IPC bridge and export, following existing patterns.
 
 ### Dictation Log
 
-The `type` field from the response is stored in the dictation log entry so users can see in their history whether a result was an email or a prompt enhancement.
+Add `intentType` field to the dictation log entry: `{ raw, final, enhanced, intentType, time }`. Value is `'email'`, `'prompt'`, or omitted for raw dictation.
 
-## Intent Detection Framework
-
-The system prompt is structured to support future intents:
-
-```
-You are an intent-aware assistant. Analyze the user's speech and determine what they want:
-
-1. EMAIL: They want to send an email/message to someone → generate the email
-2. DEFAULT: Anything else → enhance as a prompt
-
-[Future intents can be added here without changing client code]
-```
-
-Adding a new intent (e.g., "search") means:
-1. Add the intent to the system prompt on Vercel
-2. Add a new `type` value to the response
-3. Optionally handle the new type differently in the renderer (or just inject as text)
-
-No app update required for steps 1-2. Step 3 only needed if the new intent requires different UI behavior.
+**Unknown future types:** If the server returns an unrecognized `type` value, treat it as `'prompt'` — inject `result` as text. This ensures server-side intent additions don't break older clients.
 
 ## File Changes Summary
 
 ### New Files
-- `site/api/generate.js` — new Vercel endpoint (~60-80 lines)
+- `site/api/generate.js` — Vercel proxy endpoint (~60-80 lines)
 
 ### Modified Files
-- `src/main/ipc-handlers.cjs` — add `generate-smart` IPC handler
+- `src/main/ipc-handlers.cjs` — add `generate-smart` handler (dual-path: local keys or Vercel proxy), add `skipVoiceCommands` param to `inject-text`
 - `src/main/preload.js` — add `generateSmart` bridge
-- `src/renderer/lib/ipc.js` — add `generateSmart` export
-- `src/renderer/hooks/useDictation.js` — Fn path calls `generateSmart` instead of `optimizePrompt`
+- `src/renderer/lib/ipc.js` — add `generateSmart` export, update `injectText` to accept options
+- `src/renderer/hooks/useDictation.js` — Fn path calls `generateSmart` instead of `optimizePrompt`, passes `skipVoiceCommands` for email type
 
 ### Untouched
-- Ctrl (raw dictation) path
-- Cmd+Shift+Space toggle path
-- `/api/optimize` endpoint
-- `/api/transcribe` endpoint
-- Native binaries (fn-capture, text-inject, indicator)
-- SettingsPanel, auto-update system, Stripe
-- useRecording.js
+- Ctrl (raw dictation) path — unchanged (uses raw transcript, no AI)
+- `/api/optimize` endpoint — stays as-is
+- `/api/transcribe` endpoint — unchanged
+- Native binaries (fn-capture, text-inject, indicator) — NOT recompiled
+- SettingsPanel, auto-update system, Stripe — untouched
+- useRecording.js — untouched
 
 ## Rollback
 
