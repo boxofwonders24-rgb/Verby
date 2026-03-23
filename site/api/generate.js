@@ -1,10 +1,15 @@
 // Vercel Serverless Function — intent-aware generation (email or prompt enhancement)
-// Proxy fallback for users without local API keys
-// Keep system prompt in sync with engine.generateSmart in src/main/ipc-handlers.cjs
+// Protected by Supabase JWT auth + server-side rate limiting
+import { authAndLimit } from './_auth.js';
+
 export const config = { maxDuration: 45 };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+
+  // Authenticate and check usage
+  const auth = await authAndLimit(req, { isEnhanced: true });
+  if (auth.error) return res.status(auth.status).json({ error: auth.error });
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   const OPENAI_KEY = process.env.OPENAI_API_KEY;

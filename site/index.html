@@ -3,18 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verby — Voice-Powered AI for macOS</title>
-  <meta name="description" content="Talk to any app. Verby writes emails, crafts prompts, and cleans up your speech — injected at your cursor.">
+  <title>Verby — AI Voice-to-Text App for Mac & Windows | Dictation, Emails, Prompts</title>
+  <meta name="description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor. Free AI dictation for Mac and Windows.">
+  <meta name="keywords" content="voice to text app, AI dictation software, speech to text desktop, voice typing Mac, voice typing Windows, AI email generator, voice prompt tool, hands free typing">
+  <link rel="canonical" href="https://verbyai.com/">
   <!-- Open Graph / Social -->
-  <meta property="og:title" content="Verby — Voice-Powered AI for macOS">
-  <meta property="og:description" content="Talk to any app. Verby writes emails, crafts prompts, and cleans up your speech — injected at your cursor.">
+  <meta property="og:title" content="Verby — AI Voice-to-Text App for Mac & Windows">
+  <meta property="og:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor. Free for Mac and Windows.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://verbyai.com">
+  <meta property="og:site_name" content="Verby">
+  <meta property="og:locale" content="en_US">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Verby — Voice-Powered AI for macOS">
-  <meta name="twitter:description" content="Talk to any app. Verby writes emails, crafts prompts, and cleans up your speech — injected at your cursor.">
+  <meta name="twitter:title" content="Verby — AI Voice-to-Text App for Mac & Windows">
+  <meta name="twitter:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor.">
   <meta name="twitter:site" content="@verbyai">
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Verby",
+    "description": "AI-powered voice-to-text desktop app that writes emails, crafts prompts, and cleans up speech — injected at your cursor in any application.",
+    "url": "https://verbyai.com",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "macOS, Windows",
+    "offers": [
+      {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "name": "Free",
+        "description": "20 dictations per day with speech cleanup"
+      },
+      {
+        "@type": "Offer",
+        "price": "9",
+        "priceCurrency": "USD",
+        "name": "Pro",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "9",
+          "priceCurrency": "USD",
+          "billingDuration": "P1M"
+        },
+        "description": "Unlimited AI-powered dictation, email generation, and smart prompts"
+      }
+    ],
+    "author": {
+      "@type": "Organization",
+      "name": "Syntrix",
+      "url": "https://verbyai.com"
+    },
+    "softwareVersion": "0.3.0",
+    "downloadUrl": "https://verbyai.com/#download",
+    "featureList": [
+      "Voice-to-text dictation",
+      "AI email generation",
+      "Smart prompt enhancement",
+      "System-wide text injection",
+      "Context-aware AI",
+      "Speech cleanup"
+    ]
+  }
+  </script>
+  <!-- FAQ Schema for rich snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Verby?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Verby is an AI-powered voice-to-text desktop app for Mac and Windows. Hold a key and speak — Verby writes emails, crafts AI prompts, and cleans up your speech, then injects the text at your cursor in any application."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Verby free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, Verby has a free tier with 20 dictations per day and speech cleanup. The Pro plan at $9/month adds unlimited dictations, AI email generation, smart prompts, and context awareness."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Verby work on Windows?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, Verby is available for both macOS and Windows. On Mac, hold Fn to dictate. On Windows, hold CapsLock for AI-enhanced dictation or Right Ctrl for speech cleanup."
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -31,7 +117,7 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
@@ -254,11 +340,11 @@
 
     <!-- Hero -->
     <section class="hero">
-      <div class="badge">Voice-Powered AI for macOS</div>
+      <div class="badge">Voice-Powered AI for Mac & Windows</div>
       <h1>Talk to any app.<br><span class="gradient">Verby handles the rest.</span></h1>
-      <p class="subtitle">Hold Fn and speak naturally. Verby writes emails, crafts prompts, and cleans up your speech — injected instantly wherever your cursor is. No typing. No copy-paste.</p>
+      <p class="subtitle">Hold a key and speak naturally. Verby writes emails, crafts prompts, and cleans up your speech — injected instantly wherever your cursor is. No typing. No copy-paste.</p>
       <div class="ctas">
-        <a href="#download" class="btn btn-primary">Download for Mac</a>
+        <a href="#download" class="btn btn-primary">Download Free</a>
         <a href="#pricing" class="btn btn-secondary">See Pricing</a>
       </div>
     </section>
@@ -322,7 +408,7 @@
         <div class="feature">
           <div class="feature-icon">🎙</div>
           <h3>Three Input Modes</h3>
-          <p><span class="teal"><strong>Fn</strong></span> for AI-enhanced prompts & emails. <span class="violet"><strong>Ctrl</strong></span> for speech cleanup. <strong>Cmd+Shift+Space</strong> to toggle. System-wide, works in any app.</p>
+          <p>Hold a key for AI-enhanced prompts & emails, or speech cleanup. System-wide hotkeys on Mac (<strong>Fn</strong>, <strong>Ctrl</strong>) and Windows (<strong>CapsLock</strong>, <strong>Right Ctrl</strong>). Works in any app.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">✉️</div>
@@ -389,12 +475,18 @@
     <!-- Download -->
     <section class="hero" id="download" style="padding: 60px 0 40px;">
       <h2 style="font-size: 32px; margin-bottom: 16px;">Ready to speak smarter?</h2>
-      <p class="subtitle" style="margin-bottom: 32px;">Download Verby for macOS. Setup takes 60 seconds.</p>
+      <p class="subtitle" style="margin-bottom: 32px;">Download Verby for free. Setup takes 60 seconds.</p>
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 12px;">macOS</div>
       <div class="ctas">
         <a href="/VerbyPrompt-arm64.dmg" class="btn btn-primary" style="font-size: 15px; padding: 14px 28px;">Download for Apple Silicon</a>
         <a href="/VerbyPrompt-intel.dmg" class="btn btn-secondary" style="font-size: 15px; padding: 14px 28px;">Download for Intel Mac</a>
       </div>
       <p style="font-size: 11px; color: var(--text-3); margin-top: 12px;">Requires macOS 13+ · v0.3.0 · M1/M2/M3 or Intel</p>
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-top: 28px; margin-bottom: 12px;">Windows</div>
+      <div class="ctas">
+        <a href="#" class="btn btn-secondary" style="font-size: 15px; padding: 14px 28px; opacity: 0.6; pointer-events: none;">Windows — Coming Soon</a>
+      </div>
+      <p style="font-size: 11px; color: var(--text-3); margin-top: 12px;">Windows 10/11 · x64 · Notify me when available</p>
     </section>
 
     <!-- Install instructions -->
@@ -431,7 +523,7 @@
     </section>
 
     <footer>
-      <p>© 2026 Verby by Stephen Grandy. All rights reserved.</p>
+      <p>© 2026 Verby by Syntrix. All rights reserved.</p>
     </footer>
   </div>
   <!-- Vercel Analytics -->

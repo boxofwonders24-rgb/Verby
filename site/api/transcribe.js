@@ -1,9 +1,15 @@
 // Vercel Serverless Function — proxies Whisper API calls
-// Users' audio goes to this endpoint, we call OpenAI with OUR key
+// Protected by Supabase JWT auth + server-side rate limiting
+import { authAndLimit } from './_auth.js';
+
 export const config = { api: { bodyParser: false }, maxDuration: 30 };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+
+  // Authenticate and check usage
+  const auth = await authAndLimit(req, { isEnhanced: false });
+  if (auth.error) return res.status(auth.status).json({ error: auth.error });
 
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   if (!OPENAI_KEY) return res.status(500).json({ error: 'Server not configured' });

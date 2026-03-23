@@ -1,9 +1,15 @@
 // Vercel Serverless Function — proxies Claude/GPT prompt optimization
-// App sends raw text, we call the AI with OUR key and return the optimized prompt
+// Protected by Supabase JWT auth + server-side rate limiting
+import { authAndLimit } from './_auth.js';
+
 export const config = { maxDuration: 30 };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+
+  // Authenticate and check usage
+  const auth = await authAndLimit(req, { isEnhanced: true });
+  if (auth.error) return res.status(auth.status).json({ error: auth.error });
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
