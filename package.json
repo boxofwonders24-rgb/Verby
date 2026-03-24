@@ -10,6 +10,8 @@
     "build:app": "electron-builder --mac",
     "build": "npm run build:renderer && npm run build:app",
     "release": "npm run build:renderer && electron-builder --mac --publish always",
+    "build:win": "npm run build:renderer && electron-builder --win",
+    "release:win": "npm run build:renderer && electron-builder --win --publish always",
     "postinstall": "electron-builder install-app-deps"
   },
   "license": "MIT",
@@ -45,8 +47,17 @@
         "en"
       ],
       "extendInfo": {
+        "LSUIElement": true,
         "NSMicrophoneUsageDescription": "VerbyPrompt needs microphone access to transcribe your speech.",
-        "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps."
+        "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "verbyprompt"
+            ],
+            "CFBundleURLName": "com.verby.prompt"
+          }
+        ]
       },
       "extraResources": [
         {
@@ -61,7 +72,8 @@
           "from": "native/indicator",
           "to": "native/indicator"
         }
-      ]
+      ],
+      "afterSign": "scripts/notarize.js"
     },
     "dmg": {
       "background": null,
@@ -85,6 +97,28 @@
         "height": 380
       }
     },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "Syntrix",
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "sign": "./scripts/sign-windows.js"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": true,
+      "shortcutName": "Verby"
+    },
     "files": [
       "dist/renderer/**/*",
       "src/main/**/*",
@@ -100,7 +134,14 @@
       "repo": "verby",
       "private": true
     },
-    "afterSign": "scripts/notarize.js"
+    "protocols": [
+      {
+        "name": "Verby Auth",
+        "schemes": [
+          "verbyprompt"
+        ]
+      }
+    ]
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.6.0",
@@ -121,12 +162,15 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "@supabase/supabase-js": "^2.99.2",
     "better-sqlite3": "^12.8.0",
     "dotenv": "^17.3.1",
     "electron-store": "^11.0.2",
     "electron-updater": "^6.8.3",
     "openai": "^6.31.0",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "uiohook-napi": "^1.5.4"
   }
 }
