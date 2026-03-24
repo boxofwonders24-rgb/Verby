@@ -1,8 +1,31 @@
 # Windows Deployment Design Spec
 
 **Date:** 2026-03-23
-**Status:** Approved
+**Status:** Phase 1-2 Complete
 **Approach:** Finalize Existing Platform Abstraction + Resolve Gaps
+
+## Completion Log
+
+### Phase 1 (Security & Correctness) — Complete
+- [x] Hardcoded GitHub PAT removed from auto-updater.js (-> GH_UPDATE_TOKEN env var)
+- [x] deleteAppDataOnUninstall set to false in package.json
+- [x] second-instance deep link handler — already existed (index.js:657-669)
+- [x] Microphone permission check — now uses systemPreferences.getMediaAccessStatus
+
+### Phase 2 (Feature Completeness) — Partially Complete
+- [x] Platform-aware onboarding — already existed (Onboarding.jsx:19-80)
+- [x] Platform-aware keyboard shortcuts — already existed (SettingsPanel.jsx:367-386)
+- [x] Tray tooltip — now shows platform-specific hotkey
+- [ ] Frontmost app detection on Windows — deferred (spec Section 4a)
+- [ ] CapsLock toggle suppression while Verby running — deferred
+
+### Phase 3 (Distribution Readiness) — In Progress
+- [x] Electron Fuses configured (scripts/afterPack.js)
+- [ ] EV code signing certificate — not yet purchased
+- [ ] AV vendor submissions — not yet submitted
+- [ ] Enterprise deployment documentation — not yet written
+
+---
 
 ## Overview
 
