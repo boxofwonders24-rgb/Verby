@@ -5,9 +5,13 @@
 
 ## Overview
 
-Add user-configurable email writing styles to Verby's voice-to-email feature. Four modes: **Auto** (default, preserves current tone-mirroring behavior), **Formal**, **Casual**, and **Direct**. Users set a default in Settings and can override per-dictation via voice keywords.
+Add user-configurable email writing styles and automatic sign-off name to Verby's voice-to-email feature.
 
-**Approach:** System Prompt Injection — a single tone directive is injected into the existing `generateSmart()` system prompt based on the selected style. No separate templates, no double API calls.
+**Writing styles:** Four modes — **Auto** (default, preserves current tone-mirroring behavior), **Formal**, **Casual**, and **Direct**. Users set a default in Settings and can override per-dictation via voice keywords.
+
+**Sign-off name:** Emails automatically use the user's name instead of `[Your name]`, with a configurable text field in Settings.
+
+**Approach:** System Prompt Injection — tone directive and sign-off name are injected into the existing `generateSmart()` system prompt. No separate templates, no double API calls.
 
 ---
 
@@ -91,7 +95,7 @@ This function is called when building the system prompt. The existing hardcoded 
 - CRITICAL TONE RULE: ${getEmailToneDirective(resolvedStyle)}
 ```
 
-Everything else in the system prompt (intent detection, no clichés, no invented facts, sign-off format, expansion rules) stays identical.
+Everything else in the system prompt (intent detection, no clichés, no invented facts, expansion rules) stays identical — except the sign-off instruction, which is also updated (see Section 3b).
 
 **Important:** `emailStyle` must be read fresh inside `generateSmart()` on each invocation via `getSetting('emailStyle', 'auto')`, NOT captured in the `initServices()` closure. The API keys are captured at init time, but `emailStyle` should reflect the user's current setting.
 
@@ -103,6 +107,53 @@ Both must have the same `getEmailToneDirective()` function and the same interpol
 
 ---
 
+## 3b. Email Sign-Off Name
+
+Replace the hardcoded sign-off instruction in the system prompt.
+
+**Current instruction:**
+```
+Signs off with "Best,\n[Your name]"
+```
+
+**New instruction:**
+```js
+Signs off with "Best,\n${resolvedName}"
+```
+
+### Name Resolution Priority Chain
+
+```js
+function getEmailSignOffName() {
+  // 1. User's explicit setting (highest priority)
+  const settingName = getSetting('emailSignOffName', '');
+  if (settingName.trim()) return settingName.trim();
+
+  // 2. Supabase profile name (if authenticated)
+  // Read from cached auth state — no async call needed
+  const authName = getAuthUserName();
+  if (authName) return authName;
+
+  // 3. Fallback
+  return '[Your name]';
+}
+```
+
+**`getAuthUserName()` implementation:** Read the user's display name or email prefix from the cached Supabase session stored in `auth-session.json` at `app.getPath('userData')`. The auth module (`src/main/auth.js`) already persists session data — extract the name from `user.user_metadata.full_name` or fall back to the email prefix (everything before `@`).
+
+**System prompt change:**
+```js
+// BEFORE
+Signs off with "Best,\n[Your name]"
+
+// AFTER
+Signs off with "Best,\n${getEmailSignOffName()}"
+```
+
+**Sync warning:** Same as Section 3 — update both `ipc-handlers.cjs` and `site/api/generate.js`. The Vercel proxy receives the sign-off name via a new optional `emailSignOffName` field in the request body (default: `'[Your name]'`).
+
+---
+
 ## 4. Settings UI
 
 **File:** `src/renderer/components/SettingsPanel.jsx`
@@ -110,16 +161,21 @@ Both must have the same `getEmailToneDirective()` function and the same interpol
 Add a dropdown in the Settings panel under a new "Email" subsection (or alongside existing preferences):
 
 ```
-Email Style: [Auto ▾]
-  Auto     — Matches your speaking tone
-  Formal   — Professional and polished
-  Casual   — Warm and conversational
-  Direct   — Concise, no fluff
+Email Style:    [Auto ▾]
+                Auto     — Matches your speaking tone
+                Formal   — Professional and polished
+                Casual   — Warm and conversational
+                Direct   — Concise, no fluff
+
+Sign-off Name:  [Stephen____________]
+                Used at the end of generated emails
 ```
 
-**Storage:** `settings.json` via existing `setSetting('emailStyle', value)` / `getSetting('emailStyle', 'auto')` pattern.
+**Storage:** `settings.json` via existing patterns:
+- `setSetting('emailStyle', value)` / `getSetting('emailStyle', 'auto')`
+- `setSetting('emailSignOffName', value)` / `getSetting('emailSignOffName', '')`
 
-**No new IPC channels needed.** The existing `getSettings()` and `setSetting()` bridge handles this. The `generateSmart()` function reads the setting at call time via `getSetting('emailStyle', 'auto')`.
+**No new IPC channels needed.** The existing `getSettings()` and `setSetting()` bridge handles both. Both values are read fresh inside `generateSmart()` on each call.
 
 ---
 
@@ -131,9 +187,9 @@ Add `emailStyle` as an optional parameter in the request body. Pass it through t
 
 **Both sides need updating:**
 1. **Server (`site/api/generate.js`):** Read `emailStyle` from request body, pass to `getEmailToneDirective()`, interpolate into the system prompt
-2. **Client (`src/main/ipc-handlers.cjs`):** The proxy `fetch` call in `generateSmart()` must also send `emailStyle` in the request body:
+2. **Client (`src/main/ipc-handlers.cjs`):** The proxy `fetch` call in `generateSmart()` must also send both values in the request body:
    ```js
-   body: JSON.stringify({ text: rawText, emailStyle: resolvedStyle }),
+   body: JSON.stringify({ text: rawText, emailStyle: resolvedStyle, emailSignOffName: resolvedName }),
    ```
 
 This ensures users without local API keys (who go through the Vercel proxy) also get style support.
@@ -152,7 +208,8 @@ Strip keyword: "email John about the deadline"
     ↓
 Read emailStyle setting (used as fallback if no voice override)
     ↓
-Build system prompt with getEmailToneDirective('formal')
+Resolve sign-off name via priority chain
+Build system prompt with getEmailToneDirective('formal') + resolved name
     ↓
 API call to Claude/GPT with modified system prompt
     ↓
@@ -167,9 +224,10 @@ Inject at cursor (skipVoiceCommands: true)
 
 | File | Change |
 |------|--------|
-| `src/main/ipc-handlers.cjs` | Add `getEmailToneDirective()`, voice override regex in `generateSmart()`, read `emailStyle` via `getSetting()` on each call, send `emailStyle` in proxy fetch body, add `emailStyle` to `get-settings` handler return object |
-| `src/renderer/components/SettingsPanel.jsx` | Add Email Style dropdown |
-| `site/api/generate.js` | Accept `emailStyle` param, add `getEmailToneDirective()`, interpolate into system prompt |
+| `src/main/ipc-handlers.cjs` | Add `getEmailToneDirective()`, `getEmailSignOffName()`, voice override regex in `generateSmart()`, read `emailStyle` and `emailSignOffName` via `getSetting()` on each call, send both in proxy fetch body, add both to `get-settings` handler return object |
+| `src/main/auth.js` | Export helper to read cached user name from Supabase session |
+| `src/renderer/components/SettingsPanel.jsx` | Add Email Style dropdown and Sign-off Name text field |
+| `site/api/generate.js` | Accept `emailStyle` and `emailSignOffName` params, add `getEmailToneDirective()`, interpolate both into system prompt |
 
 **No changes needed:**
 - `preload.js` — existing `getSettings`/`setSetting` bridge works
