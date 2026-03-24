@@ -1,0 +1,107 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on version tags like v0.3.1, v1.0.0
+  workflow_dispatch: # Manual trigger from GitHub Actions UI
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer
+        run: npm run build:renderer
+
+      - name: Build macOS (unsigned)
+        run: electron-builder --mac --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false # Skip signing in CI for now
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verby-mac
+          path: |
+            out/*.dmg
+            out/*.zip
+          retention-days: 30
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer
+        run: npm run build:renderer
+
+      - name: Build Windows
+        run: npx electron-builder --win --publish never
+        env:
+          WIN_SIGN_MODE: ${{ secrets.WIN_SIGN_MODE }}
+          WIN_SIGN_CERT_SHA1: ${{ secrets.WIN_SIGN_CERT_SHA1 }}
+          SM_API_KEY: ${{ secrets.SM_API_KEY }}
+          SM_CLIENT_CERT_FILE: ${{ secrets.SM_CLIENT_CERT_FILE }}
+          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+          SM_CERT_ALIAS: ${{ secrets.SM_CERT_ALIAS }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verby-windows
+          path: |
+            out/*.exe
+          retention-days: 30
+
+  # Release job — only runs on version tags, uploads artifacts to GitHub Releases
+  release:
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: verby-mac
+          path: artifacts/mac
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: verby-windows
+          path: artifacts/win
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            artifacts/mac/*
+            artifacts/win/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
