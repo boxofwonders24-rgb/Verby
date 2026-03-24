@@ -128,6 +128,7 @@
       "output": "out"
     },
     "asar": true,
+    "afterPack": "./scripts/afterPack.js",
     "publish": {
       "provider": "github",
       "owner": "boxofwonders24-rgb",
@@ -148,6 +149,7 @@
     "@electron-forge/maker-dmg": "^7.6.0",
     "@electron-forge/maker-zip": "^7.6.0",
     "@electron-forge/plugin-vite": "^7.6.0",
+    "@electron/fuses": "^2.1.0",
     "@electron/notarize": "^2.5.0",
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.0",
