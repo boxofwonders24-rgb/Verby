@@ -1,35 +1,44 @@
 require('dotenv').config();
 
+const platform = require('./platform');
+
 // Force process name to 'Verby' — fixes "Electron" in macOS menu bar during dev
-if (process.platform === 'darwin') {
-  try { process.setTitle && process.setTitle('Verby'); } catch {}
+if (platform.isMac) {
+  try { process.title = 'Verby'; } catch {}
 }
 
-// File-based logging so we can debug when launched via Finder
+// File-based logging so we can debug when launched via Finder / Explorer
 const _fs = require('fs');
-const _logPath = '/tmp/verbyprompt-app.log';
+const _logPath = platform.getLogPath();
 _fs.writeFileSync(_logPath, `=== Verby started ${new Date().toISOString()} ===\n`);
 const _origLog = console.log;
 const _origErr = console.error;
 console.log = (...args) => { _origLog(...args); _fs.appendFileSync(_logPath, args.join(' ') + '\n'); };
 console.error = (...args) => { _origErr(...args); _fs.appendFileSync(_logPath, 'ERR: ' + args.join(' ') + '\n'); };
 
-const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage, ipcMain } = require('electron');
+const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage, ipcMain, systemPreferences } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const { initAutoUpdater, stopAutoUpdater } = require('./auto-updater');
+const { initAuth, handleAuthCallback } = require('./auth');
 
 let mainWindow = null;
-// indicatorWindow removed — using tray icon for recording state instead
 let tray = null;
 let fnProcess = null;
 
 const isDev = !app.isPackaged;
 const DEV_URL = 'http://localhost:5173';
 
+// Ensure single instance — required for Windows deep link handling via 'second-instance' event.
+// On macOS this also prevents duplicate instances.
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+}
+
 // Set app name (overrides "Electron" in dev mode)
 app.setName('Verby');
-if (process.platform === 'darwin') {
+if (platform.isMac) {
   app.setAboutPanelOptions({
     applicationName: 'Verby',
     applicationVersion: app.getVersion(),
@@ -44,8 +53,7 @@ const createWindow = () => {
     height: 620,
     backgroundColor: '#050508',
     show: false,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 16, y: 14 },
+    ...platform.getWindowChrome(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -66,7 +74,7 @@ const createWindow = () => {
     if (!isDev) initAutoUpdater(mainWindow);
   });
 
-  // Hide instead of close — keeps renderer alive for Fn key recording
+  // Hide instead of close — keeps renderer alive for recording
   mainWindow.on('close', (e) => {
     if (!app.isQuitting) {
       e.preventDefault();
@@ -77,44 +85,59 @@ const createWindow = () => {
   mainWindow.on('closed', () => { mainWindow = null; });
 };
 
-// === Native macOS Indicator ===
-// Uses a Swift NSWindow for true transparency — no Electron BrowserWindow artifacts
-// Pulsing dot with glow, top-center of screen, animated natively
-let indicatorProcess = null;
+// === Recording Indicator ===
+// macOS: uses native Swift NSWindow for best transparency (falls back to Electron window)
+// Windows/Linux: uses Electron BrowserWindow with transparent pulsing dot
+const crossPlatformIndicator = require('./platform/indicator');
+let nativeIndicatorProcess = null;
 
-function startIndicatorProcess() {
-  if (indicatorProcess) return;
+function startNativeIndicatorProcess() {
+  if (!platform.features.nativeIndicator) return false;
+  if (nativeIndicatorProcess) return true;
   const indicatorBin = isDev
     ? path.join(__dirname, '..', '..', 'native', 'indicator')
     : path.join(process.resourcesPath, 'native', 'indicator');
 
-  indicatorProcess = spawn(indicatorBin, [], { stdio: ['pipe', 'pipe', 'pipe'] });
-  indicatorProcess.stdout.on('data', (d) => {
-    const msg = d.toString().trim();
-    if (msg === 'indicator_ready') console.log('Native indicator ready');
-  });
-  indicatorProcess.stderr.on('data', (d) => console.error('indicator:', d.toString().trim()));
-  indicatorProcess.on('close', () => { indicatorProcess = null; });
+  try {
+    nativeIndicatorProcess = spawn(indicatorBin, [], { stdio: ['pipe', 'pipe', 'pipe'] });
+    nativeIndicatorProcess.stdout.on('data', (d) => {
+      const msg = d.toString().trim();
+      if (msg === 'indicator_ready') console.log('Native indicator ready');
+    });
+    nativeIndicatorProcess.stderr.on('data', (d) => console.error('indicator:', d.toString().trim()));
+    nativeIndicatorProcess.on('close', () => { nativeIndicatorProcess = null; });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-function sendIndicatorCmd(cmd) {
-  if (indicatorProcess && indicatorProcess.stdin.writable) {
-    indicatorProcess.stdin.write(cmd + '\n');
+function sendNativeIndicatorCmd(cmd) {
+  if (nativeIndicatorProcess && nativeIndicatorProcess.stdin.writable) {
+    nativeIndicatorProcess.stdin.write(cmd + '\n');
   }
 }
 
 const showIndicator = () => {
-  startIndicatorProcess();
-  // Small delay for process to init on first call
-  setTimeout(() => sendIndicatorCmd('show #6366F1'), indicatorProcess ? 0 : 500);
+  if (platform.features.nativeIndicator && startNativeIndicatorProcess()) {
+    setTimeout(() => sendNativeIndicatorCmd('show #6366F1'), nativeIndicatorProcess ? 0 : 500);
+  } else {
+    crossPlatformIndicator.show('#6366F1');
+  }
 };
 
 const hideIndicator = () => {
-  sendIndicatorCmd('hide');
+  if (nativeIndicatorProcess) {
+    sendNativeIndicatorCmd('hide');
+  }
+  crossPlatformIndicator.hide();
 };
 
 const setIndicatorProcessing = () => {
-  sendIndicatorCmd('color #14B8A6');
+  if (nativeIndicatorProcess) {
+    sendNativeIndicatorCmd('color #14B8A6');
+  }
+  crossPlatformIndicator.setColor('#14B8A6');
 };
 
 // === Toggle Main Window ===
@@ -131,16 +154,20 @@ const createTray = () => {
     : path.join(process.resourcesPath, 'tray-icon.png');
 
   let icon;
-  if (require('fs').existsSync(trayIconPath)) {
-    icon = nativeImage.createFromPath(trayIconPath);
-    icon = icon.resize({ width: 18, height: 18 });
-    icon.setTemplateImage(true); // adapts to dark/light menu bar
+  // Use @2x version for retina on macOS, with full color (not template)
+  const trayIcon2xPath = trayIconPath.replace('tray-icon.png', 'tray-icon@2x.png');
+  const iconPath = (platform.isMac && require('fs').existsSync(trayIcon2xPath))
+    ? trayIcon2xPath
+    : trayIconPath;
+  if (require('fs').existsSync(iconPath)) {
+    icon = nativeImage.createFromPath(iconPath);
+    icon = icon.resize({ width: platform.trayIconSize, height: platform.trayIconSize });
   } else {
     icon = nativeImage.createEmpty();
   }
 
   tray = new Tray(icon);
-  tray.setToolTip('Verby');
+  tray.setToolTip(platform.isMac ? 'Verby — Hold Fn to record' : 'Verby — Hold CapsLock to record');
 
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Verby', enabled: false },
@@ -175,11 +202,11 @@ const createTray = () => {
 let lastDetectedApp = '';
 
 function detectFrontmostApp() {
+  if (!platform.features.frontmostAppDetect) return; // TODO: Windows implementation in Phase 1
+
   exec(`osascript -e 'tell application "System Events" to get {name, title of first window} of first application process whose frontmost is true' 2>/dev/null`, (err, stdout) => {
     if (err || !stdout) return;
     const raw = stdout.trim();
-    // Output looks like: "Google Chrome, My Page - Google Chrome"
-    // or "Code, main.js — verbyprompt"
     if (raw === lastDetectedApp) return;
     lastDetectedApp = raw;
 
@@ -189,30 +216,28 @@ function detectFrontmostApp() {
 
     console.log(`>>> Auto-context: ${appName} — ${windowTitle}`);
 
-    // Send to renderer for display
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('auto-context', { appName, windowTitle });
     }
-    // Push to ipc-handlers for system prompt injection
     const { setAutoContext } = require('./ipc-handlers.cjs');
     setAutoContext({ appName, windowTitle });
   });
 }
 
-// === Fn Key Capture ===
+// === Fn Key Capture (macOS only) ===
 // fn-capture needs Input Monitoring permission on macOS.
-// We run it as a launchd agent so it has its own identity —
-// the user grants Input Monitoring to fn-capture once, and it works
-// regardless of how Verby is launched.
+// On Windows, global shortcuts are handled via Electron's globalShortcut API
+// and a configurable hotkey (Phase 1).
 
 const fs = require('fs');
 const { exec, execSync } = require('child_process');
 
-const FN_PIPE_PATH = '/tmp/verbyprompt-fn-events';
+// macOS-specific constants — only used when platform.features.fnKeyCapture is true
+const FN_PIPE_PATH = platform.isMac ? '/tmp/verbyprompt-fn-events' : null;
 const AGENT_LABEL = 'com.verby.fn-capture';
-const AGENT_PLIST = path.join(
-  app.getPath('home'), 'Library', 'LaunchAgents', `${AGENT_LABEL}.plist`
-);
+const AGENT_PLIST = platform.isMac
+  ? path.join(app.getPath('home'), 'Library', 'LaunchAgents', `${AGENT_LABEL}.plist`)
+  : null;
 
 function getFnBinaryPath() {
   return isDev
@@ -221,6 +246,49 @@ function getFnBinaryPath() {
 }
 
 function startFnCapture() {
+  // Windows: use uiohook-napi based hold-to-talk
+  if (platform.isWindows) {
+    try {
+      const windowsHotkey = require('./platform/hotkey-windows');
+      windowsHotkey.start((event) => {
+        // Route events the same way as the macOS pipe handler
+        if (event === 'fn_down') {
+          console.log('>>> Hold-to-talk DOWN detected');
+          showIndicator();
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('fn-down');
+          }
+        } else if (event === 'fn_up') {
+          console.log('>>> Hold-to-talk UP detected');
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('fn-up');
+          }
+        } else if (event === 'ctrl_down') {
+          console.log('>>> Raw dictation DOWN detected');
+          showIndicator();
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('ctrl-down');
+          }
+        } else if (event === 'ctrl_up') {
+          console.log('>>> Raw dictation UP detected');
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('ctrl-up');
+          }
+        } else if (event === 'fn_ready') {
+          console.log('Windows hotkey capture ready');
+        }
+      });
+    } catch (err) {
+      console.error('Windows hotkey failed:', err.message);
+    }
+    return;
+  }
+
+  if (!platform.features.fnKeyCapture) {
+    console.log('Fn key capture not available on this platform');
+    return;
+  }
+
   const fnBinary = getFnBinaryPath();
   console.log('Fn binary path:', fnBinary);
 
@@ -236,8 +304,6 @@ function startFnCapture() {
     execSync(`mkfifo "${FN_PIPE_PATH}"`);
 
     // Spawn fn-capture as a direct child process writing to the pipe
-    // In dev mode this inherits iTerm's Input Monitoring permission
-    // In production the .app needs Input Monitoring granted
     const fnChild = spawn(fnBinary, ['--pipe', FN_PIPE_PATH], {
       stdio: ['ignore', 'ignore', 'pipe'],
       detached: true,
@@ -267,7 +333,6 @@ function startFnCapture() {
             console.log('>>> Fn DOWN detected');
             fnEventReceived = true;
             showIndicator();
-            // Detect frontmost app for auto-context
             detectFrontmostApp();
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send('fn-down');
@@ -291,22 +356,21 @@ function startFnCapture() {
             }
           } else if (event === 'fn_ready') {
             console.log('Fn key capture ready');
-            // If no Fn events after 15 seconds, user probably needs permissions
             setTimeout(() => {
               if (!fnEventReceived && !app.isQuitting) {
                 console.log('No Fn events detected — prompting user for permissions');
                 const { Notification, shell } = require('electron');
+                const settingsUrl = platform.settingsUrls.inputMonitoring;
                 if (Notification.isSupported()) {
                   const notif = new Notification({
                     title: 'Verby — Fn Key Setup',
                     body: 'Hold Fn to dictate. If it\'s not working, click here to grant Input Monitoring permission.',
                   });
-                  notif.on('click', () => {
-                    shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent');
-                  });
+                  if (settingsUrl) {
+                    notif.on('click', () => shell.openExternal(settingsUrl));
+                  }
                   notif.show();
                 }
-                // Also notify renderer to show in-app guidance
                 if (mainWindow && !mainWindow.isDestroyed()) {
                   mainWindow.webContents.send('fn-permission-needed');
                 }
@@ -315,14 +379,15 @@ function startFnCapture() {
           } else if (event === 'fn_requesting_permission') {
             console.log('Fn key: requesting Input Monitoring permission...');
             const { Notification, shell } = require('electron');
+            const settingsUrl = platform.settingsUrls.inputMonitoring;
             if (Notification.isSupported()) {
               const notif = new Notification({
                 title: 'Verby — Grant Permission',
                 body: 'Verby needs Input Monitoring to detect the Fn key. Click to open Settings.',
               });
-              notif.on('click', () => {
-                shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent');
-              });
+              if (settingsUrl) {
+                notif.on('click', () => shell.openExternal(settingsUrl));
+              }
               notif.show();
             }
           }
@@ -356,6 +421,9 @@ function startFnCapture() {
 ipcMain.on('indicator-processing', () => setIndicatorProcessing());
 ipcMain.on('indicator-hide', () => hideIndicator());
 
+// === IPC: expose platform info to renderer ===
+ipcMain.handle('get-platform', () => platform.forRenderer());
+
 // === Debug: forward renderer logs ===
 ipcMain.on('renderer-log', (_event, msg) => {
   console.log('[renderer]', msg);
@@ -365,9 +433,12 @@ ipcMain.on('renderer-log', (_event, msg) => {
 app.whenReady().then(() => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
-  // Override macOS app menu — replaces "Electron" with "Verby" in top-left
-  const appMenu = Menu.buildFromTemplate([
-    {
+  // Build platform-appropriate app menu
+  const appMenuTemplate = [];
+
+  if (platform.isMac) {
+    // macOS: first menu item replaces "Electron" with "Verby" in top-left
+    appMenuTemplate.push({
       label: 'Verby',
       submenu: [
         { role: 'about', label: 'About Verby' },
@@ -386,7 +457,26 @@ app.whenReady().then(() => {
         { type: 'separator' },
         { label: 'Quit Verby', accelerator: 'CmdOrCtrl+Q', click: () => { app.isQuitting = true; app.quit(); } },
       ],
-    },
+    });
+  } else {
+    // Windows / Linux: simpler File menu
+    appMenuTemplate.push({
+      label: 'File',
+      submenu: [
+        { label: 'Settings', accelerator: 'CmdOrCtrl+,', click: () => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.show();
+            mainWindow.focus();
+            mainWindow.webContents.send('open-settings');
+          }
+        }},
+        { type: 'separator' },
+        { label: 'Quit Verby', accelerator: 'CmdOrCtrl+Q', click: () => { app.isQuitting = true; app.quit(); } },
+      ],
+    });
+  }
+
+  appMenuTemplate.push(
     {
       label: 'Edit',
       submenu: [
@@ -400,17 +490,18 @@ app.whenReady().then(() => {
         { role: 'minimize' }, { role: 'close' },
       ],
     },
-  ]);
-  Menu.setApplicationMenu(appMenu);
+  );
 
-  // Set dock icon (use PNG for reliable nativeImage loading)
-  const iconPng = isDev
-    ? path.join(__dirname, '..', '..', 'assets', 'icon-512.png')
-    : path.join(process.resourcesPath, 'icon-512.png');
-  const iconIcns = isDev
-    ? path.join(__dirname, '..', '..', 'assets', 'icon.icns')
-    : path.join(process.resourcesPath, 'icon.icns');
+  Menu.setApplicationMenu(Menu.buildFromTemplate(appMenuTemplate));
+
+  // Set dock icon (macOS only)
   if (app.dock) {
+    const iconPng = isDev
+      ? path.join(__dirname, '..', '..', 'assets', 'icon-512.png')
+      : path.join(process.resourcesPath, 'icon-512.png');
+    const iconIcns = isDev
+      ? path.join(__dirname, '..', '..', 'assets', 'icon.icns')
+      : path.join(process.resourcesPath, 'icon.icns');
     const iconFile = require('fs').existsSync(iconPng) ? iconPng : iconIcns;
     const icon = nativeImage.createFromPath(iconFile);
     if (!icon.isEmpty()) {
@@ -419,12 +510,80 @@ app.whenReady().then(() => {
     } else {
       console.log('Dock icon failed to load from:', iconFile);
     }
+
+    // Hide dock by default — Verby is a menu-bar app
+    const { getSetting: getSettingValue } = require('./ipc-handlers.cjs');
+    const showInDock = getSettingValue('showInDock', false);
+    if (!showInDock) {
+      app.dock.hide();
+      console.log('Dock hidden — menu-bar only mode');
+    }
   }
+
+  // Apply launch-at-login setting (only works in packaged app, not dev mode)
+  const { getSetting: getSettingForLogin } = require('./ipc-handlers.cjs');
+  const launchAtLogin = getSettingForLogin('launchAtLogin', false);
+  try {
+    app.setLoginItemSettings({ openAtLogin: launchAtLogin });
+    console.log('Launch at login:', launchAtLogin);
+  } catch (err) {
+    console.log('Login item not available in dev mode');
+  }
+
+  // Register custom protocol for auth callbacks
+  app.setAsDefaultProtocolClient('verbyprompt');
 
   createWindow();
   registerHandlers(mainWindow);
+  initAuth(mainWindow);
   createTray();
   startFnCapture();
+
+  // === Permission check IPC (platform-aware) ===
+  ipcMain.handle('check-permissions', async () => {
+    if (platform.isMac) {
+      const mic = systemPreferences.getMediaAccessStatus('microphone');
+      const accessibility = systemPreferences.isTrustedAccessibilityClient(false);
+      return {
+        microphone: mic === 'granted',
+        accessibility,
+      };
+    }
+    // Windows: check actual mic permission status via Electron API.
+    // No Accessibility or Input Monitoring equivalents on Windows.
+    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+    return {
+      microphone: micStatus === 'granted',
+      accessibility: true,
+    };
+  });
+
+  ipcMain.handle('request-microphone', async () => {
+    if (platform.isMac) {
+      return await systemPreferences.askForMediaAccess('microphone');
+    }
+    // Windows: OS prompts automatically; return true
+    return true;
+  });
+
+  ipcMain.handle('open-system-prefs', async (_event, section) => {
+    const { shell } = require('electron');
+    // Map legacy macOS section names to platform.settingsUrls keys
+    const sectionToKey = {
+      'Privacy_Microphone': 'microphone',
+      'Privacy_Accessibility': 'accessibility',
+      'Privacy_ListenEvent': 'inputMonitoring',
+    };
+    const key = sectionToKey[section] || section;
+    const url = platform.settingsUrls[key];
+    if (url) {
+      shell.openExternal(url);
+    } else if (platform.isMac) {
+      // Fallback: open the macOS section directly
+      shell.openExternal(`x-apple.systempreferences:com.apple.preference.security?${section}`);
+    }
+  });
+
 
   // Alt+Space = prompt mode (show window + toggle recording)
   globalShortcut.register('Alt+Space', () => {
@@ -441,8 +600,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // Cmd+Shift+Space = fallback for Fn key (enhanced dictation toggle)
-  // Works without Input Monitoring — for users who can't get Fn working
+  // Cmd+Shift+Space (macOS) / Ctrl+Shift+Space (Windows) = fallback dictation toggle
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('toggle-dictation');
@@ -457,20 +615,56 @@ app.on('before-quit', () => {
 app.on('will-quit', () => {
   stopAutoUpdater();
   globalShortcut.unregisterAll();
-  // Stop launchd agent and clean up
-  try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
-  try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
-  try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
-  if (indicatorProcess) { indicatorProcess.kill(); indicatorProcess = null; }
-  try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
+
+  // Clean up platform-specific resources
+  if (platform.isMac) {
+    try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
+    try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
+    try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
+    if (FN_PIPE_PATH) {
+      try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
+    }
+  } else if (platform.isWindows) {
+    try {
+      const windowsHotkey = require('./platform/hotkey-windows');
+      windowsHotkey.stop();
+    } catch {}
+  }
+
+  if (nativeIndicatorProcess) { nativeIndicatorProcess.kill(); nativeIndicatorProcess = null; }
+  crossPlatformIndicator.destroy();
   if (fnProcess) { fnProcess.kill(); fnProcess = null; }
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (!platform.isMac) app.quit();
 });
 
 app.on('activate', () => {
   if (!mainWindow || mainWindow.isDestroyed()) createWindow();
   else mainWindow.show();
+});
+
+// Handle deep link for auth callback (verbyprompt://auth-callback#...)
+// macOS: fires 'open-url' event
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  if (url.startsWith('verbyprompt://auth-callback')) {
+    handleAuthCallback(url);
+  }
+});
+
+// Windows: deep links arrive via second-instance (protocol URL is in argv)
+app.on('second-instance', (_event, argv) => {
+  // Find the deep link URL in argv
+  const deepLink = argv.find((arg) => arg.startsWith('verbyprompt://'));
+  if (deepLink && deepLink.startsWith('verbyprompt://auth-callback')) {
+    handleAuthCallback(deepLink);
+  }
+  // Focus the existing window
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  }
 });
