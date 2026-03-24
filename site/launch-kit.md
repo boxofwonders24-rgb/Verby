@@ -5,7 +5,7 @@
 **Tagline:** Talk to any app. Verby writes the prompt.
 
 **Description:**
-Hold Fn on your Mac and speak naturally. Verby transforms your voice into perfectly structured AI prompts and injects them right where your cursor is — ChatGPT, Slack, VS Code, email, anywhere.
+Hold Fn on your Mac and speak naturally. Verby transforms your voice into perfectly structured AI prompts and injects them right where your cursor is — ChatGPT, Slack, VS Code, email, anywhere. Just need pure dictation? Hold Control to speak natively.
 
 No copy-paste. No window switching. Just talk.
 
@@ -20,7 +20,7 @@ It learns your patterns and gets smarter with every prompt.
 **First Comment:**
 Hey PH! I'm Stephen, and I built Verby because I was tired of typing the same "You are an expert..." prompt structure 50 times a day.
 
-Now I just hold Fn, say "write me a cold email to a SaaS founder about my new AI tool," and the perfectly structured prompt appears wherever my cursor is.
+Now I just hold Fn, say "write me a cold email to a SaaS founder about my new AI tool," and the perfectly structured prompt appears wherever my cursor is. (Or I hold Control when I just want to speak natively!)
 
 Built with Electron, Whisper, and Claude/GPT. Native macOS app with a 60-second setup.
 
@@ -62,6 +62,7 @@ It also:
 - Auto-detects what app you're in
 - Learns your prompt patterns over time
 - Has a chat bar for typing in quiet places
+- Lets you hold Control to speak natively (pure dictation)
 - Works system-wide (ChatGPT, Slack, VS Code, Notion, email)
 
 **Tweet 5:**
