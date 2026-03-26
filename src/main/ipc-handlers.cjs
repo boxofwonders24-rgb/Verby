@@ -638,15 +638,16 @@ async function injectTextNutJs(text) {
   clipboard.writeText(text);
 
   try {
-    // Small delay to ensure clipboard is ready
-    await new Promise((r) => setTimeout(r, 50));
+    // Delay to ensure clipboard is ready — longer for reliability on Intel Macs
+    await new Promise((r) => setTimeout(r, 150));
 
     const modKey = platform.isMac ? _nutKey.LeftSuper : _nutKey.LeftControl;
     await _nutKeyboard.pressKey(modKey, _nutKey.V);
+    await new Promise((r) => setTimeout(r, 50));
     await _nutKeyboard.releaseKey(modKey, _nutKey.V);
 
     // Restore clipboard after paste completes
-    setTimeout(() => clipboard.writeText(oldClipboard), 500);
+    setTimeout(() => clipboard.writeText(oldClipboard), 800);
     return true;
   } catch (err) {
     clipboard.writeText(oldClipboard);
@@ -911,11 +912,14 @@ function registerHandlers(mainWindow) {
     } // end if !skipVoiceCommands
 
     console.log('>>> Injecting text:', processed.substring(0, 50) + '...');
+    console.log('>>> Architecture:', process.arch, '| Platform:', process.platform);
 
     // Try nut-js first (works on all platforms)
     let injected = await injectTextNutJs(processed);
     if (injected) {
       console.log('>>> nut-js inject: success');
+    } else {
+      console.log('>>> nut-js inject: FAILED — trying fallbacks');
     }
 
     // macOS fallbacks if nut-js failed
@@ -924,8 +928,9 @@ function registerHandlers(mainWindow) {
       if (injected) {
         console.log('>>> AppleScript inject: success');
       } else {
+        console.log('>>> AppleScript inject: FAILED (check Accessibility permission)');
         injected = await injectTextNative(processed);
-        console.log('>>> Native inject result:', injected);
+        console.log('>>> Native binary inject result:', injected);
       }
     }
 
@@ -933,6 +938,15 @@ function registerHandlers(mainWindow) {
       const pasteKey = platform.isMac ? 'Cmd+V' : 'Ctrl+V';
       console.log(`>>> All injection failed. Text left on clipboard — press ${pasteKey}.`);
       clipboard.writeText(processed);
+
+      // Notify the user so they know their text is on the clipboard
+      const { Notification } = require('electron');
+      if (Notification.isSupported()) {
+        new Notification({
+          title: 'Verby — Text on clipboard',
+          body: `Paste failed. Press ${pasteKey} to paste your text.`,
+        }).show();
+      }
     }
 
     // Handle "send message" voice command — press Enter after injection
