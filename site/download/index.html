@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Verby — Free AI Voice-to-Text for Mac & Windows</title>
+  <meta name="description" content="Download Verby for free. AI-powered voice dictation for macOS (Apple Silicon & Intel) and Windows. Setup takes 60 seconds.">
+  <meta name="keywords" content="download Verby, voice to text download, AI dictation app download, Verby Mac, Verby Windows, free dictation software">
+  <link rel="canonical" href="https://verbyai.com/download">
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Download Verby — Free AI Voice-to-Text for Mac & Windows">
+  <meta property="og:description" content="Download Verby for free. AI-powered voice dictation for macOS (Apple Silicon & Intel) and Windows. Setup takes 60 seconds.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://verbyai.com/download">
+  <meta property="og:site_name" content="Verby">
+  <meta property="og:locale" content="en_US">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Download Verby — Free AI Voice-to-Text for Mac & Windows">
+  <meta name="twitter:description" content="Download Verby for free. AI-powered voice dictation for macOS (Apple Silicon & Intel) and Windows. Setup takes 60 seconds.">
+  <meta name="twitter:site" content="@verbyai">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050508;
+      --text: #F1F5F9;
+      --text-2: #94A3B8;
+      --text-3: #475569;
+      --accent: #6366F1;
+      --accent-2: #14B8A6;
+      --glow: rgba(99, 102, 241, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Aurora background */
+    .aurora {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .aurora div {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+      animation: drift 20s ease-in-out infinite;
+    }
+    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
+    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
+    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.1); }
+      66% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* Nav */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+    .logo a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    .badge {
+      display: inline-block; padding: 6px 16px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; color: var(--accent);
+      background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2);
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .gradient {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .subtitle {
+      font-size: 18px; color: var(--text-2); line-height: 1.6;
+      max-width: 540px; margin: 0 auto 40px;
+    }
+
+    /* CTA Buttons */
+    .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 600;
+      text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;
+      box-shadow: 0 4px 20px var(--glow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid rgba(255,255,255,0.08);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+    .btn-disabled {
+      background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid rgba(255,255,255,0.06);
+      opacity: 0.6; pointer-events: none; cursor: default;
+    }
+
+    /* Download sections */
+    .download-section {
+      margin-bottom: 48px;
+    }
+    .platform-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 16px; text-align: center;
+    }
+    .platform-note {
+      font-size: 11px; color: var(--text-3); margin-top: 12px; text-align: center;
+    }
+
+    /* Card */
+    .card {
+      padding: 32px; border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 24px;
+    }
+    .card-accent {
+      border-color: rgba(99,102,241,0.15);
+      background: rgba(99,102,241,0.04);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Setup steps */
+    .setup-section {
+      padding: 0 0 48px;
+    }
+    .setup-section h2 {
+      font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px;
+    }
+    .setup-columns {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .setup-card {
+      padding: 28px; border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .setup-card h3 {
+      font-size: 14px; font-weight: 700; margin-bottom: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .setup-card h3.mac-label { color: var(--accent); }
+    .setup-card h3.win-label { color: var(--text-3); }
+    .setup-card.coming-soon { opacity: 0.55; }
+    .coming-soon-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 100px;
+      font-size: 10px; font-weight: 600; color: var(--text-3);
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      margin-left: 8px; text-transform: uppercase; letter-spacing: 0.05em;
+      vertical-align: middle;
+    }
+    .step {
+      display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px;
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+      background: linear-gradient(135deg, #6366F1, #14B8A6);
+    }
+    .coming-soon .step-num {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-3);
+    }
+    .step-text { font-size: 13px; font-weight: 600; color: var(--text); }
+    .step-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .coming-soon .step-text { color: var(--text-3); }
+
+    /* System requirements */
+    .requirements-section {
+      padding: 0 0 60px;
+    }
+    .requirements-section h2 {
+      font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px;
+    }
+    .req-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .req-card {
+      padding: 24px; border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .req-card h3 {
+      font-size: 14px; font-weight: 700; margin-bottom: 16px;
+      text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);
+    }
+    .req-card.win h3 { color: var(--text-3); }
+    .req-list { list-style: none; }
+    .req-list li {
+      font-size: 13px; color: var(--text-2); padding: 5px 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .req-list li::before { content: '\2022'; color: var(--text-3); font-weight: 700; }
+    .req-shared {
+      margin-top: 16px; text-align: center;
+    }
+    .req-shared p {
+      font-size: 13px; color: var(--text-2);
+    }
+
+    /* CTA bottom */
+    .cta-bottom {
+      text-align: center; padding: 0 0 60px;
+    }
+    .cta-bottom p {
+      font-size: 15px; color: var(--text-2);
+    }
+    .cta-bottom a {
+      color: var(--accent); text-decoration: none; font-weight: 600;
+      transition: color 0.2s;
+    }
+    .cta-bottom a:hover { color: #818CF8; }
+
+    /* Footer */
+    footer {
+      padding: 40px 0; text-align: center; font-size: 12px; color: var(--text-3);
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero { padding: 50px 0 40px; }
+      .setup-columns { grid-template-columns: 1fr; }
+      .req-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora"><div></div><div></div><div></div></div>
+
+  <div class="container">
+    <nav>
+      <div class="logo">
+        <a href="/">
+          <svg class="logo-icon" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <linearGradient id="nav-g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#818CF8"/>
+                <stop offset="40%" stop-color="#6366F1"/>
+                <stop offset="100%" stop-color="#14B8A6"/>
+              </linearGradient>
+              <linearGradient id="nav-g2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#C4B5FD"/>
+                <stop offset="100%" stop-color="#6366F1"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(60,60)">
+              <rect x="-46" y="-7" width="5" height="14" rx="2.5" fill="url(#nav-g1)" opacity=".4"/>
+              <rect x="-37" y="-16" width="5" height="32" rx="2.5" fill="url(#nav-g1)" opacity=".55"/>
+              <rect x="-28" y="-27" width="6" height="54" rx="3" fill="url(#nav-g1)" opacity=".75"/>
+              <rect x="-18" y="-37" width="6" height="74" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+              <rect x="-8" y="-29" width="6" height="58" rx="3" fill="url(#nav-g1)" opacity=".95"/>
+              <rect x="2" y="-45" width="7" height="90" rx="3.5" fill="url(#nav-g2)"/>
+              <rect x="14" y="-24" width="6" height="48" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+              <rect x="24" y="-17" width="6" height="34" rx="3" fill="url(#nav-g1)" opacity=".7"/>
+              <rect x="34" y="-11" width="6" height="22" rx="3" fill="url(#nav-g1)" opacity=".5"/>
+              <circle cx="42" cy="2" r="2.5" fill="#14B8A6" opacity=".65"/>
+            </g>
+          </svg>
+          <span class="gradient">Verby</span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/features">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="badge">Free for Mac and Windows</div>
+      <h1><span class="gradient">Download Verby</span></h1>
+      <p class="subtitle" style="margin-bottom: 0;">Free AI voice-to-text. Setup in 60 seconds.</p>
+    </section>
+
+    <!-- macOS Download -->
+    <div class="download-section">
+      <div class="platform-label">macOS</div>
+      <div class="ctas">
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.3.1/VerbyPrompt-0.3.1-arm64.dmg" class="btn btn-primary">Download for Apple Silicon</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.3.1/VerbyPrompt-0.3.1.dmg" class="btn btn-secondary">Download for Intel Mac</a>
+      </div>
+      <p class="platform-note">macOS 13+ &middot; v0.3.1 &middot; M1/M2/M3 or Intel</p>
+    </div>
+
+    <!-- Windows Download -->
+    <div class="download-section">
+      <div class="platform-label">Windows</div>
+      <div class="ctas">
+        <a href="#" class="btn btn-disabled">Windows — Coming Soon</a>
+      </div>
+      <p class="platform-note">Windows 10/11 &middot; x64</p>
+    </div>
+
+    <!-- Quick Setup Guides -->
+    <section class="setup-section">
+      <h2>Quick Setup</h2>
+      <div class="setup-columns">
+
+        <!-- macOS Setup -->
+        <div class="setup-card">
+          <h3 class="mac-label">macOS</h3>
+          <div class="step">
+            <div class="step-num">1</div>
+            <div>
+              <p class="step-text">Open the DMG and drag Verby to Applications</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div>
+              <p class="step-text">Right-click Verby, then click Open</p>
+              <p class="step-sub">First time only -- click "Open" when macOS asks</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div>
+              <p class="step-text">Grant permissions when prompted</p>
+              <p class="step-sub">Microphone, Accessibility, and Input Monitoring</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div>
+              <p class="step-text">Hold Fn and speak -- you're live!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Windows Setup -->
+        <div class="setup-card coming-soon">
+          <h3 class="win-label">Windows <span class="coming-soon-tag">Coming Soon</span></h3>
+          <div class="step">
+            <div class="step-num">1</div>
+            <div>
+              <p class="step-text">Run the installer</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div>
+              <p class="step-text">Grant microphone access when prompted</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div>
+              <p class="step-text">Hold CapsLock and speak -- you're live!</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- System Requirements -->
+    <section class="requirements-section">
+      <h2>System Requirements</h2>
+      <div class="req-grid">
+        <div class="req-card">
+          <h3>macOS</h3>
+          <ul class="req-list">
+            <li>macOS 13 Ventura or later</li>
+            <li>Apple Silicon or Intel processor</li>
+            <li>100 MB disk space</li>
+          </ul>
+        </div>
+        <div class="req-card win">
+          <h3>Windows</h3>
+          <ul class="req-list">
+            <li>Windows 10 or Windows 11</li>
+            <li>x64 processor</li>
+            <li>100 MB disk space</li>
+          </ul>
+        </div>
+      </div>
+      <div class="req-shared">
+        <p>Both platforms require an internet connection (for transcription) and a microphone.</p>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-bottom">
+      <p>Questions? Check our <a href="/features">Features</a> or <a href="/pricing">Pricing</a>.</p>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Verby by Syntrix. All rights reserved.</p>
+    </footer>
+  </div>
+  <script defer src="/particles.js"></script>
+  <!-- Vercel Analytics -->
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
