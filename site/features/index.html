@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verby Features — AI Dictation, Email Generation, Voice Prompts</title>
+  <meta name="description" content="Explore Verby's features: AI-powered voice dictation, email generation, smart prompt crafting, speech cleanup, and system-wide text injection for Mac and Windows.">
+  <meta name="keywords" content="AI dictation features, voice to text features, voice email generator, AI prompt tool, speech cleanup app, voice typing features">
+  <link rel="canonical" href="https://verbyai.com/features">
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Verby Features — AI Dictation, Email Generation, Voice Prompts">
+  <meta property="og:description" content="Explore Verby's features: AI-powered voice dictation, email generation, smart prompt crafting, speech cleanup, and system-wide text injection for Mac and Windows.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://verbyai.com/features">
+  <meta property="og:site_name" content="Verby">
+  <meta property="og:locale" content="en_US">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verby Features — AI Dictation, Email Generation, Voice Prompts">
+  <meta name="twitter:description" content="Explore Verby's features: AI-powered voice dictation, email generation, smart prompt crafting, speech cleanup, and system-wide text injection for Mac and Windows.">
+  <meta name="twitter:site" content="@verbyai">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050508;
+      --text: #F1F5F9;
+      --text-2: #94A3B8;
+      --text-3: #475569;
+      --accent: #6366F1;
+      --accent-2: #14B8A6;
+      --glow: rgba(99, 102, 241, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Aurora background */
+    .aurora {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .aurora div {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+      animation: drift 20s ease-in-out infinite;
+    }
+    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
+    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
+    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.1); }
+      66% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* Nav */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; text-decoration: none; }
+    .logo-icon { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--text); }
+
+    /* Gradient text */
+    .gradient {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* Page header */
+    .page-header {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    .page-header h1 {
+      font-size: clamp(32px, 5vw, 48px); font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .page-header p {
+      font-size: 18px; color: var(--text-2); line-height: 1.6;
+      max-width: 560px; margin: 0 auto;
+    }
+
+    /* Feature sections */
+    .feature-section {
+      padding: 48px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .feature-section:first-of-type {
+      border-top: none;
+    }
+    .feature-section h2 {
+      font-size: 24px; font-weight: 700; margin-bottom: 8px;
+    }
+    .feature-section .feature-tag {
+      display: inline-block; padding: 4px 12px; border-radius: 100px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+    .tag-core {
+      color: var(--accent); background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    .tag-smart {
+      color: var(--accent-2); background: rgba(20, 184, 166, 0.08); border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    .tag-pro {
+      color: #A78BFA; background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.2);
+    }
+    .feature-section p {
+      font-size: 15px; color: var(--text-2); line-height: 1.7; max-width: 640px;
+    }
+    .feature-section p + p {
+      margin-top: 12px;
+    }
+    .feature-detail {
+      margin-top: 20px; padding: 20px 24px; border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-detail:hover {
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+    }
+    .feature-detail-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    .feature-detail-item {
+      flex: 1; min-width: 180px;
+    }
+    .feature-detail-item h4 {
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-3); margin-bottom: 6px;
+    }
+    .feature-detail-item p {
+      font-size: 13px; color: var(--text-2); line-height: 1.5;
+    }
+
+    /* CTA Buttons */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0 60px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .cta-section h2 {
+      font-size: 32px; font-weight: 700; margin-bottom: 16px;
+    }
+    .cta-section p {
+      font-size: 16px; color: var(--text-2); margin-bottom: 32px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 600;
+      text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;
+      box-shadow: 0 4px 20px var(--glow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
+
+    /* Footer */
+    footer {
+      padding: 40px 0; text-align: center; font-size: 12px; color: var(--text-3);
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .page-header { padding: 50px 0 40px; }
+      .feature-section { padding: 36px 0; }
+      .feature-detail-row { flex-direction: column; gap: 16px; }
+      .cta-section { padding: 60px 0 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora"><div></div><div></div><div></div></div>
+
+  <div class="container">
+    <nav>
+      <a href="/" class="logo">
+        <svg class="logo-icon" viewBox="0 0 120 120" fill="none">
+          <defs>
+            <linearGradient id="nav-g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8"/>
+              <stop offset="40%" stop-color="#6366F1"/>
+              <stop offset="100%" stop-color="#14B8A6"/>
+            </linearGradient>
+            <linearGradient id="nav-g2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#C4B5FD"/>
+              <stop offset="100%" stop-color="#6366F1"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(60,60)">
+            <rect x="-46" y="-7" width="5" height="14" rx="2.5" fill="url(#nav-g1)" opacity=".4"/>
+            <rect x="-37" y="-16" width="5" height="32" rx="2.5" fill="url(#nav-g1)" opacity=".55"/>
+            <rect x="-28" y="-27" width="6" height="54" rx="3" fill="url(#nav-g1)" opacity=".75"/>
+            <rect x="-18" y="-37" width="6" height="74" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+            <rect x="-8" y="-29" width="6" height="58" rx="3" fill="url(#nav-g1)" opacity=".95"/>
+            <rect x="2" y="-45" width="7" height="90" rx="3.5" fill="url(#nav-g2)"/>
+            <rect x="14" y="-24" width="6" height="48" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+            <rect x="24" y="-17" width="6" height="34" rx="3" fill="url(#nav-g1)" opacity=".7"/>
+            <rect x="34" y="-11" width="6" height="22" rx="3" fill="url(#nav-g1)" opacity=".5"/>
+            <circle cx="42" cy="2" r="2.5" fill="#14B8A6" opacity=".65"/>
+          </g>
+        </svg>
+        <span class="gradient">Verby</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/features" class="active">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+      <h1>Everything <span class="gradient">Verby</span> can do</h1>
+      <p>From AI-powered dictation to email generation and smart prompt crafting, Verby turns your voice into polished text across every app on your desktop.</p>
+    </section>
+
+    <!-- AI-Enhanced Dictation -->
+    <section class="feature-section">
+      <span class="feature-tag tag-core">Core Feature</span>
+      <h2>AI-Enhanced Dictation</h2>
+      <p>Hold a key and speak naturally. Verby transcribes your voice using OpenAI Whisper, then enhances the output with AI to produce clear, well-structured text. No manual editing required — just talk, and Verby delivers polished text in seconds.</p>
+      <p>On Mac, hold the <strong>Fn</strong> key to activate AI-enhanced dictation. On Windows, hold <strong>CapsLock</strong>. Verby listens while you hold the key and processes your speech the moment you release it. The result is not a raw transcript — it is an AI-refined version of what you said, restructured for clarity and readability.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>Mac Hotkey</h4>
+            <p>Hold <strong>Fn</strong> to speak</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Windows Hotkey</h4>
+            <p>Hold <strong>CapsLock</strong> to speak</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Powered By</h4>
+            <p>OpenAI Whisper transcription</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Email Generation -->
+    <section class="feature-section">
+      <span class="feature-tag tag-smart">Smart AI</span>
+      <h2>Email Generation</h2>
+      <p>Say "email John about the project deadline" and Verby generates a complete, ready-to-send email. It detects email intent automatically from your speech — no need to switch modes or select a template. Just speak naturally and Verby handles the formatting, tone, greeting, and sign-off.</p>
+      <p>The generated email matches a professional tone while preserving your intent. Verby works seamlessly with Gmail, Outlook, Apple Mail, and any other email client. The email is injected directly at your cursor, so you can review it and hit send immediately.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>How It Works</h4>
+            <p>Detects email intent from natural speech</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Compatible With</h4>
+            <p>Gmail, Outlook, Apple Mail, and more</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Smart Prompt Crafting -->
+    <section class="feature-section">
+      <span class="feature-tag tag-smart">Smart AI</span>
+      <h2>Smart Prompt Crafting</h2>
+      <p>Verby converts your casual, spoken instructions into structured AI prompts. Say something like "build me a habit tracker app" and Verby transforms it into a detailed prompt with context, requirements, and constraints — ready to paste into ChatGPT, Claude, or VS Code Copilot.</p>
+      <p>Verby detects the task type automatically. Whether you are asking for code, a piece of writing, data analysis, or creative work, the prompt is structured to match. This means you get better results from AI tools without spending time manually crafting prompts.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>Task Detection</h4>
+            <p>Code, writing, analysis, creative work</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Works With</h4>
+            <p>ChatGPT, Claude, VS Code Copilot</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Speech Cleanup -->
+    <section class="feature-section">
+      <span class="feature-tag tag-core">Core Feature</span>
+      <h2>Speech Cleanup</h2>
+      <p>Sometimes you just need a clean transcript of what you said, not an AI-rewritten version. Speech cleanup mode transcribes your voice and removes filler words, false starts, and grammatical errors while keeping your natural voice and original meaning intact.</p>
+      <p>On Mac, hold <strong>Ctrl</strong> to activate speech cleanup. On Windows, hold <strong>Right Ctrl</strong>. This is ideal for drafting messages, taking notes, or writing first drafts where you want the text to sound like you — just cleaner.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>Mac Hotkey</h4>
+            <p>Hold <strong>Ctrl</strong> to speak</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Windows Hotkey</h4>
+            <p>Hold <strong>Right Ctrl</strong> to speak</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Result</h4>
+            <p>Clean text, your natural voice</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- System-Wide Text Injection -->
+    <section class="feature-section">
+      <span class="feature-tag tag-core">Core Feature</span>
+      <h2>System-Wide Text Injection</h2>
+      <p>Verby injects the generated text directly at your cursor position in any application. There is no copy-paste step, no intermediate window, and no clipboard involved. The text simply appears where you are typing, as if you had written it by hand.</p>
+      <p>This works across browsers, code editors, email clients, chat applications, document editors, and terminals. Whether you are composing an email in Gmail, writing code in VS Code, or chatting in Slack, Verby places the text exactly where you need it.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>How It Works</h4>
+            <p>Text appears at your cursor — no copy-paste</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Supported Apps</h4>
+            <p>Browsers, editors, email, chat, terminals</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Context Awareness -->
+    <section class="feature-section">
+      <span class="feature-tag tag-pro">Pro</span>
+      <h2>Context Awareness</h2>
+      <p>Verby automatically detects which application you are using and what project you are working on. This context is used to tailor the AI output so your prompts, emails, and text are relevant to your current task without any manual configuration.</p>
+      <p>If you are in VS Code working on a Python project, Verby generates code-oriented prompts with the right language context. If you are in Gmail, it defaults to email formatting. The output adapts to your environment so you can stay focused on your work.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>Detection</h4>
+            <p>Current app and project identified automatically</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Benefit</h4>
+            <p>Prompts tailored to your active context</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pattern Learning -->
+    <section class="feature-section">
+      <span class="feature-tag tag-pro">Pro</span>
+      <h2>Pattern Learning</h2>
+      <p>Verby learns your prompt style, vocabulary, and preferences over time. The more you use it, the better it becomes at generating text that matches the way you communicate. This means fewer edits and more accurate output with every use.</p>
+      <p>Pattern learning applies across all modes — dictation, email generation, and prompt crafting. Verby adapts to your writing style so the output feels natural and personal rather than generic.</p>
+    </section>
+
+    <!-- Works Everywhere -->
+    <section class="feature-section">
+      <span class="feature-tag tag-core">Core Feature</span>
+      <h2>Works Everywhere</h2>
+      <p>Verby is a system-wide desktop application, not a browser extension or a plugin. It works in every application where you can type text. Gmail, Slack, VS Code, ChatGPT, Notion, Microsoft Word, Terminal — if your cursor is there, Verby can inject text into it.</p>
+      <p>There is nothing to install per-app and no integrations to configure. Verby operates at the system level on both Mac and Windows, so it is always available regardless of which application is in the foreground.</p>
+      <div class="feature-detail">
+        <div class="feature-detail-row">
+          <div class="feature-detail-item">
+            <h4>Verified Apps</h4>
+            <p>Gmail, Slack, VS Code, ChatGPT, Notion, Word, Terminal</p>
+          </div>
+          <div class="feature-detail-item">
+            <h4>Platforms</h4>
+            <p>macOS and Windows desktop</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Ready to try Verby?</h2>
+      <p>Download Verby for free and start talking to your apps. Setup takes 60 seconds.</p>
+      <a href="/download" class="btn btn-primary">Download Verby</a>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Verby by Syntrix. All rights reserved.</p>
+    </footer>
+  </div>
+  <script defer src="/particles.js"></script>
+  <!-- Vercel Analytics -->
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
