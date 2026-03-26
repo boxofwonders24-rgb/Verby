@@ -80,8 +80,24 @@ const createWindow = () => {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
-    // mainWindow.webContents.openDevTools({ mode: 'detach' });
     if (!isDev) initAutoUpdater(mainWindow);
+  });
+
+  // Fallback: if ready-to-show doesn't fire within 5s, show anyway
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      console.log('ready-to-show timeout — forcing window visible');
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  }, 5000);
+
+  // Log renderer errors
+  mainWindow.webContents.on('did-fail-load', (_e, code, desc) => {
+    console.error(`Renderer failed to load: ${code} ${desc}`);
+  });
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    console.error('Renderer crashed:', details.reason);
   });
 
   // Hide on close if tray mode is active, otherwise quit normally
