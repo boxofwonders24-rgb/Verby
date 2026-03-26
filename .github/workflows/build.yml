@@ -24,6 +24,12 @@ jobs:
       - name: Build renderer
         run: npm run build:renderer
 
+      - name: Write .env for packaged build
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+          echo "DEFAULT_PROVIDER=openai" >> .env
+
       - name: Build macOS (signed + notarized)
         run: npx electron-builder --mac --publish never
         env:

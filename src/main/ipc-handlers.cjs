@@ -132,10 +132,14 @@ function setSetting(key, value) {
   saveSettings(settings);
 }
 
+// API keys resolved at runtime. Priority:
+// 1. User's own key from Settings (highest)
+// 2. OPENAI_API_KEY / ANTHROPIC_API_KEY env vars (.env in dev, injected by CI in packaged builds)
+// 3. Empty (falls through to Vercel proxy for authenticated users)
 function initServices(settings) {
   const openaiKey = (settings && settings.openaiKey) || getSetting('openaiKey', '') || process.env.OPENAI_API_KEY || '';
   const anthropicKey = (settings && settings.anthropicKey) || getSetting('anthropicKey', '') || process.env.ANTHROPIC_API_KEY || '';
-  const defaultProvider = (settings && settings.defaultProvider) || getSetting('defaultProvider', 'claude') || process.env.DEFAULT_PROVIDER || 'claude';
+  const defaultProvider = (settings && settings.defaultProvider) || getSetting('defaultProvider', 'openai') || process.env.DEFAULT_PROVIDER || 'openai';
 
   console.log('[VerbyPrompt] initServices:', {
     hasOpenAI: !!openaiKey,

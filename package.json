@@ -1,6 +1,6 @@
 {
   "name": "verbyprompt",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Voice-to-prompt desktop app",
   "author": "Stephen Grandy",
   "main": "src/main/index.js",
@@ -116,7 +116,8 @@
     "files": [
       "dist/renderer/**/*",
       "src/main/**/*",
-      "package.json"
+      "package.json",
+      ".env"
     ],
     "directories": {
       "output": "out"
