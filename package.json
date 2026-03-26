@@ -1,6 +1,6 @@
 {
   "name": "verbyprompt",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Voice-to-prompt desktop app",
   "author": "Stephen Grandy",
   "main": "src/main/index.js",
@@ -47,7 +47,6 @@
         "en"
       ],
       "extendInfo": {
-        "LSUIElement": true,
         "NSMicrophoneUsageDescription": "VerbyPrompt needs microphone access to transcribe your speech.",
         "NSAccessibilityUsageDescription": "VerbyPrompt needs Accessibility access to inject text into other apps.",
         "CFBundleURLTypes": [

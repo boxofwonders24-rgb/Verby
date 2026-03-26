@@ -84,9 +84,9 @@ const createWindow = () => {
     if (!isDev) initAutoUpdater(mainWindow);
   });
 
-  // Hide instead of close — keeps renderer alive for recording
+  // Hide on close if tray mode is active, otherwise quit normally
   mainWindow.on('close', (e) => {
-    if (!app.isQuitting) {
+    if (!app.isQuitting && tray) {
       e.preventDefault();
       mainWindow.hide();
     }
@@ -530,12 +530,15 @@ app.whenReady().then(() => {
       console.log('Dock icon failed to load from:', iconFile);
     }
 
-    // Hide dock by default — Verby is a menu-bar app
+    // Show in dock by default so users can always find the app.
+    // Power users can hide via Settings.
     const { getSetting: getSettingValue } = require('./ipc-handlers.cjs');
-    const showInDock = getSettingValue('showInDock', false);
+    const showInDock = getSettingValue('showInDock', true);
     if (!showInDock) {
       app.dock.hide();
       console.log('Dock hidden — menu-bar only mode');
+    } else {
+      console.log('Dock visible');
     }
   }
 
