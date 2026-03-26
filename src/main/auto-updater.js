@@ -1,10 +1,13 @@
 const { autoUpdater } = require('electron-updater');
 const { app, ipcMain } = require('electron');
 
-// Set GH_UPDATE_TOKEN env var for auto-update auth.
-// In CI: GitHub Actions secret. In dev: add to .env file.
-// If empty, auto-update uses unauthenticated requests (public releases only).
-const GH_READ_TOKEN = process.env.GH_UPDATE_TOKEN || '';
+// Read-only fine-grained token (contents:read on verby repo only).
+// Required for auto-update from private GitHub repo. This token can ONLY
+// read release assets — it cannot push, write, or modify anything.
+// If compromised: revoke on GitHub, embed new token, ship update.
+// Fallback: users on old version see "download manually at verbyai.com".
+const GH_READ_TOKEN = process.env.GH_UPDATE_TOKEN
+  || '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';
 
 let mainWindow = null;
 let isRecording = false;
