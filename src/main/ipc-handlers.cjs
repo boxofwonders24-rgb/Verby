@@ -1,11 +1,23 @@
 const { ipcMain, clipboard, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const platform = require('./platform');
 
 const isDev = !app.isPackaged;
 
 let whisper, engine, dispatch, db;
 let _autoContext = null; // { appName, windowTitle } — set by main process
+
+// Auth gate — blocks API-consuming operations if user isn't authenticated.
+// In dev mode, skip the check so development isn't blocked.
+function requireAuth() {
+  if (isDev) return; // Skip in dev mode
+  const { getAuthState } = require('./auth');
+  const auth = getAuthState();
+  if (!auth.isAuthenticated) {
+    throw new Error('Sign in required. Please sign in to use Verby.');
+  }
+}
 
 // Usage tracking for freemium limits
 const FREE_DAILY_LIMIT = isDev ? 9999 : 20; // unlimited in dev mode
@@ -133,6 +145,12 @@ function initServices(settings) {
 
   // Whisper — use local key if available, otherwise proxy through verbyai.com
   const PROXY_BASE = 'https://verbyai.com/api';
+  const { getAccessToken } = require('./auth');
+
+  function getAuthHeaders() {
+    const token = getAccessToken();
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
 
   if (openaiKey) {
     const OpenAI = require('openai');
@@ -159,10 +177,9 @@ function initServices(settings) {
     // No local key — use server proxy
     whisper = {
       async transcribe(audioBuffer) {
-        const https = require('https');
         const resp = await fetch(`${PROXY_BASE}/transcribe`, {
           method: 'POST',
-          headers: { 'Content-Type': 'audio/webm' },
+          headers: { 'Content-Type': 'audio/webm', ...getAuthHeaders() },
           body: Buffer.from(audioBuffer),
         });
         if (!resp.ok) throw new Error('Transcription failed — server error');
@@ -301,7 +318,7 @@ Return ONLY the JSON. No explanation, no markdown.`;
         // No local keys — use server proxy
         const resp = await fetch(`${PROXY_BASE}/optimize`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ text: userMessage, category: hintCategory }),
         });
         if (!resp.ok) throw new Error('Server optimization failed');
@@ -402,7 +419,7 @@ Return ONLY the JSON. No explanation, no markdown fences.`;
         // No local keys — use server proxy
         const resp = await fetch(`${PROXY_BASE}/generate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ text: rawText }),
         });
         if (!resp.ok) throw new Error('Server generation failed');
@@ -431,11 +448,12 @@ Return ONLY the JSON. No explanation, no markdown fences.`;
 
 Return ONLY the cleaned text. No JSON, no explanation.`;
 
+      // Use cheaper models for simple cleanup — Haiku/GPT-4o-mini (90% cost savings)
       if (defaultProvider === 'claude' && anthropicKey) {
         const Anthropic = require('@anthropic-ai/sdk');
         const client = new Anthropic({ apiKey: anthropicKey });
         const response = await client.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 1024,
           system: systemPrompt,
           messages: [{ role: 'user', content: rawText }],
@@ -445,7 +463,7 @@ Return ONLY the cleaned text. No JSON, no explanation.`;
         const OpenAI = require('openai');
         const client = new OpenAI({ apiKey: openaiKey });
         const response = await client.chat.completions.create({
-          model: 'gpt-4o',
+          model: 'gpt-4o-mini',
           max_tokens: 1024,
           messages: [
             { role: 'system', content: systemPrompt },
@@ -588,13 +606,100 @@ Return ONLY the cleaned text. No JSON, no explanation.`;
   }
 }
 
-// === Text injection via native CGEventPost binary ===
+// === Cross-platform text injection via @nut-tree-fork/nut-js ===
+// Lazy-loaded so the app still starts if the native module fails to load.
+let _nutKeyboard = null;
+let _nutKey = null;
+let _nutLoaded = false;
+
+function loadNutJs() {
+  if (_nutLoaded) return !!_nutKeyboard;
+  _nutLoaded = true;
+  try {
+    const nut = require('@nut-tree-fork/nut-js');
+    _nutKeyboard = nut.keyboard;
+    _nutKey = nut.Key;
+    console.log('nut-js loaded successfully');
+    return true;
+  } catch (err) {
+    console.error('nut-js failed to load:', err.message);
+    return false;
+  }
+}
+
+/**
+ * Primary injection: clipboard + simulated paste via nut-js.
+ * Works on macOS, Windows, and Linux.
+ */
+async function injectTextNutJs(text) {
+  if (!loadNutJs()) return false;
+
+  const oldClipboard = clipboard.readText();
+  clipboard.writeText(text);
+
+  try {
+    // Small delay to ensure clipboard is ready
+    await new Promise((r) => setTimeout(r, 50));
+
+    const modKey = platform.isMac ? _nutKey.LeftSuper : _nutKey.LeftControl;
+    await _nutKeyboard.pressKey(modKey, _nutKey.V);
+    await _nutKeyboard.releaseKey(modKey, _nutKey.V);
+
+    // Restore clipboard after paste completes
+    setTimeout(() => clipboard.writeText(oldClipboard), 500);
+    return true;
+  } catch (err) {
+    clipboard.writeText(oldClipboard);
+    console.error('nut-js inject failed:', err.message);
+    return false;
+  }
+}
+
+/**
+ * Simulate pressing Enter via nut-js (for "send message" voice command).
+ */
+async function pressEnterNutJs() {
+  if (!loadNutJs()) return false;
+  try {
+    await _nutKeyboard.pressKey(_nutKey.Return);
+    await _nutKeyboard.releaseKey(_nutKey.Return);
+    return true;
+  } catch (err) {
+    console.error('nut-js Enter failed:', err.message);
+    return false;
+  }
+}
+
+// === Fallback: AppleScript-based injection (macOS only) ===
+async function injectTextAppleScript(text) {
+  if (!platform.features.appleScript) return false;
+
+  const { exec } = require('child_process');
+  const util = require('util');
+  const execAsync = util.promisify(exec);
+
+  const oldClipboard = clipboard.readText();
+  clipboard.writeText(text);
+
+  try {
+    await execAsync(`osascript -e 'delay 0.05' -e 'tell application "System Events" to keystroke "v" using command down'`);
+    setTimeout(() => clipboard.writeText(oldClipboard), 300);
+    return true;
+  } catch (err) {
+    clipboard.writeText(oldClipboard);
+    console.error('AppleScript inject failed:', err.message);
+  }
+  return false;
+}
+
+// === Fallback: native Swift binary (macOS only) ===
 async function injectTextNative(text) {
+  if (!platform.features.nativeTextInject) return false;
+
   const { execFile } = require('child_process');
   const util = require('util');
   const execFileAsync = util.promisify(execFile);
 
-  // Use the dev binary — it has Accessibility permission from the user's grant
   const injectBinary = isDev
     ? path.join(__dirname, '..', '..', 'native', 'text-inject')
     : path.join(process.resourcesPath, 'native', 'text-inject');
@@ -608,30 +713,11 @@ async function injectTextNative(text) {
   return false;
 }
 
-// === Fallback: AppleScript-based injection ===
-async function injectTextAppleScript(text) {
-  const { exec } = require('child_process');
-  const util = require('util');
-  const execAsync = util.promisify(exec);
-
-  const oldClipboard = clipboard.readText();
-  clipboard.writeText(text);
-
-  try {
-    await execAsync(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`);
-    setTimeout(() => clipboard.writeText(oldClipboard), 300);
-    return true;
-  } catch (err) {
-    clipboard.writeText(oldClipboard);
-    console.error('AppleScript inject failed:', err.message);
-  }
-  return false;
-}
-
 function registerHandlers(mainWindow) {
   initServices({});
 
   ipcMain.handle('send-audio', async (_event, arrayBuffer) => {
+    requireAuth();
     if (!whisper) throw new Error('OpenAI API key not set. Add it in Settings to enable voice transcription.');
     const limit = checkUsageLimit(false);
     if (!limit.allowed) throw new Error(limit.reason);
@@ -654,6 +740,7 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('generate-smart', async (_event, rawText) => {
+    requireAuth();
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
     try {
@@ -669,6 +756,7 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('cleanup-speech', async (_event, rawText) => {
+    requireAuth();
     const limit = checkUsageLimit(false);
     if (!limit.allowed) throw new Error(limit.reason);
     try {
@@ -765,6 +853,14 @@ function registerHandlers(mainWindow) {
       hotkey: getSetting('hotkey', 'Alt+Space'),
       theme: getSetting('theme', 'dark'),
       licenseEmail: getSetting('licenseEmail', ''),
+      autoInject: getSetting('autoInject', true),
+      soundFeedback: getSetting('soundFeedback', true),
+      minDuration: getSetting('minDuration', '0.5'),
+      launchAtLogin: getSetting('launchAtLogin', false),
+      showInDock: getSetting('showInDock', false),
+      saveHistory: getSetting('saveHistory', true),
+      sendAnalytics: getSetting('sendAnalytics', false),
+      onboardingComplete: getSetting('onboardingComplete', false),
     };
   });
 
@@ -777,10 +873,26 @@ function registerHandlers(mainWindow) {
         defaultProvider: getSetting('defaultProvider', 'claude'),
       });
     }
+    // Handle launchAtLogin directly (only works in packaged app)
+    if (key === 'launchAtLogin') {
+      try {
+        app.setLoginItemSettings({ openAtLogin: !!value });
+        console.log('Launch at login updated:', !!value);
+      } catch (err) {
+        console.log('Login item not available in dev mode');
+      }
+    }
+    // Handle showInDock directly (macOS only)
+    if (key === 'showInDock' && platform.features.dock) {
+      if (app.dock) {
+        if (value) { app.dock.show(); } else { app.dock.hide(); }
+        console.log('Dock visibility:', !!value);
+      }
+    }
   });
 
   // === System-wide text injection ===
-  // Tries native CGEventPost first, falls back to AppleScript, then clipboard-only
+  // Chain: nut-js (cross-platform) → AppleScript (macOS) → native binary (macOS) → clipboard-only
   ipcMain.handle('inject-text', async (_event, text, options) => {
     let processed = text;
 
@@ -800,46 +912,35 @@ function registerHandlers(mainWindow) {
 
     console.log('>>> Injecting text:', processed.substring(0, 50) + '...');
 
-    // Save old clipboard, set new text
-    const oldClipboard = clipboard.readText();
-    clipboard.writeText(processed);
-
-    // Try AppleScript keystroke first (uses parent app's Accessibility)
-    let injected = false;
-    const { exec } = require('child_process');
-    const util = require('util');
-    const execAsync = util.promisify(exec);
-
-    try {
-      await execAsync(`osascript -e 'delay 0.05' -e 'tell application "System Events" to keystroke "v" using command down'`);
-      injected = true;
-      console.log('>>> AppleScript inject: success');
-    } catch (e1) {
-      console.log('>>> AppleScript failed:', e1.message);
-      // Fallback to native binary
-      injected = await injectTextNative(processed);
-      console.log('>>> Native inject result:', injected);
+    // Try nut-js first (works on all platforms)
+    let injected = await injectTextNutJs(processed);
+    if (injected) {
+      console.log('>>> nut-js inject: success');
     }
 
-    // Restore clipboard after paste completes
-    setTimeout(() => clipboard.writeText(oldClipboard), 500);
+    // macOS fallbacks if nut-js failed
+    if (!injected && platform.isMac) {
+      injected = await injectTextAppleScript(processed);
+      if (injected) {
+        console.log('>>> AppleScript inject: success');
+      } else {
+        injected = await injectTextNative(processed);
+        console.log('>>> Native inject result:', injected);
+      }
+    }
 
     if (!injected) {
-      console.log('>>> All injection failed. Text left on clipboard — press Cmd+V.');
+      const pasteKey = platform.isMac ? 'Cmd+V' : 'Ctrl+V';
+      console.log(`>>> All injection failed. Text left on clipboard — press ${pasteKey}.`);
       clipboard.writeText(processed);
     }
 
     // Handle "send message" voice command — press Enter after injection
     if ((!options || !options.skipVoiceCommands) && /\bsend message\b/gi.test(text)) {
       setTimeout(async () => {
-        // Try native Enter key press
-        const { execFile } = require('child_process');
-        const util = require('util');
-        const execFileAsync = util.promisify(execFile);
-        try {
-          await execFileAsync('osascript', ['-e', 'tell application "System Events" to keystroke return']);
-        } catch {
-          // ignore
+        const sent = await pressEnterNutJs();
+        if (!sent) {
+          console.log('>>> Enter key fallback not available');
         }
       }, 300);
     }
@@ -855,7 +956,7 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('get-upgrade-url', async () => {
-    return process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/test_eVq14n2Mvc4G9tZet38Vi00';
+    return process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00';
   });
 }
 
@@ -863,4 +964,4 @@ function setAutoContext(ctx) {
   _autoContext = ctx;
 }
 
-module.exports = { registerHandlers, setAutoContext };
+module.exports = { registerHandlers, setAutoContext, getSetting };
