@@ -73,7 +73,6 @@
           "to": "native/indicator"
         }
       ],
-      "afterSign": "scripts/notarize.js"
     },
     "dmg": {
       "background": null,
@@ -106,12 +105,7 @@
           ]
         }
       ],
-      "icon": "assets/icon.ico",
-      "publisherName": "Syntrix",
-      "signingHashAlgorithms": [
-        "sha256"
-      ],
-      "sign": "./scripts/sign-windows.js"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": true,
@@ -129,6 +123,7 @@
     },
     "asar": true,
     "afterPack": "./scripts/afterPack.js",
+    "afterSign": "scripts/notarize.js",
     "publish": {
       "provider": "github",
       "owner": "boxofwonders24-rgb",
