@@ -72,7 +72,7 @@
           "from": "native/indicator",
           "to": "native/indicator"
         }
-      ],
+      ]
     },
     "dmg": {
       "background": null,
