@@ -1,6 +1,6 @@
 {
   "name": "verbyprompt",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Voice-to-prompt desktop app",
   "author": "Stephen Grandy",
   "main": "src/main/index.js",
@@ -116,13 +116,18 @@
     "files": [
       "dist/renderer/**/*",
       "src/main/**/*",
-      "package.json",
-      ".env"
+      "package.json"
     ],
     "directories": {
       "output": "out"
     },
     "asar": true,
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
     "afterPack": "./scripts/afterPack.js",
     "afterSign": "scripts/notarize.js",
     "publish": {
