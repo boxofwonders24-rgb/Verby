@@ -109,7 +109,7 @@ function ActivityItem({ entry, onCopy }) {
 export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const { isRecording, audioBlob, toggleRecording } = useRecording();
   const { history, loadHistory, optimize, toggleFav, remove, copy, sendLLM } = usePrompts();
-  const { isDictating, dictationStatus, enhancedMode, setEnhancedMode, dictationLog, toggleDictation } = useDictation();
+  const { isDictating, dictationStatus, dictationLog, toggleDictation } = useDictation();
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
@@ -348,24 +348,6 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
               )}
             </div>
           )}
-
-          {/* Enhanced mode + options */}
-          <div className="flex items-center justify-between p-3 rounded-xl mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <div>
-              <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Enhanced Writing</p>
-              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                {enhancedMode ? 'AI polishes before injecting' : 'Raw transcription'}
-              </p>
-            </div>
-            <button
-              onClick={() => setEnhancedMode(!enhancedMode)}
-              className="relative w-10 h-[22px] rounded-full transition-colors flex-shrink-0"
-              style={{ background: enhancedMode ? 'var(--accent)' : 'var(--bg-card-hover)', border: '1px solid var(--border)' }}
-            >
-              <div className="absolute top-[2px] w-4 h-4 rounded-full transition-all"
-                style={{ left: enhancedMode ? '21px' : '2px', background: enhancedMode ? '#fff' : 'var(--text-muted)' }} />
-            </button>
-          </div>
 
           {/* Recent dictations */}
           {dictationLog.length > 0 && (

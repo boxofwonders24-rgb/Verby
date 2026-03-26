@@ -100,6 +100,10 @@ function startNativeIndicatorProcess() {
 
   try {
     nativeIndicatorProcess = spawn(indicatorBin, [], { stdio: ['pipe', 'pipe', 'pipe'] });
+    nativeIndicatorProcess.stdin.on('error', (err) => {
+      console.error('Indicator stdin error:', err.message);
+      nativeIndicatorProcess = null;
+    });
     nativeIndicatorProcess.stdout.on('data', (d) => {
       const msg = d.toString().trim();
       if (msg === 'indicator_ready') console.log('Native indicator ready');
@@ -114,7 +118,12 @@ function startNativeIndicatorProcess() {
 
 function sendNativeIndicatorCmd(cmd) {
   if (nativeIndicatorProcess && nativeIndicatorProcess.stdin.writable) {
-    nativeIndicatorProcess.stdin.write(cmd + '\n');
+    try {
+      nativeIndicatorProcess.stdin.write(cmd + '\n');
+    } catch (err) {
+      console.error('Indicator write failed:', err.message);
+      nativeIndicatorProcess = null;
+    }
   }
 }
 

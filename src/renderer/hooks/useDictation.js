@@ -28,7 +28,7 @@ const HALLUCINATIONS = new Set([
 export default function useDictation() {
   const [isDictating, setIsDictating] = useState(false);
   const [dictationStatus, setDictationStatus] = useState('idle'); // idle | listening | processing
-  const [enhancedMode, setEnhancedMode] = useState(true);
+  const enhancedMode = true; // Always on — Fn uses AI, Ctrl uses raw
   const [dictationLog, setDictationLog] = useState([]);
   const mediaRecorder = useRef(null);
   const chunks = useRef([]);
@@ -191,7 +191,7 @@ export default function useDictation() {
       setIsDictating(false);
       setDictationStatus('idle');
     }
-  }, [enhancedMode]);
+  }, []);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
@@ -246,8 +246,6 @@ export default function useDictation() {
   return {
     isDictating,
     dictationStatus,
-    enhancedMode,
-    setEnhancedMode,
     dictationLog,
     toggleDictation,
   };

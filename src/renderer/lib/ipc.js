@@ -2,6 +2,15 @@ const verby = window.verby || {};
 const noop = () => {};
 const noopAsync = () => Promise.resolve(null);
 
+// Platform info — cached after first call
+let _platformCache = null;
+const defaultPlatform = { isMac: false, isWindows: false, isLinux: false, modifiers: { mod: 'Ctrl', alt: 'Alt', ctrl: 'Ctrl', shift: 'Shift' }, features: {}, settingsUrls: {} };
+export const getPlatform = async () => {
+  if (_platformCache) return _platformCache;
+  _platformCache = await (verby.getPlatform || (() => Promise.resolve(defaultPlatform)))();
+  return _platformCache;
+};
+
 export const transcribeAudio = (buffer) => (verby.sendAudio || noopAsync)(buffer);
 export const optimizePrompt = (text, category) => (verby.optimizePrompt || noopAsync)(text, category);
 export const sendToLLM = (prompt, provider) => (verby.sendToLLM || noopAsync)(prompt, provider);
@@ -70,3 +79,18 @@ export const getAppVersion = () => (verby.getAppVersion || (() => Promise.resolv
 // Recording state sync
 export const notifyRecordingStarted = () => (verby.notifyRecordingStarted || noop)();
 export const notifyRecordingStopped = () => (verby.notifyRecordingStopped || noop)();
+
+// Auth
+export const authSendMagicLink = (email) => (verby.authSendMagicLink || noopAsync)(email);
+export const authVerifyOtp = (email, token) => (verby.authVerifyOtp || noopAsync)(email, token);
+export const authGetState = () => (verby.authGetState || (() => Promise.resolve({ isAuthenticated: false })))();
+export const authSignInOAuth = (provider) => (verby.authSignInOAuth || noopAsync)(provider);
+export const authSignOut = () => (verby.authSignOut || noopAsync)();
+export const authRefresh = () => (verby.authRefresh || noopAsync)();
+export const onAuthStateChanged = (cb) => (verby.onAuthStateChanged || noop)(cb);
+
+// Permission checks (onboarding)
+export const checkPermissions = () => (verby.checkPermissions || (() => Promise.resolve({ microphone: false, accessibility: false })))();
+export const requestMicrophone = () => (verby.requestMicrophone || (() => Promise.resolve(false)))();
+export const openSystemPrefs = (section) => (verby.openSystemPrefs || noop)(section);
+export const onFnPermissionNeeded = (cb) => (verby.onFnPermissionNeeded || noop)(cb);

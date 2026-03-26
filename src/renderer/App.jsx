@@ -1,16 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import Overlay from './components/Overlay';
 import SettingsPanel from './components/SettingsPanel';
-import { getSettings, setSetting } from './lib/ipc';
+import Onboarding from './components/Onboarding';
+import SignIn from './components/SignIn';
+import { getSettings, setSetting, onOpenSettings, authGetState, onAuthStateChanged } from './lib/ipc';
 
 export default function App() {
-  const [view, setView] = useState('main');
+  const [view, setView] = useState('loading'); // loading | signin | onboarding | main | settings
   const [theme, setTheme] = useState('dark');
+  const [auth, setAuth] = useState({ isAuthenticated: false, email: null });
 
   useEffect(() => {
-    getSettings().then((s) => {
-      if (s && s.theme) setTheme(s.theme);
+    // Check auth + settings in parallel
+    Promise.all([authGetState(), getSettings()]).then(([authState, settings]) => {
+      setAuth(authState);
+      if (settings && settings.theme) setTheme(settings.theme);
+
+      if (!authState.isAuthenticated) {
+        setView('signin');
+      } else if (settings && settings.onboardingComplete) {
+        setView('main');
+      } else {
+        setView('onboarding');
+      }
     });
+
+    // Listen for auth state changes (e.g., OAuth callback)
+    const cleanupAuth = onAuthStateChanged((state) => {
+      setAuth(state);
+      if (state.isAuthenticated) {
+        getSettings().then((s) => {
+          setView(s && s.onboardingComplete ? 'main' : 'onboarding');
+        });
+      }
+    });
+
+    // Handle tray "Settings" click from any view
+    const cleanupSettings = onOpenSettings(() => {
+      if (auth.isAuthenticated) setView('settings');
+    });
+
+    return () => {
+      if (cleanupAuth) cleanupAuth();
+      if (cleanupSettings) cleanupSettings();
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -18,6 +51,15 @@ export default function App() {
     setTheme(next);
     setSetting('theme', next);
   };
+
+  const handleSignedIn = (authState) => {
+    setAuth(authState);
+    getSettings().then((s) => {
+      setView(s && s.onboardingComplete ? 'main' : 'onboarding');
+    });
+  };
+
+  if (view === 'loading') return null;
 
   return (
     <div
@@ -36,6 +78,12 @@ export default function App() {
 
       {/* Content */}
       <div className="flex-1 flex items-start justify-center px-5 pb-5 overflow-hidden relative z-10">
+        {view === 'signin' && (
+          <SignIn onSignedIn={handleSignedIn} />
+        )}
+        {view === 'onboarding' && (
+          <Onboarding onComplete={() => setView('main')} />
+        )}
         {view === 'main' && (
           <Overlay
             onOpenSettings={() => setView('settings')}

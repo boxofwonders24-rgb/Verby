@@ -1,6 +1,18 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+// Platform info — synchronous for immediate access in components.
+// Populated once via IPC, cached in a closure.
+let _platformCache = null;
+
 contextBridge.exposeInMainWorld('verby', {
+  // Platform detection (async, cached after first call)
+  getPlatform: async () => {
+    if (!_platformCache) {
+      _platformCache = await ipcRenderer.invoke('get-platform');
+    }
+    return _platformCache;
+  },
+
   // Recording
   onToggleRecording: (callback) => {
     ipcRenderer.on('toggle-recording', () => callback());
@@ -126,4 +138,28 @@ contextBridge.exposeInMainWorld('verby', {
   // Recording state sync (for update safety)
   notifyRecordingStarted: () => ipcRenderer.send('recording-started'),
   notifyRecordingStopped: () => ipcRenderer.send('recording-stopped'),
+
+  // Auth
+  authSendMagicLink: (email) => ipcRenderer.invoke('auth-send-magic-link', email),
+  authVerifyOtp: (email, token) => ipcRenderer.invoke('auth-verify-otp', email, token),
+  authGetState: () => ipcRenderer.invoke('auth-get-state'),
+  authSignInOAuth: (provider) => ipcRenderer.invoke('auth-sign-in-oauth', provider),
+  authSignOut: () => ipcRenderer.invoke('auth-sign-out'),
+  authRefresh: () => ipcRenderer.invoke('auth-refresh'),
+  onAuthStateChanged: (callback) => {
+    const handler = (_e, data) => callback(data);
+    ipcRenderer.on('auth-state-changed', handler);
+    return () => ipcRenderer.removeListener('auth-state-changed', handler);
+  },
+
+  // Permission checks (onboarding)
+  checkPermissions: () => ipcRenderer.invoke('check-permissions'),
+  requestMicrophone: () => ipcRenderer.invoke('request-microphone'),
+  openSystemPrefs: (section) => ipcRenderer.invoke('open-system-prefs', section),
+
+  // Fn permission status
+  onFnPermissionNeeded: (callback) => {
+    ipcRenderer.on('fn-permission-needed', () => callback());
+    return () => ipcRenderer.removeAllListeners('fn-permission-needed');
+  },
 });

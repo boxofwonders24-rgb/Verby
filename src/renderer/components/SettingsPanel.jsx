@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, installUpdate } from '../lib/ipc';
+import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, installUpdate, authGetState, authSignOut, getPlatform, openSystemPrefs } from '../lib/ipc';
 
 const SectionHeader = ({ children }) => (
   <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -121,13 +121,59 @@ function ProSection() {
   );
 }
 
+function AccountSection() {
+  const [email, setEmail] = useState('');
+  const [signingOut, setSigningOut] = useState(false);
+
+  useEffect(() => {
+    authGetState().then((state) => {
+      if (state.email) setEmail(state.email);
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    if (!confirm('Sign out of Verby? You will need to sign in again to use the app.')) return;
+    setSigningOut(true);
+    await authSignOut();
+    // App will detect auth change and show sign-in screen
+    window.location.reload();
+  };
+
+  return (
+    <div>
+      <SectionHeader>Account</SectionHeader>
+      <div className="p-4 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Signed in as</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--accent)' }}>{email || '...'}</p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-medium"
+            style={{ background: 'rgba(244,63,94,0.06)', color: 'var(--error)', border: '1px solid rgba(244,63,94,0.15)' }}
+          >
+            {signingOut ? '...' : 'Sign Out'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPanel({ onBack }) {
   const [settings, setSettings] = useState({});
   const [saved, setSaved] = useState(false);
   const [showKeys, setShowKeys] = useState({});
+  const [platformInfo, setPlatformInfo] = useState(null);
 
   useEffect(() => {
     getSettings().then((s) => setSettings(s || {}));
+  }, []);
+
+  useEffect(() => {
+    getPlatform().then(setPlatformInfo);
   }, []);
 
   const [appVersion, setAppVersion] = useState('...');
@@ -276,12 +322,6 @@ export default function SettingsPanel({ onBack }) {
           <SectionHeader>Voice & Dictation</SectionHeader>
           <div className="space-y-2">
             <Toggle
-              checked={settings.enhancedMode !== false}
-              onChange={(v) => update('enhancedMode', v)}
-              label="Enhanced Writing"
-              description="AI polishes grammar, clarity & tone before injecting"
-            />
-            <Toggle
               checked={settings.autoInject !== false}
               onChange={(v) => update('autoInject', v)}
               label="Auto-Inject Text"
@@ -320,31 +360,73 @@ export default function SettingsPanel({ onBack }) {
 
         <Divider />
 
+        {/* ═══ Email ═══ */}
+        <div>
+          <SectionHeader>Email</SectionHeader>
+          <div className="space-y-3">
+            <div>
+              <Label hint="tone for generated emails">Email Style</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { key: 'auto', label: 'Auto', desc: 'Matches your speaking tone' },
+                  { key: 'formal', label: 'Formal', desc: 'Professional and polished' },
+                  { key: 'casual', label: 'Casual', desc: 'Warm and conversational' },
+                  { key: 'direct', label: 'Direct', desc: 'Concise, no fluff' },
+                ].map(({ key, label, desc }) => (
+                  <button
+                    key={key}
+                    onClick={() => update('emailStyle', key)}
+                    className="p-2.5 rounded-xl text-left"
+                    style={(settings.emailStyle || 'auto') === key
+                      ? { background: 'var(--accent-subtle)', border: '1px solid var(--border-accent)' }
+                      : { background: 'var(--bg-card)', border: '1px solid var(--border)' }
+                    }
+                  >
+                    <p className="text-xs font-medium" style={{ color: (settings.emailStyle || 'auto') === key ? 'var(--accent)' : 'var(--text-primary)' }}>{label}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label hint="used at the end of generated emails">Sign-off Name</Label>
+              <input
+                type="text"
+                placeholder="Your name"
+                value={settings.emailSignOffName || ''}
+                onChange={(e) => update('emailSignOffName', e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl text-xs"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        </div>
+
+        <Divider />
+
         {/* ═══ Shortcuts ═══ */}
         <div>
           <SectionHeader>Shortcuts</SectionHeader>
           <div className="space-y-2">
-            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <div>
-                <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Hold to Dictate</p>
-                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>System-wide voice input</p>
+            {(platformInfo?.isMac !== false ? [
+              { label: 'Hold to Dictate', desc: 'AI-enhanced writing', key: 'Fn' },
+              { label: 'Hold to Dictate', desc: 'Clean speech-to-text', key: 'Ctrl' },
+              { label: 'Toggle Recording', desc: 'Show window + start/stop', key: 'Alt+Space' },
+              { label: 'Dictation Toggle', desc: 'Backup hotkey', key: 'Ctrl+Alt+Space' },
+            ] : [
+              { label: 'Hold to Dictate', desc: 'AI-enhanced writing', key: 'CapsLock' },
+              { label: 'Hold to Dictate', desc: 'Clean speech-to-text', key: 'Right Ctrl' },
+              { label: 'Toggle Recording', desc: 'Show window + start/stop', key: 'Alt+Space' },
+              { label: 'Dictation Toggle', desc: 'Backup hotkey', key: 'Ctrl+Alt+Space' },
+            ]).map(({ label, desc, key }) => (
+              <div key={key} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <div>
+                  <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{label}</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{desc}</p>
+                </div>
+                <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>{key}</span>
               </div>
-              <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>Fn</span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <div>
-                <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Toggle Recording</p>
-                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Show window + start/stop</p>
-              </div>
-              <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>Alt+Space</span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <div>
-                <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Dictation Toggle</p>
-                <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Backup hotkey</p>
-              </div>
-              <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>Ctrl+Alt+Space</span>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -376,17 +458,19 @@ export default function SettingsPanel({ onBack }) {
               </div>
             </div>
             <Toggle
-              checked={settings.launchAtLogin !== false}
+              checked={settings.launchAtLogin === true}
               onChange={(v) => update('launchAtLogin', v)}
               label="Launch at Login"
               description="Start Verby when you log in"
             />
-            <Toggle
-              checked={settings.showInDock !== false}
-              onChange={(v) => update('showInDock', v)}
-              label="Show in Dock"
-              description="Display Verby icon in the macOS dock"
-            />
+            {platformInfo?.isMac && (
+              <Toggle
+                checked={settings.showInDock === true}
+                onChange={(v) => update('showInDock', v)}
+                label="Show in Dock"
+                description="Display Verby icon in the macOS dock"
+              />
+            )}
           </div>
         </div>
 
@@ -431,20 +515,23 @@ export default function SettingsPanel({ onBack }) {
         <div>
           <SectionHeader>Permissions</SectionHeader>
           <p className="text-[11px] mb-3" style={{ color: 'var(--text-muted)' }}>
-            Verby needs these macOS permissions to work. Click to open System Settings.
+            {platformInfo?.isMac
+              ? 'Verby needs these macOS permissions to work. Click to open System Settings.'
+              : 'Verby requests permissions automatically when needed.'}
           </p>
           <div className="space-y-2">
             {[
               { label: 'Microphone', desc: 'Voice recording', section: 'Privacy_Microphone' },
-              { label: 'Accessibility', desc: 'Text injection', section: 'Privacy_Accessibility' },
-              { label: 'Input Monitoring', desc: 'Fn key capture', section: 'Privacy_ListenEvent' },
+              ...(platformInfo?.isMac ? [
+                { label: 'Accessibility', desc: 'Text injection', section: 'Privacy_Accessibility' },
+                { label: 'Input Monitoring', desc: 'Fn key capture', section: 'Privacy_ListenEvent' },
+              ] : []),
             ].map(({ label, desc, section }) => (
               <button
                 key={section}
                 onClick={() => {
                   if (window.verby && window.verby.log) window.verby.log('open-permissions:' + section);
-                  // Open system settings via shell
-                  window.open(`x-apple.systempreferences:com.apple.preference.security?${section}`);
+                  openSystemPrefs(section);
                 }}
                 className="w-full flex items-center justify-between p-3 rounded-xl text-left"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
@@ -458,6 +545,9 @@ export default function SettingsPanel({ onBack }) {
             ))}
           </div>
         </div>
+
+        {/* ═══ Account ═══ */}
+        <AccountSection />
 
         {/* ═══ About ═══ */}
         <div className="pt-4 pb-2 text-center" style={{ borderTop: '1px solid var(--border)' }}>
