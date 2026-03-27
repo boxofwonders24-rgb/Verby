@@ -1,6 +1,6 @@
 {
   "name": "verbyprompt",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Voice-to-prompt desktop app",
   "author": "Stephen Grandy",
   "main": "src/main/index.js",
