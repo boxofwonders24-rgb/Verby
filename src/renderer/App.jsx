@@ -12,18 +12,24 @@ export default function App() {
 
   useEffect(() => {
     // Check auth + settings in parallel
-    Promise.all([authGetState(), getSettings()]).then(([authState, settings]) => {
-      setAuth(authState);
-      if (settings && settings.theme) setTheme(settings.theme);
+    Promise.all([authGetState(), getSettings()])
+      .then(([authState, settings]) => {
+        setAuth(authState);
+        if (settings && settings.theme) setTheme(settings.theme);
 
-      if (!authState.isAuthenticated) {
+        if (!authState.isAuthenticated) {
+          setView('signin');
+        } else if (settings && settings.onboardingComplete) {
+          setView('main');
+        } else {
+          setView('onboarding');
+        }
+      })
+      .catch((err) => {
+        console.error('Startup error:', err);
+        // If auth fails, show sign-in so the app isn't stuck on black screen
         setView('signin');
-      } else if (settings && settings.onboardingComplete) {
-        setView('main');
-      } else {
-        setView('onboarding');
-      }
-    });
+      });
 
     // Listen for auth state changes (e.g., OAuth callback)
     const cleanupAuth = onAuthStateChanged((state) => {
@@ -59,7 +65,11 @@ export default function App() {
     });
   };
 
-  if (view === 'loading') return null;
+  if (view === 'loading') return (
+    <div className="h-screen w-screen flex items-center justify-center" style={{ background: '#050508' }}>
+      <p style={{ color: '#6366F1', fontSize: '18px', fontWeight: 700 }}>Verby</p>
+    </div>
+  );
 
   return (
     <div

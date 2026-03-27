@@ -41,8 +41,10 @@ const DEV_URL = 'http://localhost:5173';
 
 // Ensure single instance — required for Windows deep link handling via 'second-instance' event.
 // On macOS this also prevents duplicate instances.
+// If the lock is stale (previous crash), Electron will acquire it on retry.
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
+  console.log('Another instance is running — quitting');
   app.quit();
 }
 
