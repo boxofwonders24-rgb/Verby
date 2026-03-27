@@ -103,7 +103,7 @@ export default function App() {
         )}
         {view === 'settings' && (
           <div className="w-full max-w-[640px] glass-card overflow-hidden prompt-reveal">
-            <SettingsPanel onBack={() => setView('main')} />
+            <SettingsPanel onBack={() => setView('main')} onRunSetup={() => setView('onboarding')} />
           </div>
         )}
       </div>

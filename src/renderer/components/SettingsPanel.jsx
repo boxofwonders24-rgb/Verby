@@ -162,7 +162,7 @@ function AccountSection() {
   );
 }
 
-export default function SettingsPanel({ onBack }) {
+export default function SettingsPanel({ onBack, onRunSetup }) {
   const [settings, setSettings] = useState({});
   const [saved, setSaved] = useState(false);
   const [showKeys, setShowKeys] = useState({});
@@ -594,7 +594,20 @@ export default function SettingsPanel({ onBack }) {
             </p>
           )}
 
-          <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
+          <Divider />
+
+          <button
+            onClick={() => {
+              setSetting('onboardingComplete', false);
+              if (onRunSetup) onRunSetup();
+            }}
+            className="w-full py-2.5 rounded-xl text-xs font-medium"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+          >
+            Run Setup Again
+          </button>
+
+          <p className="text-[10px] mt-3" style={{ color: 'var(--text-muted)' }}>
             Built by Stephen Grandy
           </p>
         </div>
