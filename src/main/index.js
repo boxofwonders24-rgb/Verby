@@ -20,11 +20,17 @@ if (platform.isMac) {
 // File-based logging so we can debug when launched via Finder / Explorer
 const _fs = require('fs');
 const _logPath = platform.getLogPath();
-_fs.writeFileSync(_logPath, `=== Verby started ${new Date().toISOString()} ===\n`);
+try { _fs.writeFileSync(_logPath, `=== Verby started ${new Date().toISOString()} ===\n`); } catch {}
 const _origLog = console.log;
 const _origErr = console.error;
-console.log = (...args) => { _origLog(...args); _fs.appendFileSync(_logPath, args.join(' ') + '\n'); };
-console.error = (...args) => { _origErr(...args); _fs.appendFileSync(_logPath, 'ERR: ' + args.join(' ') + '\n'); };
+console.log = (...args) => { try { _origLog(...args); } catch {} try { _fs.appendFileSync(_logPath, args.join(' ') + '\n'); } catch {} };
+console.error = (...args) => { try { _origErr(...args); } catch {} try { _fs.appendFileSync(_logPath, 'ERR: ' + args.join(' ') + '\n'); } catch {} };
+
+// Prevent EPIPE and other uncaught errors from crashing the app
+process.on('uncaughtException', (err) => {
+  if (err.code === 'EPIPE') return; // Ignore broken pipe — happens when parent terminal closes
+  try { _fs.appendFileSync(_logPath, `FATAL: ${err.message}\n${err.stack}\n`); } catch {}
+});
 
 const { app, BrowserWindow, globalShortcut, Tray, Menu, nativeImage, ipcMain, systemPreferences } = require('electron');
 const { spawn } = require('child_process');
