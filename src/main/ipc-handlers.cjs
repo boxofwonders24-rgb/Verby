@@ -164,6 +164,7 @@ function initServices(settings) {
         const os = require('os');
         const tmpPath = path.join(os.tmpdir(), `verby-${Date.now()}.webm`);
         fs.writeFileSync(tmpPath, Buffer.from(audioBuffer));
+        console.log(`>>> Whisper: sending ${audioBuffer.byteLength} bytes`);
         try {
           const transcription = await client.audio.transcriptions.create({
             model: 'whisper-1',
@@ -171,9 +172,13 @@ function initServices(settings) {
             response_format: 'text',
             language: 'en',
           });
+          console.log(`>>> Whisper result: "${(transcription || '').substring(0, 50)}"`);
           return transcription.trim();
+        } catch (err) {
+          console.error(`>>> Whisper error: ${err.message}`);
+          throw err;
         } finally {
-          fs.unlinkSync(tmpPath);
+          try { fs.unlinkSync(tmpPath); } catch {}
         }
       }
     };
