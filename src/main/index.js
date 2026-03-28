@@ -117,12 +117,9 @@ const createWindow = () => {
     console.error('Renderer crashed:', details.reason);
   });
 
-  // Hide on close if tray mode is active, otherwise quit normally
-  mainWindow.on('close', (e) => {
-    if (!app.isQuitting && tray) {
-      e.preventDefault();
-      mainWindow.hide();
-    }
+  // Close the window = quit the app
+  mainWindow.on('close', () => {
+    app.isQuitting = true;
   });
 
   mainWindow.on('closed', () => { mainWindow = null; });
