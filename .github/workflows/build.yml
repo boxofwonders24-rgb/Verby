@@ -3,12 +3,14 @@ name: Build & Release
 on:
   push:
     tags:
-      - 'v*' # Triggers on version tags like v0.3.1, v1.0.0
-  workflow_dispatch: # Manual trigger from GitHub Actions UI
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build-mac:
     runs-on: macos-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,26 +32,20 @@ jobs:
           echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
           echo "DEFAULT_PROVIDER=openai" >> .env
 
-      - name: Build macOS (signed + notarized)
-        run: npx electron-builder --mac --publish never
+      - name: Build + publish macOS (signed + notarized)
+        run: npx electron-builder --mac --publish always
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: verby-mac
-          path: |
-            out/*.dmg
-            out/*.zip
-          retention-days: 30
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -65,53 +61,7 @@ jobs:
       - name: Build renderer
         run: npm run build:renderer
 
-      - name: Build Windows
-        run: npx electron-builder --win --publish never
+      - name: Build + publish Windows
+        run: npx electron-builder --win --publish always
         env:
-          WIN_SIGN_MODE: ${{ secrets.WIN_SIGN_MODE }}
-          WIN_SIGN_CERT_SHA1: ${{ secrets.WIN_SIGN_CERT_SHA1 }}
-          SM_API_KEY: ${{ secrets.SM_API_KEY }}
-          SM_CLIENT_CERT_FILE: ${{ secrets.SM_CLIENT_CERT_FILE }}
-          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
-          SM_CERT_ALIAS: ${{ secrets.SM_CERT_ALIAS }}
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: verby-windows
-          path: |
-            out/*.exe
-          retention-days: 30
-
-  # Release job — only runs on version tags, uploads artifacts to GitHub Releases
-  release:
-    needs: [build-mac, build-windows]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: verby-mac
-          path: artifacts/mac
-
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: verby-windows
-          path: artifacts/win
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          generate_release_notes: true
-          files: |
-            artifacts/mac/*
-            artifacts/win/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
