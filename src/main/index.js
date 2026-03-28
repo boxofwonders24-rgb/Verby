@@ -502,7 +502,7 @@ ipcMain.on('renderer-log', (_event, msg) => {
 });
 
 // === App Lifecycle ===
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   const { registerHandlers } = require('./ipc-handlers.cjs');
 
   // Build platform-appropriate app menu
@@ -607,6 +607,16 @@ app.whenReady().then(() => {
 
   // Register custom protocol for auth callbacks
   app.setAsDefaultProtocolClient('verbyprompt');
+
+  // Request microphone permission BEFORE creating the window.
+  // If we don't, macOS may kill the renderer process when it tries to access audio.
+  if (platform.isMac) {
+    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+    if (micStatus !== 'granted') {
+      console.log('Requesting microphone permission before window creation...');
+      await systemPreferences.askForMediaAccess('microphone');
+    }
+  }
 
   createWindow();
   registerHandlers(mainWindow);
