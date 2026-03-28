@@ -841,8 +841,10 @@ function registerHandlers(mainWindow) {
   });
 
   // Usage info for renderer
-  // Check Pro status on app start
-  checkProStatus().then((isPro) => console.log('Pro status:', isPro));
+  // Check Pro status after a delay to allow auth session to restore
+  setTimeout(() => {
+    checkProStatus().then((isPro) => console.log('Pro status:', isPro));
+  }, 3000);
 
   ipcMain.handle('get-usage', async () => {
     const usage = getUsageToday();
