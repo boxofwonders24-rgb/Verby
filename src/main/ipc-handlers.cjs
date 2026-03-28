@@ -36,6 +36,34 @@ async function checkProStatus() {
   // Cache for 1 hour
   if (Date.now() - _proStatusCache.checkedAt < 3600000) return _proStatusCache.valid;
 
+  // Check Supabase profile first (set via admin)
+  try {
+    const { getAuthState, getAccessToken } = require('./auth');
+    const auth = getAuthState();
+    if (auth.isAuthenticated) {
+      const token = getAccessToken();
+      const supabaseUrl = process.env.SUPABASE_URL;
+      if (token && supabaseUrl) {
+        const resp = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${auth.userId}&select=is_pro`, {
+          headers: {
+            'apikey': process.env.SUPABASE_ANON_KEY || '',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (resp.ok) {
+          const profiles = await resp.json();
+          if (profiles[0]?.is_pro) {
+            _proStatusCache = { valid: true, checkedAt: Date.now() };
+            return true;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Supabase pro check failed:', err.message);
+  }
+
+  // Fallback: check Stripe
   const email = getSetting('licenseEmail', '');
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   if (!email || !stripeKey) {
