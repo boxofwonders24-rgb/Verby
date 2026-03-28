@@ -45,6 +45,35 @@ let fnProcess = null;
 const isDev = !app.isPackaged;
 const DEV_URL = 'http://localhost:5173';
 
+// Detect macOS App Translocation and fix it automatically.
+// When users open the app from a DMG or download folder, macOS translocates
+// it to a random temp path. This breaks permissions (Input Monitoring, Accessibility)
+// because they're tied to the app's path. We strip the quarantine flag and
+// prompt the user to relaunch from the correct location.
+if (!isDev && platform.isMac && app.getAppPath().includes('AppTranslocation')) {
+  const { execSync } = require('child_process');
+  const appPath = app.getPath('exe').replace(/\/Contents\/MacOS\/.*$/, '');
+  try {
+    // Strip quarantine flag so next launch won't translocate
+    execSync(`xattr -dr com.apple.quarantine "${appPath}" 2>/dev/null || true`);
+    console.log('Stripped quarantine from:', appPath);
+  } catch {}
+
+  // Show a dialog telling the user to relaunch
+  const { dialog } = require('electron');
+  app.whenReady().then(() => {
+    dialog.showMessageBoxSync({
+      type: 'info',
+      title: 'Verby — First Launch Setup',
+      message: 'Almost ready!',
+      detail: 'Verby needs to restart to finish setup. Please close this dialog — the app will relaunch automatically.',
+      buttons: ['Restart Now'],
+    });
+    app.relaunch();
+    app.exit(0);
+  });
+}
+
 // Ensure single instance — required for Windows deep link handling via 'second-instance' event.
 // On macOS this also prevents duplicate instances.
 // If the lock is stale (previous crash), Electron will acquire it on retry.
