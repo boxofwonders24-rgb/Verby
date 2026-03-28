@@ -32,11 +32,24 @@ function getUsageToday() {
 
 let _proStatusCache = { valid: false, checkedAt: 0 };
 
+// Admin Pro emails — always unlimited, no API check needed
+const ADMIN_EMAILS = ['boxofwonders24@gmail.com', 'sgrandy@syntrixdev.com'];
+
 async function checkProStatus() {
   // Cache for 1 hour
   if (Date.now() - _proStatusCache.checkedAt < 3600000) return _proStatusCache.valid;
 
-  // Check Supabase profile first (set via admin)
+  // Check admin list first (instant, no network)
+  try {
+    const { getAuthState } = require('./auth');
+    const auth = getAuthState();
+    if (auth.isAuthenticated && ADMIN_EMAILS.includes(auth.email)) {
+      _proStatusCache = { valid: true, checkedAt: Date.now() };
+      return true;
+    }
+  } catch {}
+
+  // Check Supabase profile (set via admin)
   try {
     const { getAuthState, getAccessToken } = require('./auth');
     const auth = getAuthState();
