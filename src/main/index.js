@@ -342,12 +342,11 @@ function startFnCapture() {
   console.log('Fn binary path:', fnBinary);
 
   try {
-    // Clean up any old launchd agents and processes
+    // Clean up old pipe and launchd agents (but don't pkill — it kills our own spawn)
     try { execSync(`launchctl stop ${AGENT_LABEL} 2>/dev/null`); } catch {}
     try { execSync(`launchctl unload "${AGENT_PLIST}" 2>/dev/null`); } catch {}
-    try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
     try { fs.unlinkSync(AGENT_PLIST); } catch {}
-    try { execSync('pkill -f "fn-capture" 2>/dev/null'); } catch {}
+    try { fs.unlinkSync(FN_PIPE_PATH); } catch {}
 
     // Create named pipe
     execSync(`mkfifo "${FN_PIPE_PATH}"`);
