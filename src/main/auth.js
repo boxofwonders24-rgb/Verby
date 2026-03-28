@@ -95,12 +95,16 @@ function initAuth(window) {
 }
 
 function notifyRenderer() {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('auth-state-changed', {
-      isAuthenticated: !!currentSession,
-      email: currentSession?.user?.email || null,
-      userId: currentSession?.user?.id || null,
-    });
+  try {
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+      mainWindow.webContents.send('auth-state-changed', {
+        isAuthenticated: !!currentSession,
+        email: currentSession?.user?.email || null,
+        userId: currentSession?.user?.id || null,
+      });
+    }
+  } catch (err) {
+    // Renderer may be disposed during app shutdown — ignore
   }
 }
 
