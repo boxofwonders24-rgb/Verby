@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050508"/>
+      <stop offset="100%" stop-color="#0F0D1A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="200" cy="150" r="250" fill="#6366F1" opacity="0.06"/>
+  <circle cx="900" cy="500" r="200" fill="#14B8A6" opacity="0.05"/>
+  <text x="600" y="200" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="72" font-weight="800" fill="url(#accent)">Verby</text>
+  <text x="600" y="280" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="36" font-weight="600" fill="#F1F5F9">Simple Pricing</text>
+  <!-- Free box -->
+  <rect x="300" y="320" width="250" height="160" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="425" y="370" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#F1F5F9">Free</text>
+  <text x="425" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="42" font-weight="800" fill="#F1F5F9">$0</text>
+  <text x="425" y="460" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#475569">20 dictations/day</text>
+  <!-- Pro box -->
+  <rect x="650" y="320" width="250" height="160" rx="16" fill="rgba(99,102,241,0.05)" stroke="rgba(99,102,241,0.3)" stroke-width="1"/>
+  <text x="775" y="370" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#6366F1">Pro</text>
+  <text x="775" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="42" font-weight="800" fill="#F1F5F9">$9<tspan font-size="18" fill="#475569">/mo</tspan></text>
+  <text x="775" y="460" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#475569">Unlimited everything</text>
+  <rect x="0" y="610" width="1200" height="20" fill="url(#accent)" opacity="0.6"/>
+</svg>

@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050508">
   <title>Download Verby — Free AI Voice-to-Text for Mac & Windows</title>
-  <meta name="description" content="Download Verby for free. AI-powered voice dictation for macOS (Apple Silicon & Intel) and Windows. Setup takes 60 seconds.">
+  <meta name="description" content="Download Verby free — AI voice dictation for Mac. Hold a key, speak, text appears at your cursor. 60-second setup, no credit card required.">
   <meta name="keywords" content="download Verby, voice to text download, AI dictation app download, Verby Mac, Verby Windows, free dictation software">
   <link rel="canonical" href="https://verbyai.com/download">
   <!-- Open Graph / Social -->
@@ -14,64 +15,20 @@
   <meta property="og:url" content="https://verbyai.com/download">
   <meta property="og:site_name" content="Verby">
   <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://verbyai.com/og/download.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Download Verby — Free AI Voice-to-Text for Mac & Windows">
   <meta name="twitter:description" content="Download Verby for free. AI-powered voice dictation for macOS (Apple Silicon & Intel) and Windows. Setup takes 60 seconds.">
   <meta name="twitter:site" content="@verbyai">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="twitter:image" content="https://verbyai.com/og/download.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #050508;
-      --text: #F1F5F9;
-      --text-2: #94A3B8;
-      --text-3: #475569;
-      --accent: #6366F1;
-      --accent-2: #14B8A6;
-      --glow: rgba(99, 102, 241, 0.3);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Aurora background */
-    .aurora {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .aurora div {
-      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
-      animation: drift 20s ease-in-out infinite;
-    }
-    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
-    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
-    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
-    @keyframes drift {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(40px, -30px) scale(1.1); }
-      66% { transform: translate(-30px, 20px) scale(0.95); }
-    }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* Nav */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+    /* Page-specific: Download */
     .logo a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon { width: 28px; height: 28px; }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
 
     /* Hero */
     .hero {
@@ -88,10 +45,6 @@
       font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.1;
       letter-spacing: -0.03em; margin-bottom: 20px;
     }
-    .gradient {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
     .subtitle {
       font-size: 18px; color: var(--text-2); line-height: 1.6;
       max-width: 540px; margin: 0 auto 40px;
@@ -99,20 +52,6 @@
 
     /* CTA Buttons */
     .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 600;
-      text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;
-      box-shadow: 0 4px 20px var(--glow);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
-    .btn-secondary {
-      background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid rgba(255,255,255,0.08);
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
     .btn-disabled {
       background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid rgba(255,255,255,0.06);
       opacity: 0.6; pointer-events: none; cursor: default;
@@ -239,12 +178,6 @@
     }
     .cta-bottom a:hover { color: #818CF8; }
 
-    /* Footer */
-    footer {
-      padding: 40px 0; text-align: center; font-size: 12px; color: var(--text-3);
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-
     /* Responsive */
     @media (max-width: 600px) {
       .hero { padding: 50px 0 40px; }
@@ -252,6 +185,29 @@
       .req-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Verby",
+    "operatingSystem": "macOS, Windows",
+    "applicationCategory": "ProductivityApplication",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "softwareVersion": "0.5.8",
+    "downloadUrl": "https://verbyai.com/download",
+    "author": {"@type": "Organization", "name": "Syntrix", "url": "https://syntrixdev.com"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://verbyai.com/"},
+      {"@type": "ListItem", "position": 2, "name": "Download", "item": "https://verbyai.com/download"}
+    ]
+  }
+  </script>
 </head>
 <body>
   <div class="aurora"><div></div><div></div><div></div></div>
@@ -292,6 +248,7 @@
         <a href="/">Home</a>
         <a href="/features">Features</a>
         <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
         <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
       </div>
     </nav>
@@ -307,8 +264,8 @@
     <div class="download-section">
       <div class="platform-label">macOS</div>
       <div class="ctas">
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" class="btn btn-primary">Download for Apple Silicon</a>
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" class="btn btn-secondary">Download for Intel Mac</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" rel="noopener noreferrer" class="btn btn-primary">Download for Apple Silicon</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" rel="noopener noreferrer" class="btn btn-secondary">Download for Intel Mac</a>
       </div>
       <p class="platform-note">macOS 13+ &middot; v0.5.8 &middot; M1/M2/M3 or Intel</p>
     </div>
@@ -320,6 +277,13 @@
         <a href="#" class="btn btn-disabled">Windows — Coming Soon</a>
       </div>
       <p class="platform-note">Windows 10/11 &middot; x64</p>
+      <div style="margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto;">
+        <p style="font-size: 13px; color: var(--text-2); margin-bottom: 12px;">Get notified when Verby for Windows launches:</p>
+        <form action="https://formspree.io/f/placeholder" method="POST" style="display: flex; gap: 8px;">
+          <input type="email" name="email" placeholder="your@email.com" required style="flex: 1; padding: 10px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #F1F5F9; font-size: 14px; font-family: inherit; outline: none;">
+          <button type="submit" style="padding: 10px 20px; border-radius: 10px; border: none; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;">Notify Me</button>
+        </form>
+      </div>
     </div>
 
     <!-- Quick Setup Guides -->
@@ -416,11 +380,12 @@
     </section>
 
     <footer>
-      <p>&copy; 2026 Verby by Syntrix. All rights reserved.</p>
+      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a></p>
     </footer>
   </div>
   <script defer src="/particles.js"></script>
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>

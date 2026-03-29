@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050508">
   <title>Verby — AI Voice-to-Text App for Mac & Windows | Dictation, Emails, Prompts</title>
-  <meta name="description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor. Free AI dictation for Mac and Windows.">
+  <meta name="description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — free for Mac. Try 20 free dictations today. 60-second setup.">
   <meta name="keywords" content="voice to text app, AI dictation software, speech to text desktop, voice typing Mac, voice typing Windows, AI email generator, voice prompt tool, hands free typing">
   <link rel="canonical" href="https://verbyai.com/">
   <!-- Open Graph / Social -->
@@ -14,11 +15,15 @@
   <meta property="og:url" content="https://verbyai.com">
   <meta property="og:site_name" content="Verby">
   <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://verbyai.com/og/homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Verby — AI Voice-to-Text App for Mac & Windows">
   <meta name="twitter:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor.">
   <meta name="twitter:site" content="@verbyai">
+  <meta name="twitter:image" content="https://verbyai.com/og/homepage.png">
   <!-- Structured Data -->
   <script type="application/ld+json">
   {
@@ -54,10 +59,10 @@
     "author": {
       "@type": "Organization",
       "name": "Syntrix",
-      "url": "https://verbyai.com"
+      "url": "https://syntrixdev.com"
     },
-    "softwareVersion": "0.3.0",
-    "downloadUrl": "https://verbyai.com/#download",
+    "softwareVersion": "0.5.8",
+    "downloadUrl": "https://verbyai.com/download",
     "featureList": [
       "Voice-to-text dictation",
       "AI email generation",
@@ -101,60 +106,62 @@
     ]
   }
   </script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://verbyai.com/"
+      }
+    ]
+  }
+  </script>
+  <!-- Organization Schema (Knowledge Panel) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Verby",
+    "url": "https://verbyai.com",
+    "logo": "https://verbyai.com/favicon.svg",
+    "description": "AI-powered voice-to-text desktop app that writes emails, crafts prompts, and cleans up speech.",
+    "founder": {
+      "@type": "Person",
+      "name": "Stephen Grandy"
+    },
+    "parentOrganization": {
+      "@type": "Organization",
+      "name": "Syntrix LLC",
+      "url": "https://syntrixdev.com"
+    },
+    "sameAs": [
+      "https://twitter.com/verbyai"
+    ]
+  }
+  </script>
+  <!-- WebSite Schema (Sitelinks Search Box) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Verby",
+    "url": "https://verbyai.com",
+    "description": "AI-powered voice-to-text app for Mac and Windows. Dictation, email generation, and smart prompts.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Verby"
+    }
+  }
+  </script>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/og/homepage.png">
+  <link rel="stylesheet" href="/styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #050508;
-      --text: #F1F5F9;
-      --text-2: #94A3B8;
-      --text-3: #475569;
-      --accent: #6366F1;
-      --accent-2: #14B8A6;
-      --glow: rgba(99, 102, 241, 0.3);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Aurora background */
-    .aurora {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .aurora div {
-      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
-      animation: drift 20s ease-in-out infinite;
-    }
-    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
-    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
-    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
-    @keyframes drift {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(40px, -30px) scale(1.1); }
-      66% { transform: translate(-30px, 20px) scale(0.95); }
-    }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* Nav */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
-    .logo-icon { width: 28px; height: 28px; }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
-
-    /* Hero */
+    /* Homepage-specific styles */
     .hero {
       text-align: center;
       padding: 80px 0 60px;
@@ -169,10 +176,6 @@
       font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.1;
       letter-spacing: -0.03em; margin-bottom: 20px;
     }
-    .gradient {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
     .teal { color: #14B8A6; }
     .violet { color: #A78BFA; }
     .subtitle {
@@ -182,20 +185,6 @@
 
     /* CTA Buttons */
     .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 600;
-      text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;
-      box-shadow: 0 4px 20px var(--glow);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
-    .btn-secondary {
-      background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid rgba(255,255,255,0.08);
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
 
     /* Demo visual */
     .demo {
@@ -291,12 +280,6 @@
     .price-btn-pro { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; }
     .price-btn:hover { transform: translateY(-1px); }
 
-    /* Footer */
-    footer {
-      padding: 40px 0; text-align: center; font-size: 12px; color: var(--text-3);
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-
     /* Responsive */
     @media (max-width: 600px) {
       .hero { padding: 50px 0 40px; }
@@ -341,6 +324,7 @@
       <div class="nav-links">
         <a href="/features">Features</a>
         <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
         <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
       </div>
     </nav>
@@ -408,6 +392,31 @@
       </div>
     </div>
 
+    <!-- Product Screenshots -->
+    <section style="padding: 40px 0 20px;">
+      <h2 style="text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 32px;">See Verby in action</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <img src="/images/verby-email-generation.png" alt="Verby AI voice dictation generating a professional email from spoken input on macOS" width="900" height="560" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Voice to email: speak naturally, get a polished email</p>
+        </div>
+        <div>
+          <img src="/images/verby-prompt-enhancement.png" alt="Verby transforming spoken words into a structured ChatGPT prompt with AI enhancement" width="900" height="560" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Smart prompts: casual speech becomes structured AI prompts</p>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div>
+          <img src="/images/verby-speech-cleanup.png" alt="Verby speech cleanup mode removing filler words and fixing grammar from dictated text" width="900" height="400" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Speech cleanup: filler words removed, grammar fixed</p>
+        </div>
+        <div>
+          <img src="/images/verby-menu-bar.png" alt="Verby app running in the macOS menu bar showing dictation status and daily usage" width="600" height="300" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Lives in your menu bar, always ready</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Features -->
     <section class="features" id="features">
       <h2>How it works</h2>
@@ -474,7 +483,7 @@
             <li>Pattern learning</li>
             <li>Auto-updates + priority support</li>
           </ul>
-          <a href="https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00" class="price-btn price-btn-pro">Start Pro — $9/mo</a>
+          <a href="https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00" target="_blank" rel="noopener noreferrer" class="price-btn price-btn-pro">Start Pro — $9/mo</a>
         </div>
       </div>
     </section>
@@ -485,8 +494,8 @@
       <p class="subtitle" style="margin-bottom: 32px;">Download Verby for free. Setup takes 60 seconds.</p>
       <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 12px;">macOS</div>
       <div class="ctas">
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" class="btn btn-primary" style="font-size: 15px; padding: 14px 28px;">Download for Apple Silicon</a>
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" class="btn btn-secondary" style="font-size: 15px; padding: 14px 28px;">Download for Intel Mac</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 15px; padding: 14px 28px;">Download for Apple Silicon</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 15px; padding: 14px 28px;">Download for Intel Mac</a>
       </div>
       <p style="font-size: 11px; color: var(--text-3); margin-top: 12px;">Requires macOS 13+ · v0.5.8 · M1/M2/M3 or Intel</p>
       <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-top: 28px; margin-bottom: 12px;">Windows</div>
@@ -529,29 +538,51 @@
       </div>
     </section>
 
+    <!-- Blog Section -->
+    <section style="padding: 40px 0 60px;">
+      <h2 style="font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 24px;">From the Blog</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <a href="/blog/type-faster-with-voice-dictation" style="padding: 20px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s;">
+          <p style="font-size: 11px; color: #6366F1; font-weight: 600; margin-bottom: 8px;">PRODUCTIVITY</p>
+          <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">How to Type 3x Faster with Voice Dictation</p>
+          <p style="font-size: 12px; color: #475569;">8 min read</p>
+        </a>
+        <a href="/blog/voice-to-email-never-type-again" style="padding: 20px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s;">
+          <p style="font-size: 11px; color: #6366F1; font-weight: 600; margin-bottom: 8px;">EMAIL</p>
+          <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">Voice to Email: Never Type an Email Again</p>
+          <p style="font-size: 12px; color: #475569;">10 min read</p>
+        </a>
+        <a href="/blog/best-voice-to-text-apps-mac-2026" style="padding: 20px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s;">
+          <p style="font-size: 11px; color: #6366F1; font-weight: 600; margin-bottom: 8px;">COMPARISON</p>
+          <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">7 Best Voice-to-Text Apps for Mac in 2026</p>
+          <p style="font-size: 12px; color: #475569;">15 min read</p>
+        </a>
+      </div>
+    </section>
+
     <footer>
       <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px;">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 32px; text-align: left;">
           <div>
             <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">Product</p>
-            <a href="/features" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Features</a>
-            <a href="/pricing" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Pricing</a>
-            <a href="/download" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Download</a>
+            <a href="/features" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Features</a>
+            <a href="/pricing" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Pricing</a>
+            <a href="/download" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Download</a>
           </div>
           <div>
             <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">Resources</p>
-            <a href="/blog" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Blog</a>
-            <a href="/blog/best-voice-to-text-apps-mac-2026" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Best Voice-to-Text Apps 2026</a>
-            <a href="/blog/voice-dictation-with-chatgpt" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice Dictation with ChatGPT</a>
+            <a href="/blog" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Blog</a>
+            <a href="/blog/best-voice-to-text-apps-mac-2026" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Best Voice-to-Text Apps 2026</a>
+            <a href="/blog/voice-dictation-with-chatgpt" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice Dictation with ChatGPT</a>
           </div>
           <div>
             <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">More</p>
-            <a href="/blog/type-faster-with-voice-dictation" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Type Faster with Voice</a>
-            <a href="/blog/voice-to-email-never-type-again" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice-to-Email Guide</a>
-            <a href="https://syntrixdev.com" style="display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Built by Syntrix</a>
+            <a href="/blog/type-faster-with-voice-dictation" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Type Faster with Voice</a>
+            <a href="/blog/voice-to-email-never-type-again" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice-to-Email Guide</a>
+            <a href="https://syntrixdev.com" target="_blank" rel="noopener noreferrer" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Built by Syntrix</a>
           </div>
         </div>
-        <p style="text-align: center; font-size: 13px; color: var(--muted);">© 2026 Verby by Syntrix LLC. All rights reserved.</p>
+        <p style="text-align: center; font-size: 13px; color: var(--text-3);">© 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy" style="color: var(--text-3); text-decoration: none;">Privacy Policy</a></p>
       </div>
     </footer>
   </div>
@@ -559,5 +590,6 @@
   <script defer src="/particles.js"></script>
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050508">
   <title>Voice to Email: Never Type an Email Again in 2026 | Verby</title>
   <meta name="description" content="Stop typing emails. Learn how AI voice-to-email tools turn your speech into polished, ready-to-send emails in seconds. Save 30+ minutes daily.">
   <meta name="keywords" content="voice to email, dictate email, speak email, AI email writer, voice email app, hands free email, email dictation">
@@ -14,13 +15,17 @@
   <meta property="og:url" content="https://verbyai.com/blog/voice-to-email-never-type-again">
   <meta property="og:site_name" content="Verby">
   <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://verbyai.com/og/blog-voice-email.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="article:published_time" content="2026-03-24">
-  <meta property="article:author" content="Syntrix">
+  <meta property="article:author" content="Stephen Grandy">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Voice to Email: Never Type an Email Again in 2026 | Verby">
   <meta name="twitter:description" content="Stop typing emails. Learn how AI voice-to-email tools turn your speech into polished, ready-to-send emails in seconds. Save 30+ minutes daily.">
   <meta name="twitter:site" content="@verbyai">
+  <meta name="twitter:image" content="https://verbyai.com/og/blog-voice-email.png">
   <!-- Article Schema -->
   <script type="application/ld+json">
   {
@@ -36,206 +41,10 @@
     "url": "https://verbyai.com/blog/voice-to-email-never-type-again"
   }
   </script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #050508;
-      --text: #F1F5F9;
-      --text-2: #94A3B8;
-      --text-3: #475569;
-      --accent: #6366F1;
-      --accent-2: #14B8A6;
-      --glow: rgba(99, 102, 241, 0.3);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Aurora background */
-    .aurora {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .aurora div {
-      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
-      animation: drift 20s ease-in-out infinite;
-    }
-    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
-    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
-    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
-    @keyframes drift {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(40px, -30px) scale(1.1); }
-      66% { transform: translate(-30px, 20px) scale(0.95); }
-    }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* Nav */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; text-decoration: none; }
-    .logo-icon { width: 28px; height: 28px; }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-links a.active { color: var(--text); }
-
-    /* Gradient text */
-    .gradient {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-
-    /* CTA */
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 14px; font-size: 15px; font-weight: 600;
-      text-decoration: none; transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff;
-      box-shadow: 0 4px 20px var(--glow);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
-
-    /* Article header */
-    .article-header {
-      text-align: center;
-      padding: 80px 0 40px;
-      max-width: 680px;
-      margin: 0 auto;
-    }
-    .article-header .breadcrumb {
-      font-size: 13px; color: var(--text-3); margin-bottom: 24px;
-    }
-    .article-header .breadcrumb a {
-      color: var(--text-2); text-decoration: none;
-    }
-    .article-header .breadcrumb a:hover {
-      color: var(--text);
-    }
-    .article-tag {
-      display: inline-block; padding: 4px 12px; border-radius: 100px;
-      font-size: 11px; font-weight: 600; color: var(--accent);
-      background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2);
-      margin-bottom: 20px;
-    }
-    .article-header h1 {
-      font-size: clamp(28px, 5vw, 42px); font-weight: 800; line-height: 1.15;
-      letter-spacing: -0.03em; margin-bottom: 16px;
-    }
-    .article-meta {
-      font-size: 13px; color: var(--text-3);
-    }
-
-    /* Article body */
-    .article-body {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 0 0 60px;
-    }
-    .article-body p {
-      font-size: 16px; line-height: 1.7; color: var(--text-2);
-      margin-bottom: 24px;
-    }
-    .article-body h2 {
-      font-size: 24px; font-weight: 700; color: var(--text);
-      margin-top: 48px; margin-bottom: 16px;
-      letter-spacing: -0.02em;
-    }
-    .article-body h3 {
-      font-size: 18px; font-weight: 600; color: var(--text);
-      margin-top: 32px; margin-bottom: 12px;
-    }
-    .article-body strong {
-      color: var(--text); font-weight: 600;
-    }
-    .article-body em {
-      color: var(--text-2); font-style: italic;
-    }
-    .article-body ul, .article-body ol {
-      font-size: 16px; line-height: 1.7; color: var(--text-2);
-      margin-bottom: 24px; padding-left: 24px;
-    }
-    .article-body li {
-      margin-bottom: 8px;
-    }
-    .article-body a {
-      color: var(--accent); text-decoration: none; font-weight: 500;
-    }
-    .article-body a:hover {
-      text-decoration: underline;
-    }
-
-    /* Callout / comparison boxes */
-    .callout {
-      padding: 24px 28px; border-radius: 16px; margin-bottom: 32px;
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .callout-heading {
-      font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px;
-      text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .callout p, .callout li {
-      font-size: 14px; line-height: 1.7; color: var(--text-2);
-    }
-
-    /* Comparison table */
-    .comparison {
-      width: 100%; border-collapse: collapse; margin-bottom: 32px;
-    }
-    .comparison th, .comparison td {
-      text-align: left; padding: 12px 16px; font-size: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .comparison th {
-      font-weight: 600; color: var(--text); font-size: 12px;
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .comparison td {
-      color: var(--text-2);
-    }
-    .comparison tr:last-child td {
-      border-bottom: none;
-    }
-    .comparison .highlight td {
-      color: var(--accent); font-weight: 600;
-    }
-
-    /* Tool comparison cards */
-    .tool-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px;
-    }
-    .tool-card {
-      padding: 20px; border-radius: 14px;
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .tool-card.featured {
-      border-color: rgba(99, 102, 241, 0.3);
-      background: rgba(99, 102, 241, 0.04);
-    }
-    .tool-card h4 {
-      font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px;
-    }
-    .tool-card p {
-      font-size: 13px; line-height: 1.6; color: var(--text-3); margin-bottom: 0;
-    }
-
-    /* Before/after example boxes */
+    /* Before/after example boxes (page-specific) */
     .example-pair {
       display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
     }
@@ -259,35 +68,21 @@
     .example-box p {
       font-size: 13px; line-height: 1.6; color: var(--text-2); margin-bottom: 0;
     }
-
-    /* CTA section */
-    .article-cta {
-      text-align: center; padding: 48px 32px; border-radius: 20px; margin-bottom: 40px;
-      background: rgba(99, 102, 241, 0.04);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(99, 102, 241, 0.15);
-    }
-    .article-cta h3 {
-      font-size: 22px; font-weight: 700; margin-bottom: 12px; margin-top: 0;
-    }
-    .article-cta p {
-      font-size: 15px; color: var(--text-2); margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;
-    }
-
-    /* Footer */
-    footer {
-      padding: 40px 0; text-align: center; font-size: 12px; color: var(--text-3);
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-
-    /* Responsive */
     @media (max-width: 600px) {
-      .article-header { padding: 50px 0 30px; }
-      .tool-grid { grid-template-columns: 1fr; }
       .example-pair { grid-template-columns: 1fr; }
-      .callout { padding: 20px; }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://verbyai.com/"},
+      {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://verbyai.com/blog"},
+      {"@type": "ListItem", "position": 3, "name": "Voice to Email", "item": "https://verbyai.com/blog/voice-to-email-never-type-again"}
+    ]
+  }
+  </script>
 </head>
 <body>
   <div class="aurora"><div></div><div></div><div></div></div>
@@ -326,6 +121,7 @@
         <a href="/">Home</a>
         <a href="/features">Features</a>
         <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
         <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
       </div>
     </nav>
@@ -341,15 +137,29 @@
     <!-- Article Body -->
     <article class="article-body">
 
-      <h2>Email Is Eating Your Day</h2>
+      <!-- Table of Contents -->
+      <nav style="padding: 20px 24px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 40px;">
+        <p style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 12px;">Table of Contents</p>
+        <ol style="font-size: 14px; line-height: 2; padding-left: 20px; margin-bottom: 0;">
+          <li><a href="#eating-day" style="color: var(--accent); text-decoration: none;">Email Is Eating Your Day</a></li>
+          <li><a href="#time-sink" style="color: var(--accent); text-decoration: none;">The Email Time Sink</a></li>
+          <li><a href="#how-it-works" style="color: var(--accent); text-decoration: none;">How Voice-to-Email Actually Works</a></li>
+          <li><a href="#vs-dictation" style="color: var(--accent); text-decoration: none;">Voice-to-Email vs Regular Dictation</a></li>
+          <li><a href="#email-types" style="color: var(--accent); text-decoration: none;">5 Types of Emails Perfect for Voice</a></li>
+          <li><a href="#tips" style="color: var(--accent); text-decoration: none;">Tips for Better Voice Emails</a></li>
+          <li><a href="#getting-started" style="color: var(--accent); text-decoration: none;">Getting Started with Verby</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="eating-day">Email Is Eating Your Day</h2>
 
       <p>The average professional sends 40 emails a day. That is not a guess. Research from the McKinsey Global Institute and multiple workplace productivity studies consistently land on that number, give or take a handful depending on industry. What varies more is how long those 40 emails take. The current consensus is about 2.5 hours per day spent reading, writing, and managing email.</p>
 
       <p>Two and a half hours. Every working day. That is 12.5 hours a week, 50 hours a month, and over 600 hours a year. You are spending roughly 15 full work weeks per year on email alone.</p>
 
-      <p>Most of that time is not reading. Reading is fast. The time goes into composing: figuring out what to say, typing it, editing it until it sounds right, and formatting it so it does not look like a wall of text. What if you could collapse that entire process into a single step? Say what you mean, and a polished email appears, ready to send. That is voice-to-email, and it is no longer a concept. It works today.</p>
+      <p>Most of that time is not reading. Reading is fast. The time goes into composing: figuring out what to say, typing it, editing it until it sounds right, and formatting it so it does not look like a wall of text. What if you could collapse that entire process into a single step? Say what you mean, and a polished email appears, ready to send. That is voice-to-email, and it is no longer a concept. It works today. (If you are new to voice dictation in general, start with our guide on <a href="/blog/type-faster-with-voice-dictation">how to type 3x faster with voice dictation</a>.)</p>
 
-      <h2>The Email Time Sink: Where Your Minutes Actually Go</h2>
+      <h2 id="time-sink">The Email Time Sink: Where Your Minutes Actually Go</h2>
 
       <p>To understand why voice-to-email saves so much time, you need to see where the minutes go when you compose an email the traditional way. It breaks down into four stages, and each one carries a different weight.</p>
 
@@ -398,7 +208,7 @@
 
       <p>Voice-to-email collapses typing, editing, and formatting into a single step. You speak your intent naturally, and the AI handles the rest. A 5-minute email becomes a 45-second dictation. The thinking stays -- you still need to know what you want to say -- but everything after that thought is automated. That is an 80% time reduction on the composing side of every single email you send.</p>
 
-      <h2>How Voice-to-Email Actually Works</h2>
+      <h2 id="how-it-works">How Voice-to-Email Actually Works</h2>
 
       <p>Voice-to-email is not just dictation with a better name. It is a fundamentally different workflow. Here is what happens step by step when you use a voice-to-email tool like Verby.</p>
 
@@ -414,7 +224,7 @@
 
       <p>The entire process takes seconds. You speak one or two sentences. A complete email appears. You glance at it, confirm it says what you intended, and send. That is the workflow, start to finish.</p>
 
-      <h2>Voice-to-Email vs Regular Dictation</h2>
+      <h2 id="vs-dictation">Voice-to-Email vs Regular Dictation</h2>
 
       <p>The difference between voice-to-email and standard dictation is the difference between having a transcriptionist and having an executive assistant. A transcriptionist writes down exactly what you say. An assistant understands what you need and produces the appropriate output.</p>
 
@@ -437,7 +247,7 @@
 
       <p>This distinction matters because most people who have tried dictation and given up were using the raw transcription approach. They dictated, got a messy transcript, spent time cleaning it up, and concluded that voice input is not actually faster. They were right about raw dictation. But voice-to-email is a different tool solving a different problem.</p>
 
-      <h2>5 Types of Emails That Are Perfect for Voice</h2>
+      <h2 id="email-types">5 Types of Emails That Are Perfect for Voice</h2>
 
       <p>Not every email is the same. Some are complex negotiations that require careful wording. But the vast majority of daily emails fall into predictable categories that are ideal for voice-to-email. Here are the five most common, with examples of what you say versus what gets generated.</p>
 
@@ -518,7 +328,7 @@
 
       <p>Across these five categories, the pattern is the same. You state the essentials in one or two spoken sentences. The AI expands those essentials into a complete, professional email with appropriate tone, greeting, body, and sign-off. The time you save per email is modest -- maybe 3 to 5 minutes. But multiply that by 20 or 30 emails a day that fall into these categories, and you are saving 60 to 90 minutes daily.</p>
 
-      <h2>Tips for Better Voice Emails</h2>
+      <h2 id="tips">Tips for Better Voice Emails</h2>
 
       <p>Voice-to-email works well out of the box, but a few small habits will make it work even better. These tips come from real usage patterns and apply regardless of which tool you use.</p>
 
@@ -534,7 +344,7 @@
 
       <p><strong>Start with low-stakes emails.</strong> If you are new to voice-to-email, begin with internal emails and quick replies. Get comfortable with the workflow before using it for client-facing correspondence or sensitive communications. Within a day or two, you will trust the output enough to use it for everything.</p>
 
-      <h2>Getting Started with Verby</h2>
+      <h2 id="getting-started">Getting Started with Verby</h2>
 
       <p>If you want to try voice-to-email today, Verby is built specifically for this workflow. Here is how it works in practice.</p>
 
@@ -568,11 +378,12 @@
     </section>
 
     <footer>
-      <p>&copy; 2026 Verby by Syntrix. All rights reserved.</p>
+      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a></p>
     </footer>
   </div>
   <script defer src="/particles.js"></script>
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>

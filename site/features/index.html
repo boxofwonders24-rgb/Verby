@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050508">
   <title>Verby Features — AI Dictation, Email Generation, Voice Prompts</title>
-  <meta name="description" content="Explore Verby's features: AI-powered voice dictation, email generation, smart prompt crafting, speech cleanup, and system-wide text injection for Mac and Windows.">
+  <meta name="description" content="Voice dictation that writes emails, crafts AI prompts, and cleans up speech — injected at your cursor in any app. See how Verby works. Free for Mac.">
   <meta name="keywords" content="AI dictation features, voice to text features, voice email generator, AI prompt tool, speech cleanup app, voice typing features">
   <link rel="canonical" href="https://verbyai.com/features">
   <!-- Open Graph / Social -->
@@ -14,71 +15,18 @@
   <meta property="og:url" content="https://verbyai.com/features">
   <meta property="og:site_name" content="Verby">
   <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://verbyai.com/og/features.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Verby Features — AI Dictation, Email Generation, Voice Prompts">
   <meta name="twitter:description" content="Explore Verby's features: AI-powered voice dictation, email generation, smart prompt crafting, speech cleanup, and system-wide text injection for Mac and Windows.">
   <meta name="twitter:site" content="@verbyai">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231E1B4B'/><g transform='translate(16,16)'><rect x='-10' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><rect x='-6' y='-6' width='2.5' height='12' rx='1' fill='%236366F1' opacity='.6'/><rect x='-2' y='-9' width='3' height='18' rx='1.5' fill='%23818CF8'/><rect x='2.5' y='-5' width='2.5' height='10' rx='1' fill='%236366F1' opacity='.7'/><rect x='6.5' y='-3' width='2.5' height='6' rx='1' fill='%236366F1' opacity='.4'/><circle cx='11' cy='0' r='1' fill='%2314B8A6'/></g></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="twitter:image" content="https://verbyai.com/og/features.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #050508;
-      --text: #F1F5F9;
-      --text-2: #94A3B8;
-      --text-3: #475569;
-      --accent: #6366F1;
-      --accent-2: #14B8A6;
-      --glow: rgba(99, 102, 241, 0.3);
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Aurora background */
-    .aurora {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .aurora div {
-      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
-      animation: drift 20s ease-in-out infinite;
-    }
-    .aurora div:nth-child(1) { width: 500px; height: 500px; background: #6366F1; top: -100px; left: -100px; }
-    .aurora div:nth-child(2) { width: 400px; height: 400px; background: #8B5CF6; top: 40%; right: -100px; animation-delay: -7s; animation-duration: 25s; }
-    .aurora div:nth-child(3) { width: 350px; height: 350px; background: #14B8A6; bottom: -80px; left: 40%; animation-delay: -12s; animation-duration: 22s; }
-    @keyframes drift {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(40px, -30px) scale(1.1); }
-      66% { transform: translate(-30px, 20px) scale(0.95); }
-    }
-
-    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* Nav */
-    nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0;
-    }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; text-decoration: none; }
-    .logo-icon { width: 28px; height: 28px; }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-links a.active { color: var(--text); }
-
-    /* Gradient text */
-    .gradient {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6, #14B8A6);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-
     /* Page header */
     .page-header {
       text-align: center;
@@ -186,6 +134,16 @@
       .cta-section { padding: 60px 0 40px; }
     }
   </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://verbyai.com/"},
+    {"@type": "ListItem", "position": 2, "name": "Features", "item": "https://verbyai.com/features"}
+  ]
+}
+</script>
 </head>
 <body>
   <div class="aurora"><div></div><div></div><div></div></div>
@@ -224,6 +182,7 @@
         <a href="/">Home</a>
         <a href="/features" class="active">Features</a>
         <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
         <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
       </div>
     </nav>
@@ -398,11 +357,12 @@
     </section>
 
     <footer>
-      <p>&copy; 2026 Verby by Syntrix. All rights reserved.</p>
+      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a></p>
     </footer>
   </div>
   <script defer src="/particles.js"></script>
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
