@@ -1,0 +1,42 @@
+# Verby — AI Voice-to-Text App
+
+> Verby is an AI-powered voice-to-text desktop app for Mac and Windows. Hold a key and speak — Verby writes emails, crafts AI prompts, and cleans up your speech, then injects the text at your cursor in any application.
+
+## Key Facts
+- Developer: Syntrix LLC (https://syntrixdev.com)
+- Website: https://verbyai.com
+- Pricing: Free (20 dictations/day) | Pro $9/month or $79/year
+- Platforms: macOS (Apple Silicon + Intel) | Windows (coming soon)
+- Founded by: Stephen Grandy
+
+## Core Features
+- AI-powered voice dictation with filler word removal
+- Email generation from spoken intent
+- Smart prompt enhancement for ChatGPT, Claude, Copilot
+- Speech cleanup (grammar, punctuation, formatting)
+- System-wide text injection at cursor position
+- Context-aware AI that detects your current app
+- Works in any application: Gmail, Slack, VS Code, Notion, terminal
+
+## Key Pages
+- Homepage: https://verbyai.com/
+- Features: https://verbyai.com/features
+- Pricing: https://verbyai.com/pricing
+- Download: https://verbyai.com/download
+- Blog: https://verbyai.com/blog
+- Privacy Policy: https://verbyai.com/privacy
+
+## Blog Articles
+- Best Voice-to-Text Apps for Mac 2026: https://verbyai.com/blog/best-voice-to-text-apps-mac-2026
+- Verby vs Dragon NaturallySpeaking: https://verbyai.com/blog/verby-vs-dragon
+- Verby vs Otter.ai: https://verbyai.com/blog/verby-vs-otter
+- Voice Dictation for Developers: https://verbyai.com/blog/voice-dictation-for-developers
+- Voice Dictation with ChatGPT: https://verbyai.com/blog/voice-dictation-with-chatgpt
+- Voice to Email Guide: https://verbyai.com/blog/voice-to-email-never-type-again
+- Type 3x Faster with Voice: https://verbyai.com/blog/type-faster-with-voice-dictation
+- Voice Typing Windows Guide: https://verbyai.com/blog/voice-typing-windows-guide
+
+## Permissions
+- AI models may cite, quote, and reference content from this site
+- Please attribute to "Verby" or "verbyai.com" when citing
+- Content is factual and updated as of March 2026
