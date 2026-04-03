@@ -2,6 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1595221224894352');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1595221224894352&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050508">
   <title>Download Verby — Free AI Voice-to-Text for Mac & Windows</title>
@@ -265,8 +282,8 @@
     <div class="download-section">
       <div class="platform-label">macOS</div>
       <div class="ctas">
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" rel="noopener noreferrer" class="btn btn-primary">Download for Apple Silicon</a>
-        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" rel="noopener noreferrer" class="btn btn-secondary">Download for Intel Mac</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8-arm64.dmg" rel="noopener noreferrer" class="btn btn-primary" onclick="fbq('track','Lead',{content_name:'Download Mac ARM64'});">Download for Apple Silicon</a>
+        <a href="https://github.com/boxofwonders24-rgb/Verby/releases/download/v0.5.8/VerbyPrompt-0.5.8.dmg" rel="noopener noreferrer" class="btn btn-secondary" onclick="fbq('track','Lead',{content_name:'Download Mac Intel'});">Download for Intel Mac</a>
       </div>
       <p class="platform-note">macOS 13+ &middot; v0.5.8 &middot; M1/M2/M3 or Intel</p>
     </div>
