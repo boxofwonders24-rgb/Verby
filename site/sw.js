@@ -1,4 +1,4 @@
-const CACHE_NAME = 'verby-v1';
+const CACHE_NAME = 'verby-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/styles.css',
@@ -29,6 +29,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
+
+  // Skip external requests (analytics, tracking pixels, third-party scripts)
+  if (!request.url.startsWith(self.location.origin)) return;
 
   // Network-first for HTML (always get fresh content)
   if (request.headers.get('accept')?.includes('text/html')) {
