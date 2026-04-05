@@ -310,11 +310,151 @@
     .price-btn-pro { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; }
     .price-btn:hover { transform: translateY(-1px); }
 
+    /* App Mockups */
+    .app-mockup {
+      background: rgba(14, 14, 22, 0.85);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .app-mockup:hover {
+      border-color: rgba(99, 102, 241, 0.2);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
+      transform: translateY(-2px);
+    }
+    .mockup-titlebar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      position: relative;
+    }
+    .mockup-titlebar::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 8%; right: 8%;
+      height: 1px;
+      background-image: var(--rainbow);
+      background-size: 200% 100%;
+      animation: rainbow-slide 6s linear infinite;
+    }
+    .mockup-dots {
+      display: flex; gap: 6px;
+    }
+    .mockup-dots span {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .mockup-dots span:nth-child(1) { background: #FF5F57; }
+    .mockup-dots span:nth-child(2) { background: #FEBD2E; }
+    .mockup-dots span:nth-child(3) { background: #27C93F; }
+    .mockup-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 600;
+      background: linear-gradient(135deg, #7c3aed, #6366F1, #818CF8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .mockup-body { padding: 16px; }
+    .mockup-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .mockup-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 14px;
+      position: relative; overflow: hidden;
+    }
+    .mockup-card.accent {
+      border-color: rgba(99, 102, 241, 0.2);
+      background: rgba(99, 102, 241, 0.04);
+    }
+    .mockup-card.accent::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background-image: var(--rainbow);
+      background-size: 200% 100%;
+      animation: rainbow-slide 5s linear infinite;
+    }
+    .mockup-card.teal {
+      border-color: rgba(20, 184, 166, 0.2);
+      background: rgba(20, 184, 166, 0.04);
+    }
+    .mockup-text { font-size: 12px; line-height: 1.6; color: var(--text-2); }
+    .mockup-text-bright { font-size: 12px; line-height: 1.6; color: var(--text); }
+    .mockup-pair {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;
+    }
+    .mockup-arrow {
+      color: var(--accent); font-size: 18px; font-weight: 700;
+    }
+    .mockup-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 8px;
+      font-size: 10px; font-weight: 600;
+    }
+    .mockup-badge.purple {
+      background: rgba(99, 102, 241, 0.1); color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    .mockup-badge.teal-badge {
+      background: rgba(20, 184, 166, 0.1); color: #14B8A6;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    .mockup-badge.green {
+      background: rgba(16, 185, 129, 0.1); color: #10B981;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .mockup-waveform {
+      display: flex; align-items: center; gap: 3px;
+      height: 24px; justify-content: center;
+    }
+    .mockup-waveform span {
+      width: 3px; border-radius: 2px;
+      background: linear-gradient(to top, #14B8A6, #6366F1);
+      animation: wave 0.6s ease-in-out infinite alternate;
+    }
+    .mockup-waveform span:nth-child(1) { height: 6px; animation-delay: 0s; }
+    .mockup-waveform span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+    .mockup-waveform span:nth-child(3) { height: 20px; animation-delay: 0.15s; }
+    .mockup-waveform span:nth-child(4) { height: 10px; animation-delay: 0.2s; }
+    .mockup-waveform span:nth-child(5) { height: 18px; animation-delay: 0.05s; }
+    .mockup-waveform span:nth-child(6) { height: 8px; animation-delay: 0.25s; }
+    .mockup-waveform span:nth-child(7) { height: 16px; animation-delay: 0.12s; }
+    @keyframes wave {
+      0% { transform: scaleY(0.4); }
+      100% { transform: scaleY(1); }
+    }
+    .mockup-stats {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .mockup-stat-label { font-size: 10px; color: var(--text-3); }
+    .mockup-stat-value { font-size: 11px; font-weight: 700; }
+    .mockup-app-pills {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .mockup-app-pills span {
+      padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 500;
+      background: rgba(255,255,255,0.04); color: var(--text-2);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .use-case-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .use-case-caption {
+      font-size: 12px; color: var(--text-3); text-align: center; margin-top: 10px;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .hero { padding: 50px 0 40px; }
       .demo { padding: 24px; }
       .pricing-cards { flex-direction: column; align-items: center; }
+      .use-case-grid { grid-template-columns: 1fr; }
+      .mockup-pair { grid-template-columns: 1fr; }
+      .mockup-arrow { transform: rotate(90deg); text-align: center; }
     }
   </style>
 </head>
@@ -422,28 +562,231 @@
       </div>
     </div>
 
-    <!-- Product Screenshots -->
+    <!-- Use Cases -->
     <section style="padding: 40px 0 20px;">
-      <h2 style="text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 32px; font-family: 'Sora', sans-serif">See Verby in action</h2>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <h2 style="text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 8px; font-family: 'Sora', sans-serif">See Verby in action</h2>
+      <p style="text-align: center; font-size: 14px; color: var(--text-3); margin-bottom: 32px;">Real examples of how Verby transforms your voice into polished output</p>
+
+      <div class="use-case-grid">
+
+        <!-- Use Case 1: Email Generation -->
         <div>
-          <img src="/images/verby-email-generation.png" alt="Verby AI voice dictation generating a professional email from spoken input on macOS" width="900" height="560" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Voice to email: speak naturally, get a polished email</p>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-label" style="color: var(--accent);">You said</div>
+              <div class="mockup-card" style="margin-bottom: 10px;">
+                <p class="mockup-text" style="font-style: italic;">"Hey uh tell John we need to push the meeting to Friday because the API isn't ready yet and I want to have something solid to show"</p>
+              </div>
+              <div style="text-align: center; margin: 6px 0;">
+                <span style="color: var(--accent); font-size: 16px;">↓</span>
+              </div>
+              <div class="mockup-label" style="color: #14B8A6;">Generated email</div>
+              <div class="mockup-card accent">
+                <p class="mockup-text-bright" style="margin-bottom: 6px;">Hi John,</p>
+                <p class="mockup-text">I wanted to let you know we'll need to push our meeting to Friday. The API integration isn't quite ready yet, and I'd rather wait until we have something solid to show.</p>
+                <p class="mockup-text" style="margin-top: 6px;">Let me know if Friday works for you.</p>
+                <p class="mockup-text" style="margin-top: 6px;">Best,<br>Stephen</p>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <span class="mockup-badge teal-badge">Injected at cursor in Gmail</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Voice to email: speak naturally, get a polished email</p>
         </div>
+
+        <!-- Use Case 2: Smart Prompt Enhancement -->
         <div>
-          <img src="/images/verby-prompt-enhancement.png" alt="Verby transforming spoken words into a structured ChatGPT prompt with AI enhancement" width="900" height="560" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Smart prompts: casual speech becomes structured AI prompts</p>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-pair">
+                <div>
+                  <div class="mockup-label" style="color: #F43F5E;">Raw speech</div>
+                  <div class="mockup-card">
+                    <p class="mockup-text" style="font-style: italic;">"uh hey build me a dashboard that shows my sales data with charts and stuff, maybe filters by date and product"</p>
+                  </div>
+                </div>
+                <div class="mockup-arrow">→</div>
+                <div>
+                  <div class="mockup-label" style="color: #14B8A6;">Smart prompt</div>
+                  <div class="mockup-card accent">
+                    <p class="mockup-text-bright">Build a sales analytics dashboard with interactive charts. Include: revenue line chart, product breakdown pie chart, date range picker, product category filters, and a summary cards row showing total revenue, orders, and avg order value.</p>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 12px;">
+                <div class="mockup-label" style="color: var(--text-3);">Works in any app</div>
+                <div class="mockup-app-pills">
+                  <span>ChatGPT</span><span>Claude</span><span>VS Code</span><span>Cursor</span><span>Slack</span><span>Notion</span>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: flex-start; margin-top: 10px;">
+                <span class="mockup-badge purple">AI Enhancement: ON</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Smart prompts: casual speech becomes structured AI prompts</p>
         </div>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+
+        <!-- Use Case 3: Slack Quick Reply -->
         <div>
-          <img src="/images/verby-speech-cleanup.png" alt="Verby speech cleanup mode removing filler words and fixing grammar from dictated text" width="900" height="400" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Speech cleanup: filler words removed, grammar fixed</p>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-label" style="color: var(--accent);">You said</div>
+              <div class="mockup-card" style="margin-bottom: 10px;">
+                <p class="mockup-text" style="font-style: italic;">"tell the team the deploy went through, everything's green, we can start QA tomorrow morning"</p>
+              </div>
+              <div style="text-align: center; margin: 6px 0;">
+                <span style="color: var(--accent); font-size: 16px;">↓</span>
+              </div>
+              <div class="mockup-label" style="color: #14B8A6;">Slack message</div>
+              <div class="mockup-card accent">
+                <p class="mockup-text-bright">Hey team — the deploy is complete and all systems are green. We're ready to begin QA first thing tomorrow morning. Let me know if anything comes up overnight.</p>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <span class="mockup-badge teal-badge">Injected at cursor in Slack</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Quick replies: voice-to-Slack messages in seconds</p>
         </div>
+
+        <!-- Use Case 4: Speech Cleanup -->
         <div>
-          <img src="/images/verby-menu-bar.png" alt="Verby app running in the macOS menu bar showing dictation status and daily usage" width="600" height="300" loading="lazy" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-          <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;">Lives in your menu bar, always ready</p>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-pair">
+                <div>
+                  <div class="mockup-label" style="color: #F43F5E;">Before</div>
+                  <div class="mockup-card">
+                    <p class="mockup-text" style="font-style: italic;">"So um basically what I think we should do is like, you know, refactor the authentication module because it's gotten kind of messy and uh we keep having bugs"</p>
+                  </div>
+                </div>
+                <div class="mockup-arrow">→</div>
+                <div>
+                  <div class="mockup-label" style="color: #10B981;">After</div>
+                  <div class="mockup-card teal">
+                    <p class="mockup-text-bright">I think we should refactor the authentication module. It's gotten messy and we keep running into bugs.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mockup-stats" style="margin-top: 12px;">
+                <div>
+                  <div class="mockup-stat-label">Filler words</div>
+                  <div class="mockup-stat-value" style="color: #F43F5E;">5 removed</div>
+                </div>
+                <div>
+                  <div class="mockup-stat-label">Grammar</div>
+                  <div class="mockup-stat-value" style="color: #14B8A6;">3 fixed</div>
+                </div>
+                <div>
+                  <div class="mockup-stat-label">Words saved</div>
+                  <div class="mockup-stat-value" style="color: #10B981;">48%</div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: flex-start; margin-top: 10px;">
+                <span class="mockup-badge green">Speech Cleanup (Ctrl)</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Speech cleanup: filler words removed, grammar fixed</p>
         </div>
+
+        <!-- Use Case 5: Meeting Notes -->
+        <div>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-label" style="color: var(--accent);">You said</div>
+              <div class="mockup-card" style="margin-bottom: 10px;">
+                <p class="mockup-text" style="font-style: italic;">"write meeting notes, we decided to launch the new pricing page by April 15th, Sarah owns the design, Mike handles the Stripe integration, and we need to review the copy by next Wednesday"</p>
+              </div>
+              <div style="text-align: center; margin: 6px 0;">
+                <span style="color: var(--accent); font-size: 16px;">↓</span>
+              </div>
+              <div class="mockup-label" style="color: #14B8A6;">Formatted notes</div>
+              <div class="mockup-card accent">
+                <p class="mockup-text-bright" style="margin-bottom: 4px; font-weight: 600;">Meeting Notes — Pricing Page Launch</p>
+                <p class="mockup-text" style="margin-bottom: 4px;"><strong style="color: var(--text);">Launch date:</strong> April 15th</p>
+                <p class="mockup-text" style="margin-bottom: 4px;"><strong style="color: var(--text);">Owners:</strong></p>
+                <p class="mockup-text" style="padding-left: 10px;">- Sarah: Design</p>
+                <p class="mockup-text" style="padding-left: 10px;">- Mike: Stripe integration</p>
+                <p class="mockup-text" style="margin-top: 4px;"><strong style="color: var(--text);">Next step:</strong> Copy review by Wednesday</p>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <span class="mockup-badge teal-badge">Injected at cursor in Notion</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Meeting notes: spoken recap becomes structured action items</p>
+        </div>
+
+        <!-- Use Case 6: LinkedIn Post -->
+        <div>
+          <div class="app-mockup">
+            <div class="mockup-titlebar">
+              <div class="mockup-dots"><span></span><span></span><span></span></div>
+              <div class="mockup-title">Verby</div>
+              <div class="mockup-waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-label" style="color: var(--accent);">You said</div>
+              <div class="mockup-card" style="margin-bottom: 10px;">
+                <p class="mockup-text" style="font-style: italic;">"write a LinkedIn post about how I just shipped a feature in half the time using voice coding, mention it was an AI integration"</p>
+              </div>
+              <div style="text-align: center; margin: 6px 0;">
+                <span style="color: var(--accent); font-size: 16px;">↓</span>
+              </div>
+              <div class="mockup-label" style="color: #14B8A6;">LinkedIn post</div>
+              <div class="mockup-card accent">
+                <p class="mockup-text-bright">Just shipped a new AI integration in half the time it would've taken me typing.</p>
+                <p class="mockup-text" style="margin-top: 6px;">The secret? Voice coding. I spoke my intent, got structured prompts, and let AI handle the boilerplate. What used to be a full day of work became a focused 4-hour session.</p>
+                <p class="mockup-text" style="margin-top: 6px;">The future of development isn't just AI — it's voice + AI.</p>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <span class="mockup-badge teal-badge">Injected at cursor in LinkedIn</span>
+              </div>
+            </div>
+          </div>
+          <p class="use-case-caption">Social posts: turn ideas into polished content instantly</p>
+        </div>
+
       </div>
     </section>
 
