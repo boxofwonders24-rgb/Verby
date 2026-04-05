@@ -41,7 +41,6 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "notarize": false,
-      "afterSign": "scripts/notarize.js",
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
       "electronLanguages": [
@@ -133,6 +132,7 @@
     },
     "asar": true,
     "afterPack": "./scripts/afterPack.js",
+    "afterSign": "scripts/notarize.js",
     "publish": {
       "provider": "github",
       "owner": "boxofwonders24-rgb",
