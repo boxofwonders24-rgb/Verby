@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.5.9)'
+        required: true
 
 jobs:
   # Create the release first so both platforms can upload to it
@@ -12,11 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.resolve-tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Resolve release tag
+        id: resolve-tag
+        run: echo "tag=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
-        run: gh release create "${{ github.ref_name }}" --draft --title "${{ github.ref_name }}" --notes "Release ${{ github.ref_name }}"
+        run: gh release create "${{ steps.resolve-tag.outputs.tag }}" --draft --title "${{ steps.resolve-tag.outputs.tag }}" --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -47,6 +57,7 @@ jobs:
           echo "DEFAULT_PROVIDER=openai" >> .env
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "GH_UPDATE_TOKEN=${{ secrets.GH_UPDATE_TOKEN }}" >> .env
 
       - name: Build + publish macOS (signed + notarized)
         run: npx electron-builder --mac --publish always
@@ -79,6 +90,7 @@ jobs:
         run: npm run build:renderer
 
       - name: Write .env for packaged build
+        shell: bash
         run: |
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
           echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
@@ -93,7 +105,7 @@ jobs:
 
   # Publish the draft release after both platforms finish
   publish-release:
-    needs: [build-mac, build-windows]
+    needs: [create-release, build-mac, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -101,6 +113,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Publish release
-        run: gh release edit "${{ github.ref_name }}" --draft=false
+        run: gh release edit "${{ needs.create-release.outputs.tag }}" --draft=false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
