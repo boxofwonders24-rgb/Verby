@@ -2,6 +2,7 @@ const { ipcMain, clipboard, app } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const platform = require('./platform');
+const { initMemoryTables, memory } = require('./memory.cjs');
 
 const isDev = !app.isPackaged;
 
@@ -594,6 +595,8 @@ Return ONLY the cleaned text. No JSON, no explanation.`;
         enhanced INTEGER DEFAULT 0
       );
     `);
+
+    initMemoryTables(sqliteDb);
 
     db = {
       save(rawTranscript, optimizedPrompt, category) {
