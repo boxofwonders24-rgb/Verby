@@ -1,6 +1,11 @@
 // src/main/context-assembler.cjs
 'use strict';
 
+function safeParseMeta(raw) {
+  if (!raw || typeof raw !== 'string') return {};
+  try { return JSON.parse(raw); } catch { return {}; }
+}
+
 /**
  * Format-specific system prompt templates.
  * Each returns instructions the LLM follows to produce the right output shape.
@@ -33,6 +38,30 @@ No greeting or sign-off unless it fits the context.`,
 Use headers, sections, and clear organization.
 Develop ideas fully — this is not a quick response.`,
 };
+
+Object.freeze(FORMAT_TEMPLATES);
+
+function formatEntityLines(entities) {
+  return entities.map(e => {
+    const meta = safeParseMeta(e.metadata);
+    const metaStr = Object.keys(meta).length > 0
+      ? ` (${Object.entries(meta).map(([k, v]) => `${k}: ${v}`).join(', ')})`
+      : '';
+    return `- ${e.name || 'Unknown'} [${e.type || 'unknown'}]${metaStr}`;
+  });
+}
+
+function formatRelationshipLines(relationships) {
+  return relationships.map(r =>
+    `- ${r.subject_name} ${r.verb} ${r.object_name}`
+  );
+}
+
+function formatRecentLines(recentPrompts) {
+  return recentPrompts.map(p =>
+    `- "${p.raw_transcript}" → [${p.category}]`
+  );
+}
 
 /**
  * Build a dynamic system prompt from modular sections.
@@ -80,21 +109,13 @@ function assembleSystemPrompt({
 
   // 5. Entity context
   if (entities.length > 0) {
-    const entityLines = entities.map(e => {
-      const meta = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
-      const metaStr = Object.keys(meta).length > 0
-        ? ` (${Object.entries(meta).map(([k, v]) => `${k}: ${v}`).join(', ')})`
-        : '';
-      return `- ${e.name} [${e.type}]${metaStr}`;
-    });
+    const entityLines = formatEntityLines(entities);
     sections.push(`KNOWN CONTEXT — People, projects, and tools the user works with:\n${entityLines.join('\n')}`);
   }
 
   // 6. Relationships
   if (relationships.length > 0) {
-    const relLines = relationships.map(r =>
-      `- ${r.subject_name} ${r.verb} ${r.object_name}`
-    );
+    const relLines = formatRelationshipLines(relationships);
     sections.push(`RELATIONSHIPS:\n${relLines.join('\n')}`);
   }
 
@@ -110,9 +131,7 @@ function assembleSystemPrompt({
 
   // 9. Recent history for continuity
   if (recentPrompts.length > 0) {
-    const recentLines = recentPrompts.map(p =>
-      `- "${p.raw_transcript}" → [${p.category}]`
-    );
+    const recentLines = formatRecentLines(recentPrompts);
     sections.push(`RECENT CONTEXT (last ${recentPrompts.length} interactions):\n${recentLines.join('\n')}`);
   }
 
@@ -143,20 +162,12 @@ Choose the format that best serves what the user seems to need. When in doubt, p
 
   // Include all available context so the LLM can make a good decision
   if (entities.length > 0) {
-    const entityLines = entities.map(e => {
-      const meta = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
-      const metaStr = Object.keys(meta).length > 0
-        ? ` (${Object.entries(meta).map(([k, v]) => `${k}: ${v}`).join(', ')})`
-        : '';
-      return `- ${e.name} [${e.type}]${metaStr}`;
-    });
+    const entityLines = formatEntityLines(entities);
     sections.push(`KNOWN CONTEXT:\n${entityLines.join('\n')}`);
   }
 
   if (relationships.length > 0) {
-    const relLines = relationships.map(r =>
-      `- ${r.subject_name} ${r.verb} ${r.object_name}`
-    );
+    const relLines = formatRelationshipLines(relationships);
     sections.push(`RELATIONSHIPS:\n${relLines.join('\n')}`);
   }
 
@@ -169,9 +180,7 @@ Choose the format that best serves what the user seems to need. When in doubt, p
   }
 
   if (recentPrompts.length > 0) {
-    const recentLines = recentPrompts.map(p =>
-      `- "${p.raw_transcript}" → [${p.category}]`
-    );
+    const recentLines = formatRecentLines(recentPrompts);
     sections.push(`RECENT CONTEXT:\n${recentLines.join('\n')}`);
   }
 
