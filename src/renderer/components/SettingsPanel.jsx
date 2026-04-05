@@ -404,6 +404,22 @@ export default function SettingsPanel({ onBack, onRunSetup }) {
 
         <Divider />
 
+        {/* ═══ Intelligence Engine ═══ */}
+        <div>
+          <SectionHeader>Intelligence Engine (Beta)</SectionHeader>
+          <p className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
+            Adaptive prompt generation that learns your style, detects keywords, and picks the right output format automatically.
+          </p>
+          <Toggle
+            checked={settings.useIntelligenceEngine === true}
+            onChange={(v) => update('useIntelligenceEngine', v)}
+            label="Use Intelligence Engine"
+            description="Route prompts through the adaptive pipeline instead of standard optimization"
+          />
+        </div>
+
+        <Divider />
+
         {/* ═══ Shortcuts ═══ */}
         <div>
           <SectionHeader>Shortcuts</SectionHeader>

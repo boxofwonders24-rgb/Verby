@@ -5,6 +5,7 @@ import useRecording from '../hooks/useRecording';
 import usePrompts from '../hooks/usePrompts';
 import useDictation from '../hooks/useDictation';
 import { transcribeAudio, onToggleRecording, chatOptimize, setContext, getContext, onOpenSettings } from '../lib/ipc';
+import { intelligenceGenerate, intelligenceRecordCopy } from '../lib/ipc';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'creative', 'research', 'automation'];
 
@@ -118,6 +119,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
   const [sessionLog, setSessionLog] = useState([]); // live session activity
+  const [lastHint, setLastHint] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => { onToggleRecording(() => toggleRecording()); }, [toggleRecording]);
@@ -167,7 +169,13 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   }, [audioBlob, category, optimize, loadHistory]);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2000); };
-  const handleCopy = (text) => { copy(text); showToast('Copied to clipboard'); };
+  const handleCopy = (text) => {
+    copy(text);
+    showToast('Copied to clipboard');
+    if (lastHint) {
+      intelligenceRecordCopy({ hint: lastHint });
+    }
+  };
 
   return (
     <div className="w-full max-w-[700px]">
@@ -230,18 +238,35 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
             setStatus('optimizing');
             setTranscript(text);
             try {
-              const result = await chatOptimize(text);
-              const entry = {
-                ...result,
-                raw_transcript: text,
-                optimized_prompt: result.optimized,
-                category: result.category || 'general',
-                created_at: new Date().toISOString(),
-              };
-              setCurrentPrompt(entry);
-              setSessionLog((prev) => [...prev, entry]);
-              setStatus('idle');
-              await loadHistory();
+              const settings = await window.verby.getSettings();
+              if (settings.useIntelligenceEngine) {
+                const result = await intelligenceGenerate({ text, provider: settings.defaultProvider });
+                setLastHint(result.hint || null);
+                const entry = {
+                  ...result,
+                  raw_transcript: text,
+                  optimized_prompt: result.output,
+                  category: result.category || 'general',
+                  created_at: new Date().toISOString(),
+                };
+                setCurrentPrompt(entry);
+                setSessionLog((prev) => [...prev, entry]);
+                setStatus('idle');
+                await loadHistory();
+              } else {
+                const result = await chatOptimize(text);
+                const entry = {
+                  ...result,
+                  raw_transcript: text,
+                  optimized_prompt: result.optimized,
+                  category: result.category || 'general',
+                  created_at: new Date().toISOString(),
+                };
+                setCurrentPrompt(entry);
+                setSessionLog((prev) => [...prev, entry]);
+                setStatus('idle');
+                await loadHistory();
+              }
             } catch (err) {
               setError(err.message);
               setStatus('error');
