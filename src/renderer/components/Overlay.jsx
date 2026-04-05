@@ -6,6 +6,7 @@ import usePrompts from '../hooks/usePrompts';
 import useDictation from '../hooks/useDictation';
 import { transcribeAudio, onToggleRecording, chatOptimize, setContext, getContext, onOpenSettings } from '../lib/ipc';
 import { intelligenceGenerate, intelligenceRecordCopy } from '../lib/ipc';
+import MemoryInspector from './MemoryInspector';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'creative', 'research', 'automation'];
 
@@ -120,10 +121,22 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [toast, setToast] = useState(null);
   const [sessionLog, setSessionLog] = useState([]); // live session activity
   const [lastHint, setLastHint] = useState(null);
+  const [showInspector, setShowInspector] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => { onToggleRecording(() => toggleRecording()); }, [toggleRecording]);
   useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'M') {
+        e.preventDefault();
+        setShowInspector(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Auto-scroll feed
   useEffect(() => {
@@ -492,6 +505,10 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
           )}
         </div>
       )}
+      <MemoryInspector
+        visible={showInspector}
+        onClose={() => setShowInspector(false)}
+      />
     </div>
   );
 }
