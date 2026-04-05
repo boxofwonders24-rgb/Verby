@@ -216,7 +216,7 @@ const createTray = () => {
   }
 
   tray = new Tray(icon);
-  tray.setToolTip(platform.isMac ? 'Verby — Hold Fn to record' : 'Verby — Hold CapsLock to record');
+  tray.setToolTip(platform.isMac ? 'Verby — Hold Fn to record' : 'Verby — Hold Ctrl+Win to record');
 
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Verby', enabled: false },

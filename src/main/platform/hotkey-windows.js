@@ -4,13 +4,8 @@
  * Provides the same event interface as the macOS fn-capture binary:
  * emits 'fn_down', 'fn_up', 'ctrl_down', 'ctrl_up' via a callback.
  *
- * Default hold-to-talk key: CapsLock (configurable).
- * Default raw-dictation key: Right Ctrl (configurable).
- *
- * CapsLock is chosen because:
- * - It's easy to hold
- * - Most users don't use it for its toggle function
- * - We suppress the CapsLock toggle behavior while Verby is running
+ * Default AI dictation: Ctrl + Win (hold) — matches Wispr Flow convention.
+ * Default verbatim:     Right Alt (hold) — raw text, no AI rewrite.
  */
 
 const platform = require('./index');
@@ -19,37 +14,37 @@ let uIOhook = null;
 let started = false;
 let eventCallback = null;
 
-// Key states for hold detection
-let hotkeyDown = false;
+// Key states for combo detection
+let ctrlHeld = false;
+let winHeld = false;
+let comboActive = false;  // Ctrl+Win combo is active
 let rawKeyDown = false;
 
-// uiohook keycodes — see https://github.com/nicwaller/uiohook-napi
-// These are hardware scan codes, not virtual keycodes
+// uiohook keycodes (hardware scan codes)
 const KEYCODES = {
-  CapsLock: 58,
-  RightCtrl: 3613,
   LeftCtrl: 29,
+  RightCtrl: 3613,
+  LeftWin: 3675,
+  RightWin: 3676,
+  RightAlt: 3640,
+  LeftAlt: 56,
+  CapsLock: 58,
+  F9: 67,
+  F10: 68,
   F13: 64,
-  F14: 65,
-  F15: 66,
   ScrollLock: 70,
-  Pause: 69,
 };
 
 // Default keys — configurable via settings
-let hotkeyCode = KEYCODES.CapsLock;     // Hold for AI-enhanced dictation
-let rawKeyCode = KEYCODES.RightCtrl;     // Hold for raw dictation
+let rawKeyCode = KEYCODES.RightAlt;  // Hold for verbatim dictation
 
 /**
- * Configure which keys trigger hold-to-talk.
+ * Configure which key triggers verbatim dictation.
+ * AI dictation is always Ctrl+Win (non-configurable, matches Wispr convention).
  * @param {object} opts
- * @param {string} opts.holdToTalkKey - Key name from KEYCODES (default: 'CapsLock')
- * @param {string} opts.rawDictateKey - Key name from KEYCODES (default: 'RightCtrl')
+ * @param {string} opts.rawDictateKey - Key name from KEYCODES (default: 'RightAlt')
  */
 function configure(opts = {}) {
-  if (opts.holdToTalkKey && KEYCODES[opts.holdToTalkKey]) {
-    hotkeyCode = KEYCODES[opts.holdToTalkKey];
-  }
   if (opts.rawDictateKey && KEYCODES[opts.rawDictateKey]) {
     rawKeyCode = KEYCODES[opts.rawDictateKey];
   }
@@ -70,20 +65,49 @@ function start(callback) {
     uIOhook = hook;
 
     uIOhook.on('keydown', (e) => {
-      if (e.keycode === hotkeyCode && !hotkeyDown) {
-        hotkeyDown = true;
+      // Track Ctrl state
+      if (e.keycode === KEYCODES.LeftCtrl || e.keycode === KEYCODES.RightCtrl) {
+        ctrlHeld = true;
+      }
+
+      // Track Win state
+      if (e.keycode === KEYCODES.LeftWin || e.keycode === KEYCODES.RightWin) {
+        winHeld = true;
+      }
+
+      // Ctrl+Win combo → AI dictation (fn_down)
+      if (ctrlHeld && winHeld && !comboActive) {
+        comboActive = true;
         eventCallback('fn_down');
-      } else if (e.keycode === rawKeyCode && !rawKeyDown) {
+      }
+
+      // Right Alt → verbatim dictation (ctrl_down)
+      if (e.keycode === rawKeyCode && !rawKeyDown) {
         rawKeyDown = true;
         eventCallback('ctrl_down');
       }
     });
 
     uIOhook.on('keyup', (e) => {
-      if (e.keycode === hotkeyCode && hotkeyDown) {
-        hotkeyDown = false;
-        eventCallback('fn_up');
-      } else if (e.keycode === rawKeyCode && rawKeyDown) {
+      // Ctrl+Win combo ends when EITHER key is released
+      if (e.keycode === KEYCODES.LeftCtrl || e.keycode === KEYCODES.RightCtrl) {
+        ctrlHeld = false;
+        if (comboActive) {
+          comboActive = false;
+          eventCallback('fn_up');
+        }
+      }
+
+      if (e.keycode === KEYCODES.LeftWin || e.keycode === KEYCODES.RightWin) {
+        winHeld = false;
+        if (comboActive) {
+          comboActive = false;
+          eventCallback('fn_up');
+        }
+      }
+
+      // Right Alt release → end verbatim
+      if (e.keycode === rawKeyCode && rawKeyDown) {
         rawKeyDown = false;
         eventCallback('ctrl_up');
       }
@@ -91,7 +115,7 @@ function start(callback) {
 
     uIOhook.start();
     started = true;
-    console.log('Windows hotkey listener started (hold-to-talk: CapsLock, raw: RightCtrl)');
+    console.log('Windows hotkey listener started (AI: Ctrl+Win, Verbatim: Right Alt)');
     eventCallback('fn_ready');
   } catch (err) {
     console.error('uiohook-napi failed to start:', err.message);
@@ -107,7 +131,9 @@ function stop() {
     uIOhook.stop();
   } catch {}
   started = false;
-  hotkeyDown = false;
+  ctrlHeld = false;
+  winHeld = false;
+  comboActive = false;
   rawKeyDown = false;
   console.log('Windows hotkey listener stopped');
 }
