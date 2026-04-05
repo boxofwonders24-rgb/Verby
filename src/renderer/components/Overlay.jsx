@@ -10,6 +10,28 @@ import MemoryInspector from './MemoryInspector';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'creative', 'research', 'automation'];
 
+const QUICK_STARTS = [
+  { icon: '✉️', title: 'Write an Email', desc: 'Professional email with the right tone', prompt: 'Write a professional email about ' },
+  { icon: '💬', title: 'Slack Message', desc: 'Quick, clear team communication', prompt: 'Write a clear Slack message about ' },
+  { icon: '📝', title: 'Meeting Notes', desc: 'Summarize key points & actions', prompt: 'Summarize meeting notes about ' },
+  { icon: '🧠', title: 'Brainstorm', desc: 'Expand and refine your ideas', prompt: 'Help me brainstorm ideas for ' },
+  { icon: '💻', title: 'Code Docs', desc: 'Clean up code explanations', prompt: 'Write clear documentation for ' },
+  { icon: '📣', title: 'Social Post', desc: 'Engaging copy for any platform', prompt: 'Write an engaging social post about ' },
+];
+
+const TONES = [
+  { emoji: '🎯', label: 'Direct', desc: 'Clear & concise' },
+  { emoji: '👔', label: 'Formal', desc: 'Professional' },
+  { emoji: '😊', label: 'Casual', desc: 'Friendly & warm' },
+];
+
+const USE_CASES = [
+  { icon: '💼', label: 'Work', desc: 'Emails, reports, presentations', bg: 'rgba(99,102,241,0.1)' },
+  { icon: '🏠', label: 'Personal', desc: 'Texts, social media, casual notes', bg: 'rgba(16,185,129,0.1)' },
+  { icon: '🎨', label: 'Creative', desc: 'Blog posts, stories, marketing copy', bg: 'rgba(244,63,94,0.1)' },
+  { icon: '💻', label: 'Technical', desc: 'Documentation, code comments, specs', bg: 'rgba(234,179,8,0.1)' },
+];
+
 const MicIcon = ({ size = 22, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
@@ -19,12 +41,7 @@ const MicIcon = ({ size = 22, color = 'currentColor' }) => (
 );
 
 const Icons = {
-  sun: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
-  moon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-  history: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>,
-  back: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
   settings: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-  arrow: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
   sparkle: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.09 6.26L20 10.27l-4.91 3.82L16.18 22 12 18l-4.18 4 1.09-7.91L4 10.27l5.91-2.01z"/></svg>,
 };
 
@@ -42,72 +59,6 @@ const LoadingDots = () => (
   </div>
 );
 
-const formatTime = (date) => {
-  const d = new Date(date);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-};
-
-// Activity Feed Item — shows before/after with timestamp
-function ActivityItem({ entry, onCopy }) {
-  return (
-    <div className="glass-card-sm p-4 mb-2 prompt-reveal">
-      {/* Timestamp */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-        <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--text-muted)' }}>
-          {formatTime(entry.created_at || new Date())}
-        </span>
-        <span className="text-[10px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>
-          {entry.category || 'general'}
-        </span>
-      </div>
-
-      {/* Before */}
-      <div className="mb-3">
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--error)' }}>
-          Before — Raw Speech
-        </p>
-        <p className="text-xs leading-relaxed italic px-3 py-2 rounded-lg" style={{ color: 'var(--text-muted)', background: 'rgba(244,63,94,0.04)', borderLeft: '2px solid var(--error)' }}>
-          &ldquo;{entry.raw_transcript}&rdquo;
-        </p>
-      </div>
-
-      {/* Arrow */}
-      <div className="flex items-center justify-center my-2">
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>
-          {Icons.sparkle}
-          <span className="text-[10px] font-medium">Enhanced</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-
-      {/* After */}
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--success)' }}>
-          After — Optimized Prompt
-        </p>
-        <p className="text-xs leading-[1.7] px-3 py-2 rounded-lg" style={{ color: 'var(--text-primary)', background: 'rgba(16,185,129,0.04)', borderLeft: '2px solid var(--success)' }}>
-          {entry.optimized_prompt}
-        </p>
-      </div>
-
-      {/* Quick actions */}
-      <div className="flex items-center gap-2 mt-3 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
-        <button
-          onClick={() => onCopy(entry.optimized_prompt)}
-          className="text-[10px] font-medium px-2.5 py-1 rounded-lg"
-          style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
-        >
-          Copy prompt
-        </button>
-        {entry.is_favorite && (
-          <span className="text-[10px]" style={{ color: 'var(--accent)' }}>★ Favorite</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const { isRecording, audioBlob, toggleRecording } = useRecording();
   const { history, loadHistory, optimize, toggleFav, remove, copy, sendLLM } = usePrompts();
@@ -115,14 +66,16 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [category, setCategory] = useState('general');
-  const [view, setView] = useState('home'); // home | feed | history
+  const [view, setView] = useState('home'); // home | styles | history
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
-  const [sessionLog, setSessionLog] = useState([]); // live session activity
+  const [sessionLog, setSessionLog] = useState([]);
   const [lastHint, setLastHint] = useState(null);
   const [showInspector, setShowInspector] = useState(false);
-  const scrollRef = useRef(null);
+  const [historySearch, setHistorySearch] = useState('');
+  const [historyFilter, setHistoryFilter] = useState('all');
+  const chatInputRef = useRef(null);
 
   useEffect(() => { onToggleRecording(() => toggleRecording()); }, [toggleRecording]);
   useEffect(() => { loadHistory(); }, [loadHistory]);
@@ -137,13 +90,6 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Auto-scroll feed
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [sessionLog, status]);
 
   useEffect(() => {
     if (!audioBlob) return;
@@ -169,7 +115,6 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         setStatus('idle');
         await loadHistory();
       } catch (err) {
-        // Extract useful message from Electron IPC errors
         let msg = err.message || 'Something went wrong.';
         if (msg.includes('Error invoking remote method')) {
           msg = 'API keys not configured. Go to Settings and add your OpenAI and/or Anthropic API keys.';
@@ -190,6 +135,59 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
     }
   };
 
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    const input = e.target.elements.chatInput;
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    setError(null);
+    setStatus('optimizing');
+    setTranscript(text);
+    try {
+      const settings = await window.verby.getSettings();
+      if (settings.useIntelligenceEngine) {
+        const result = await intelligenceGenerate({ text, provider: settings.defaultProvider });
+        setLastHint(result.hint || null);
+        const entry = {
+          ...result,
+          raw_transcript: text,
+          optimized_prompt: result.output,
+          category: result.category || 'general',
+          created_at: new Date().toISOString(),
+        };
+        setCurrentPrompt(entry);
+        setSessionLog((prev) => [...prev, entry]);
+        setStatus('idle');
+        await loadHistory();
+      } else {
+        const result = await chatOptimize(text);
+        const entry = {
+          ...result,
+          raw_transcript: text,
+          optimized_prompt: result.optimized,
+          category: result.category || 'general',
+          created_at: new Date().toISOString(),
+        };
+        setCurrentPrompt(entry);
+        setSessionLog((prev) => [...prev, entry]);
+        setStatus('idle');
+        await loadHistory();
+      }
+    } catch (err) {
+      setError(err.message);
+      setStatus('error');
+    }
+  };
+
+  const filteredHistory = history.filter((p) => {
+    const matchesSearch = historySearch === '' ||
+      (p.optimized_prompt || '').toLowerCase().includes(historySearch.toLowerCase()) ||
+      (p.raw_transcript || '').toLowerCase().includes(historySearch.toLowerCase());
+    const matchesFilter = historyFilter === 'all' || p.category === historyFilter;
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <div className="w-full max-w-[700px]">
       {toast && <div className="toast" style={{ background: 'var(--success)', color: '#fff' }}>{toast}</div>}
@@ -198,104 +196,84 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
       <div className="flex items-center justify-between px-5 py-3 mb-1">
         <div className="flex items-center gap-3">
           <Logo size={72} />
-          <span className="text-lg font-bold tracking-tight gradient-text">Verby</span>
+          <span className="font-logo text-lg" style={{ background: 'linear-gradient(to right, #fff, var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Verby</span>
         </div>
         <div className="flex items-center gap-0.5">
-          <button onClick={onToggleTheme} className="icon-btn">{theme === 'dark' ? Icons.sun : Icons.moon}</button>
-          <button
-            onClick={() => setView(view === 'main' ? 'feed' : view === 'feed' ? 'history' : 'main')}
-            className="icon-btn"
-            title={view === 'main' ? 'Activity Feed' : view === 'feed' ? 'Full History' : 'Back'}
-          >
-            {view === 'history' ? Icons.back : Icons.history}
-          </button>
-          <button onClick={onOpenSettings} className="icon-btn">{Icons.settings}</button>
+          <button onClick={onOpenSettings} className="icon-btn" title="Settings">{Icons.settings}</button>
         </div>
       </div>
 
-      {/* 3D Tab Bar — 3 tabs */}
+      {/* Tab Bar */}
       <div className="tab-bar mx-5 mb-5">
         {[
-          { key: 'home', label: 'Home', icon: '🎙' },
-          { key: 'feed', label: 'Activity', icon: '◎' },
-          { key: 'history', label: 'History', icon: '↻' },
+          { key: 'home', label: '✦ Prompt' },
+          { key: 'styles', label: 'Styles' },
+          { key: 'history', label: 'History' },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setView(tab.key)}
-            className={`tab-item ${view === tab.key ? 'tab-active' : ''}`}
+            className={`tab-item font-heading ${view === tab.key ? 'tab-active' : ''}`}
           >
-            <span className="block text-[10px] mb-0.5 opacity-70">{tab.icon}</span>
             {tab.label}
-            {tab.key === 'feed' && sessionLog.length > 0 && (
-              <span className="ml-1 text-[8px] px-1.5 py-0.5 rounded-full inline-block" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                {sessionLog.length}
-              </span>
-            )}
           </button>
         ))}
       </div>
 
-      {/* === HOME — Unified voice + type + results === */}
+      {/* === HOME — Prompt tab === */}
       {view === 'home' && (
         <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
 
-          {/* Chat bar — type prompts */}
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            const input = e.target.elements.chatInput;
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-            setError(null);
-            setStatus('optimizing');
-            setTranscript(text);
-            try {
-              const settings = await window.verby.getSettings();
-              if (settings.useIntelligenceEngine) {
-                const result = await intelligenceGenerate({ text, provider: settings.defaultProvider });
-                setLastHint(result.hint || null);
-                const entry = {
-                  ...result,
-                  raw_transcript: text,
-                  optimized_prompt: result.output,
-                  category: result.category || 'general',
-                  created_at: new Date().toISOString(),
-                };
-                setCurrentPrompt(entry);
-                setSessionLog((prev) => [...prev, entry]);
-                setStatus('idle');
-                await loadHistory();
-              } else {
-                const result = await chatOptimize(text);
-                const entry = {
-                  ...result,
-                  raw_transcript: text,
-                  optimized_prompt: result.optimized,
-                  category: result.category || 'general',
-                  created_at: new Date().toISOString(),
-                };
-                setCurrentPrompt(entry);
-                setSessionLog((prev) => [...prev, entry]);
-                setStatus('idle');
-                await loadHistory();
-              }
-            } catch (err) {
-              setError(err.message);
-              setStatus('error');
-            }
-          }}>
-            <div className="flex gap-2 mb-4">
+          {/* Mic hero — only when idle and no result */}
+          {(status === 'idle' || status === 'error') && !currentPrompt && (
+            <div className="flex flex-col items-center gap-3 mb-6">
+              {/* Ambient glow + mic button */}
+              <div className="relative flex items-center justify-center" style={{ width: 120, height: 120 }}>
+                {/* Glow ring */}
+                <div style={{
+                  position: 'absolute',
+                  width: 120,
+                  height: 120,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
+                  filter: 'blur(8px)',
+                  opacity: 0.6,
+                }} />
+                <button
+                  onClick={toggleDictation}
+                  className={`w-24 h-24 rounded-full flex items-center justify-center shine-on-hover ${isDictating ? 'recording' : ''}`}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))',
+                    boxShadow: '0 4px 24px var(--accent-glow)',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  {isDictating ? <Waveform /> : <MicIcon size={32} color="#fff" />}
+                </button>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-sora, inherit)' }}>
+                {isDictating
+                  ? (dictationStatus === 'processing' ? 'Processing...' : 'Release Fn or click to stop')
+                  : 'Hold Fn to speak'}
+              </p>
+            </div>
+          )}
+
+          {/* Text input bar */}
+          <form onSubmit={handleChatSubmit}>
+            <div className="flex gap-2 mb-5 p-1 rounded-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
               <input
+                ref={chatInputRef}
                 name="chatInput"
                 type="text"
-                placeholder="Type a prompt to optimize, or hold Fn to speak..."
-                className="flex-1 px-4 py-3 rounded-xl text-sm"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                placeholder="Type a prompt to optimize..."
+                className="flex-1 px-3 py-2 rounded-xl text-sm bg-transparent outline-none"
+                style={{ color: 'var(--text-primary)' }}
               />
               <button
                 type="submit"
-                className="px-5 py-3 rounded-xl text-xs font-semibold shine-on-hover"
+                className="px-4 py-2 rounded-xl text-xs font-semibold shine-on-hover"
                 style={{ background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff', boxShadow: '0 2px 10px var(--accent-glow)' }}
               >
                 ✦
@@ -342,162 +320,135 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
             </div>
           )}
 
-          {/* Dictation hero — only when idle and no result showing */}
+          {/* Quick Start grid */}
           {(status === 'idle' || status === 'error') && !currentPrompt && (
-            <div className="flex flex-col items-center gap-4 mb-5">
-              <button
-                onClick={toggleDictation}
-                className={`rec-btn flex items-center gap-4 shine-on-hover ${isDictating ? 'recording' : ''}`}
-                style={{ padding: '20px 40px' }}
-              >
-                {isDictating ? (
-                  <div className="flex items-center gap-4">
-                    <Waveform />
-                    <div className="text-left">
-                      <span className="text-sm font-medium block" style={{ color: dictationStatus === 'processing' ? 'var(--accent)' : 'var(--error)' }}>
-                        {dictationStatus === 'processing' ? 'Processing...' : 'Listening...'}
-                      </span>
-                      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                        {dictationStatus === 'processing' ? 'Transcribing & injecting' : 'Release Fn or click to stop'}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="p-3 rounded-xl" style={{ background: 'var(--accent-subtle)' }}>
-                      <MicIcon size={24} color="var(--accent)" />
-                    </div>
-                    <div className="text-left">
-                      <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>Hold Fn to Dictate</span>
-                      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>or click here • text injects at cursor</span>
-                    </div>
-                  </>
-                )}
-              </button>
-
-              {/* Session stats */}
-              {sessionLog.length > 0 && (
-                <div className="flex gap-4">
-                  <div className="text-center">
-                    <p className="text-lg font-bold gradient-text">{sessionLog.length}</p>
-                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Prompts</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Recent dictations */}
-          {dictationLog.length > 0 && (
-            <div className="mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 px-1" style={{ color: 'var(--text-muted)' }}>
-                Recent
-              </p>
-              <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                {dictationLog.slice(0, 5).map((entry, i) => (
-                  <div key={i} className="glass-card-sm p-3 prompt-reveal" style={{ animationDelay: `${i * 30}ms` }}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[9px] font-mono" style={{ color: 'var(--text-muted)' }}>{formatTime(entry.time)}</span>
-                      {entry.enhanced && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>Enhanced</span>
-                      )}
-                    </div>
-                    <p className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>{entry.final}</p>
-                  </div>
+            <div>
+              <p className="section-header mb-3">Quick Start</p>
+              <div className="grid grid-cols-2 gap-2">
+                {QUICK_STARTS.map((qs) => (
+                  <button
+                    key={qs.title}
+                    className="glass-card-sm p-3 text-left prompt-reveal"
+                    onClick={() => {
+                      if (chatInputRef.current) {
+                        chatInputRef.current.value = qs.prompt;
+                        chatInputRef.current.focus();
+                      }
+                    }}
+                  >
+                    <span className="text-xl block mb-1">{qs.icon}</span>
+                    <span className="font-heading text-xs block mb-0.5" style={{ color: 'var(--text-primary)' }}>{qs.title}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{qs.desc}</span>
+                  </button>
                 ))}
               </div>
             </div>
           )}
-
-          {/* Project context */}
-          <details className="glass-card-sm mb-3">
-            <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-              Project Context
-            </summary>
-            <div className="px-3 pb-3">
-              <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
-                Prompts will be tailored to your current project.
-              </p>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const name = e.target.elements.ctxName.value.trim();
-                const desc = e.target.elements.ctxDesc.value.trim();
-                if (name) { setContext(name, desc); showToast('Context: ' + name); }
-              }}>
-                <input name="ctxName" type="text" placeholder="Project name"
-                  className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
-                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
-                <input name="ctxDesc" type="text" placeholder="What you're working on"
-                  className="w-full px-3 py-2 rounded-lg text-[11px] mb-2"
-                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} />
-                <button type="submit" className="w-full py-2 rounded-lg text-[11px] font-medium"
-                  style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--border-accent)' }}>
-                  Set Context
-                </button>
-              </form>
-            </div>
-          </details>
         </div>
       )}
 
-      {/* === ACTIVITY FEED TAB === */}
-      {view === 'feed' && (
-        <div className="px-5 pb-5 overflow-y-auto max-h-[420px]" ref={scrollRef}>
-          {sessionLog.length === 0 && history.length === 0 ? (
-            <div className="flex flex-col items-center py-12 gap-4 prompt-reveal">
-              <div className="p-4 rounded-2xl" style={{ background: 'var(--accent-subtle)' }}>
-                <MicIcon size={28} color="var(--accent)" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>No activity yet</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Speak a prompt to see before → after transformations</p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Session activity */}
-              {sessionLog.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 px-1" style={{ color: 'var(--text-muted)' }}>
-                    This Session
-                  </p>
-                  {sessionLog.map((entry, i) => (
-                    <ActivityItem key={i} entry={entry} onCopy={handleCopy} />
-                  ))}
-                </div>
-              )}
+      {/* === STYLES TAB === */}
+      {view === 'styles' && (
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
 
-              {/* Past history as timeline */}
-              {history.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2 px-1" style={{ color: 'var(--text-muted)' }}>
-                    Previous
-                  </p>
-                  {history.slice(0, 10).map((entry) => (
-                    <ActivityItem key={entry.id} entry={entry} onCopy={handleCopy} />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+          {/* Writing Tone */}
+          <p className="section-header mb-3">Writing Tone</p>
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {TONES.map((tone) => (
+              <button
+                key={tone.label}
+                onClick={() => setCategory(tone.label.toLowerCase())}
+                className="glass-card-sm p-4 text-center prompt-reveal"
+                style={category === tone.label.toLowerCase() ? { borderColor: 'var(--accent)', borderWidth: 1 } : {}}
+              >
+                <span className="text-2xl block mb-1">{tone.emoji}</span>
+                <span className="font-heading text-xs block mb-0.5" style={{ color: 'var(--text-primary)' }}>{tone.label}</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{tone.desc}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Use Case */}
+          <p className="section-header mb-3">Use Case</p>
+          <div className="flex flex-col gap-2">
+            {USE_CASES.map((uc) => {
+              const isSelected = category === uc.label.toLowerCase();
+              return (
+                <button
+                  key={uc.label}
+                  onClick={() => setCategory(uc.label.toLowerCase())}
+                  className="glass-card-sm p-3 flex items-center gap-3 text-left prompt-reveal"
+                  style={isSelected ? { borderLeft: '3px solid var(--accent)' } : { borderLeft: '3px solid transparent' }}
+                >
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl text-xl flex-shrink-0" style={{ background: uc.bg }}>
+                    {uc.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-heading text-xs block" style={{ color: 'var(--text-primary)' }}>{uc.label}</span>
+                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{uc.desc}</span>
+                  </div>
+                  {isSelected && (
+                    <span className="text-sm flex-shrink-0" style={{ color: 'var(--accent)' }}>✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
       {/* === HISTORY TAB === */}
       {view === 'history' && (
-        <div className="px-5 pb-5 overflow-y-auto max-h-[420px]">
-          {history.length === 0 ? (
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
+
+          {/* Search bar */}
+          <div className="glass-card-sm flex items-center gap-2 px-3 py-2 mb-3">
+            <span className="text-sm">🔍</span>
+            <input
+              type="text"
+              placeholder="Search prompts..."
+              value={historySearch}
+              onChange={(e) => setHistorySearch(e.target.value)}
+              className="flex-1 bg-transparent outline-none text-xs"
+              style={{ color: 'var(--text-primary)' }}
+            />
+          </div>
+
+          {/* Filter chips */}
+          <div className="flex gap-2 flex-wrap mb-4">
+            {['all', ...CATEGORIES].map((cat) => {
+              const isActive = historyFilter === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setHistoryFilter(cat)}
+                  className="font-heading text-[10px] px-3 py-1 rounded-full"
+                  style={isActive
+                    ? { background: 'linear-gradient(135deg, var(--gradient-1), var(--gradient-2))', color: '#fff' }
+                    : { background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }
+                  }
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* History items */}
+          {filteredHistory.length === 0 ? (
             <div className="flex flex-col items-center py-12 gap-4 prompt-reveal">
               <div className="p-4 rounded-2xl" style={{ background: 'var(--accent-subtle)' }}>
                 <MicIcon size={28} color="var(--accent)" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>No prompts yet</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Your prompt history will appear here</p>
+                <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>No prompts found</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  {historySearch || historyFilter !== 'all' ? 'Try adjusting your search or filter' : 'Your prompt history will appear here'}
+                </p>
               </div>
             </div>
           ) : (
-            history.map((p, i) => (
+            filteredHistory.map((p, i) => (
               <div key={p.id} className="prompt-reveal" style={{ animationDelay: `${i * 40}ms` }}>
                 <PromptCard prompt={p} onCopy={handleCopy} onSendLLM={sendLLM} onToggleFav={toggleFav} onDelete={remove} />
               </div>
@@ -505,6 +456,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
           )}
         </div>
       )}
+
       <MemoryInspector
         visible={showInspector}
         onClose={() => setShowInspector(false)}
