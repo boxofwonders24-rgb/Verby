@@ -671,6 +671,10 @@ app.whenReady().then(async () => {
 
 app.on('before-quit', () => {
   app.isQuitting = true;
+  const { backupMemoryToSupabase } = require('./ipc-handlers.cjs');
+  backupMemoryToSupabase().catch(err => {
+    console.error('[App Quit] Memory backup failed:', err);
+  });
 });
 
 app.on('will-quit', () => {

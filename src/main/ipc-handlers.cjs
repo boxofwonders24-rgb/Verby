@@ -1106,4 +1106,35 @@ function setAutoContext(ctx) {
   _autoContext = ctx;
 }
 
-module.exports = { registerHandlers, setAutoContext, getSetting };
+async function backupMemoryToSupabase() {
+  try {
+    const data = memory.exportAll();
+    if (data.entities.length === 0) return;
+
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseKey) return;
+
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const compressed = JSON.stringify(data);
+    const { error } = await supabase
+      .from('memory_backups')
+      .upsert({
+        user_id: getSetting('licenseEmail') || 'local',
+        backup_data: compressed,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.error('[Memory Backup] Supabase error:', error);
+    } else {
+      console.log('[Memory Backup] Backed up', data.entities.length, 'entities');
+    }
+  } catch (err) {
+    console.error('[Memory Backup] Failed:', err);
+  }
+}
+
+module.exports = { registerHandlers, setAutoContext, getSetting, backupMemoryToSupabase };
