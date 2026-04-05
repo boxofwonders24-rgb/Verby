@@ -82,7 +82,7 @@ function buildLearnedSignals() {
 //      - <  0.5 → broad context (top entities + all relationships)
 //   7. Assemble system prompt
 //   8. Call LLM
-//   9. Post-generation learning (non-blocking)
+//   9. Post-generation learning (non-fatal, deferred to next tick)
 //  10. Return { output, hint, entities, format, debugInfo }
 // ---------------------------------------------------------------------------
 
@@ -129,6 +129,11 @@ async function generate(input, provider) {
         }
       }
     }
+
+    // If no specific entities found, pull top entities for general context
+    if (entities.length === 0) {
+      entities = memory.getTopEntities(5);
+    }
   } else {
     // Broad path — pull top entities and all their relationships
     entities = memory.getTopEntities(10);
@@ -149,6 +154,9 @@ async function generate(input, provider) {
   });
 
   // Look up stored preference for the top signal group
+  // NOTE: v1 uses the first signal group as the preference key (e.g., "communication").
+  // This means all email-type prompts share one preference record. Future versions
+  // could use a more granular key (e.g., "email + John") for per-context preferences.
   const preferenceKey = hint.signals.length > 0 ? hint.signals[0] : null;
   const preference = preferenceKey ? memory.getPreference(preferenceKey) : null;
 
@@ -172,12 +180,14 @@ async function generate(input, provider) {
   // 8. Call LLM
   const output = await _callLLM(input, systemPrompt, provider);
 
-  // 9. Post-generation learning (non-blocking — fire and forget)
-  try {
-    postGenerationLearn(input, output, hint, potentialEntities);
-  } catch (err) {
-    console.warn('intelligence-engine: postGenerationLearn failed:', err.message);
-  }
+  // Post-generation learning — errors are non-fatal, runs in next tick
+  setImmediate(() => {
+    try {
+      postGenerationLearn(input, output, hint, potentialEntities);
+    } catch (err) {
+      console.warn('intelligence-engine: postGenerationLearn failed:', err.message);
+    }
+  });
 
   // 10. Return result
   return {
