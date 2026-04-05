@@ -250,10 +250,11 @@ export default function SettingsPanel({ onBack, onRunSetup }) {
 
         <Divider />
 
-        {/* ═══ Advanced (API Keys) — hidden by default ═══ */}
+        {/* ═══ Developer Options (API Keys) — hidden by default ═══ */}
         <details className="glass-card-sm">
-          <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-            Advanced — Use Your Own API Keys
+          <summary className="p-3 text-[11px] font-medium cursor-pointer" style={{ color: 'var(--text-muted)' }}>
+            Developer Options
+            <span className="block text-[10px] font-normal mt-0.5" style={{ color: 'var(--text-muted)' }}>API keys and advanced configuration</span>
           </summary>
           <div className="px-3 pb-3 space-y-3">
             <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
