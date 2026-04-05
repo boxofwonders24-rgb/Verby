@@ -65,7 +65,7 @@ nav::after {
   position: absolute;
   bottom: 0; left: 5%; right: 5%;
   height: 2px;
-  background: var(--rainbow);
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
   background-size: 200% 100%;
   animation: rainbow-slide 6s linear infinite;
 }
@@ -118,7 +118,7 @@ footer::before {
   position: absolute;
   top: 0; left: 10%; right: 10%;
   height: 2px;
-  background: var(--rainbow);
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
   background-size: 200% 100%;
   animation: rainbow-slide-reverse 8s linear infinite;
 }
@@ -208,7 +208,7 @@ footer a:hover { color: var(--text-2); }
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: var(--rainbow);
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
   background-size: 200% 100%;
   animation: rainbow-slide 5s linear infinite;
 }
@@ -359,6 +359,47 @@ footer a:hover { color: var(--text-2); }
 .related-articles .nav-links-bottom a { margin-right: 20px; }
 .related-articles .nav-links-bottom a.back { color: var(--text-2); }
 .related-articles .nav-links-bottom a.cta { color: var(--accent); font-weight: 600; }
+
+/* Rainbow line utility */
+.rainbow-line {
+  height: 2px;
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
+  background-size: 200% 100%;
+  animation: rainbow-slide 6s linear infinite;
+  border: none;
+  margin: 32px auto;
+  width: 80%;
+}
+
+/* Rainbow accents on glass cards */
+.tool-card, .example-box, .app-review, .article-cta {
+  position: relative;
+  overflow: hidden;
+}
+.tool-card::before, .example-box.after::before, .app-review.featured::before, .article-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
+  background-size: 200% 100%;
+  animation: rainbow-slide 5s linear infinite;
+}
+
+/* Rainbow on section dividers */
+.related-articles {
+  border-top: none;
+  position: relative;
+}
+.related-articles::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 2px;
+  background-image: linear-gradient(90deg, transparent, rgba(255,50,50,0.3), rgba(255,170,0,0.3), rgba(220,255,0,0.25), rgba(0,255,100,0.25), rgba(0,180,255,0.3), rgba(139,92,246,0.35), rgba(255,0,150,0.3), transparent);
+  background-size: 200% 100%;
+  animation: rainbow-slide-reverse 8s linear infinite;
+}
 
 /* Table Wrapper (responsive) */
 .table-wrap { overflow-x: auto; margin-bottom: 32px; }
