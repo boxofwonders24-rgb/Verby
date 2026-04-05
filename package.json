@@ -108,7 +108,13 @@
           ]
         }
       ],
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "extraResources": [
+        {
+          "from": ".env",
+          "to": ".env"
+        }
+      ]
     },
     "nsis": {
       "oneClick": true,
