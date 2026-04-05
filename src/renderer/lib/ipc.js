@@ -94,3 +94,25 @@ export const checkPermissions = () => (verby.checkPermissions || (() => Promise.
 export const requestMicrophone = () => (verby.requestMicrophone || (() => Promise.resolve(false)))();
 export const openSystemPrefs = (section) => (verby.openSystemPrefs || noop)(section);
 export const onFnPermissionNeeded = (cb) => (verby.onFnPermissionNeeded || noop)(cb);
+
+// Intelligence Engine
+export const intelligenceGenerate = (data) =>
+  window.verby?.intelligenceGenerate?.(data) ?? Promise.resolve(null);
+
+export const intelligenceRecordCopy = (data) =>
+  window.verby?.intelligenceRecordCopy?.(data) ?? Promise.resolve();
+
+export const intelligenceRecordRegenerate = (data) =>
+  window.verby?.intelligenceRecordRegenerate?.(data) ?? Promise.resolve();
+
+export const intelligenceInspector = () =>
+  window.verby?.intelligenceInspector?.() ?? Promise.resolve(null);
+
+export const memoryGetEntities = () =>
+  window.verby?.memoryGetEntities?.() ?? Promise.resolve([]);
+
+export const memoryUpsertEntity = (data) =>
+  window.verby?.memoryUpsertEntity?.(data) ?? Promise.resolve(null);
+
+export const memoryExport = () =>
+  window.verby?.memoryExport?.() ?? Promise.resolve(null);

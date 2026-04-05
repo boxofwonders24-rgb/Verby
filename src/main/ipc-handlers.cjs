@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const platform = require('./platform');
 const { initMemoryTables, memory } = require('./memory.cjs');
+const { initEngine, generate, recordCopy, recordRegenerate, getInspectorData } = require('./intelligence-engine.cjs');
 
 const isDev = !app.isPackaged;
 
@@ -598,6 +599,41 @@ Return ONLY the cleaned text. No JSON, no explanation.`;
 
     initMemoryTables(sqliteDb);
 
+    // Initialize Intelligence Engine with injected dependencies
+    initEngine({
+      callLLMFn: async (input, systemPrompt, provider) => {
+        if (provider === 'claude' && anthropicKey) {
+          const Anthropic = require('@anthropic-ai/sdk');
+          const client = new Anthropic({ apiKey: anthropicKey });
+          const response = await client.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: input }],
+          });
+          return response.content[0].text;
+        } else if (openaiKey) {
+          const OpenAI = require('openai');
+          const client = new OpenAI({ apiKey: openaiKey });
+          const response = await client.chat.completions.create({
+            model: 'gpt-4o',
+            max_tokens: 1024,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: input },
+            ],
+          });
+          return response.choices[0].message.content;
+        } else {
+          throw new Error('No AI provider configured. Add API keys in Settings.');
+        }
+      },
+      getActiveContext: () => db ? db.getActiveContext() : null,
+      getRecentPrompts: (n) => db ? db.getHistory(n) : [],
+      getSetting: getSetting,
+      getForegroundApp: () => _autoContext,
+    });
+
     db = {
       save(rawTranscript, optimizedPrompt, category) {
         const stmt = sqliteDb.prepare('INSERT INTO prompts (raw_transcript, optimized_prompt, category) VALUES (?, ?, ?)');
@@ -917,6 +953,7 @@ function registerHandlers(mainWindow) {
       saveHistory: getSetting('saveHistory', true),
       sendAnalytics: getSetting('sendAnalytics', false),
       onboardingComplete: getSetting('onboardingComplete', false),
+      useIntelligenceEngine: getSetting('useIntelligenceEngine') || false,
     };
   });
 
@@ -1026,6 +1063,42 @@ function registerHandlers(mainWindow) {
 
   ipcMain.handle('get-upgrade-url', async () => {
     return process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00';
+  });
+
+  // === Intelligence Engine ===
+
+  ipcMain.handle('intelligence-generate', async (_event, { text, provider }) => {
+    const useEngine = getSetting('useIntelligenceEngine');
+    if (!useEngine) {
+      return engine.optimize(text, provider || getSetting('defaultProvider'));
+    }
+    const result = await generate(text, provider || getSetting('defaultProvider'));
+    db.save(text, result.output, result.format);
+    return result;
+  });
+
+  ipcMain.handle('intelligence-record-copy', (_event, { hint }) => {
+    recordCopy(hint);
+  });
+
+  ipcMain.handle('intelligence-record-regenerate', (_event, { hint }) => {
+    recordRegenerate(hint);
+  });
+
+  ipcMain.handle('intelligence-inspector', () => {
+    return getInspectorData();
+  });
+
+  ipcMain.handle('memory-get-entities', () => {
+    return memory.getTopEntities(50);
+  });
+
+  ipcMain.handle('memory-upsert-entity', (_event, { name, type, metadata }) => {
+    return memory.upsertEntity(name, type, metadata);
+  });
+
+  ipcMain.handle('memory-export', () => {
+    return memory.exportAll();
   });
 }
 

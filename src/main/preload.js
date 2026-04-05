@@ -162,4 +162,13 @@ contextBridge.exposeInMainWorld('verby', {
     ipcRenderer.on('fn-permission-needed', () => callback());
     return () => ipcRenderer.removeAllListeners('fn-permission-needed');
   },
+
+  // Intelligence Engine
+  intelligenceGenerate: (data) => ipcRenderer.invoke('intelligence-generate', data),
+  intelligenceRecordCopy: (data) => ipcRenderer.invoke('intelligence-record-copy', data),
+  intelligenceRecordRegenerate: (data) => ipcRenderer.invoke('intelligence-record-regenerate', data),
+  intelligenceInspector: () => ipcRenderer.invoke('intelligence-inspector'),
+  memoryGetEntities: () => ipcRenderer.invoke('memory-get-entities'),
+  memoryUpsertEntity: (data) => ipcRenderer.invoke('memory-upsert-entity', data),
+  memoryExport: () => ipcRenderer.invoke('memory-export'),
 });
