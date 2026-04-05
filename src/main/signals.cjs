@@ -143,6 +143,7 @@ function mergeHints(matches) {
   const entities = [];
 
   // Apply override rules.
+  let customMatch = false;
   for (const m of matches) {
     // Custom source always wins -- overwrite everything.
     if (m.source === 'custom') {
@@ -150,19 +151,23 @@ function mergeHints(matches) {
       base.tone = m.hint.tone;
       base.detail = m.hint.detail;
       if (m.confidence > topConfidence) topConfidence = m.confidence;
+      customMatch = true;
       break; // first custom wins
     }
   }
 
-  // Communication overrides creation when both present.
-  const hasComm = matches.some((m) => m.group === 'communication' || m.group === 'casual_communication');
-  const hasCreation = matches.some((m) => m.group === 'creation');
-  if (hasComm && hasCreation) {
-    const commMatch = matches.find((m) => m.group === 'communication' || m.group === 'casual_communication');
-    if (commMatch) {
-      base.format = commMatch.hint.format;
-      base.tone = commMatch.hint.tone;
-      base.detail = commMatch.hint.detail;
+  // Communication overrides creation when both present -- but only when
+  // no custom signal was applied (custom always wins is the final authority).
+  if (!customMatch) {
+    const hasComm = matches.some((m) => m.group === 'communication' || m.group === 'casual_communication');
+    const hasCreation = matches.some((m) => m.group === 'creation');
+    if (hasComm && hasCreation) {
+      const commMatch = matches.find((m) => m.group === 'communication' || m.group === 'casual_communication');
+      if (commMatch) {
+        base.format = commMatch.hint.format;
+        base.tone = commMatch.hint.tone;
+        base.detail = commMatch.hint.detail;
+      }
     }
   }
 
