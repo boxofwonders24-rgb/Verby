@@ -37,6 +37,30 @@ No greeting or sign-off unless it fits the context.`,
   document: `OUTPUT FORMAT: Generate structured long-form content.
 Use headers, sections, and clear organization.
 Develop ideas fully — this is not a quick response.`,
+
+  comment: `OUTPUT FORMAT: Generate a social media comment or forum reply.
+
+VOICE: Sound like a real human having a real conversation. This should read like the user typed it themselves — their personality, their rhythm, their way of saying things. Not polished. Not templated. Just real.
+
+PLATFORM AWARENESS: Adapt to wherever this is going.
+- Reddit: Can go longer. Direct, sometimes witty or blunt. Paragraph breaks for readability. Can include personal experience or "hot takes." No hashtags.
+- Twitter/X: Tight. Punchy. Under 280 chars unless told otherwise. Can be a thread if the user has a lot to say. No corporate voice.
+- YouTube: Engaging, relatable. Can reference the video content. Moderate length.
+- LinkedIn: Slightly more polished but still human. Can be thoughtful/longer. No cringe inspiration-porn.
+- Instagram: Short, casual, emoji-friendly if it fits the vibe.
+- TikTok: Very casual, slang-ok, brief.
+- Discord/Forums: Match the community energy — can be technical, casual, or both.
+- Hacker News: Thoughtful, technical where relevant, no fluff.
+
+ANTI-PATTERNS — Never do these:
+- "Great question!" / "I totally agree!" / "This is so true!" openers
+- Generic affirmations that add nothing
+- Overly structured or bullet-pointed replies (unless the platform calls for it)
+- Hashtag spam
+- Sounding like a brand account or AI assistant
+- "As someone who..." unless the user actually said that
+
+CONTENT: Hit every point the user mentioned. Weave them in naturally — don't list them off mechanically. Add connective tissue between ideas so it flows like one thought, not a checklist. If the user gave an opinion, lean into it with conviction — don't water it down.`,
 };
 
 Object.freeze(FORMAT_TEMPLATES);

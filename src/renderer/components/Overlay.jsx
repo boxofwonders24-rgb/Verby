@@ -222,7 +222,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
 
       {/* === HOME — Prompt tab === */}
       {view === 'home' && (
-        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
 
           {/* Mic hero — only when idle and no result */}
           {(status === 'idle' || status === 'error') && !currentPrompt && (
@@ -349,7 +349,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
 
       {/* === STYLES TAB === */}
       {view === 'styles' && (
-        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
 
           {/* Writing Tone */}
           <p className="section-header mb-3">Writing Tone</p>
@@ -399,7 +399,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
 
       {/* === HISTORY TAB === */}
       {view === 'history' && (
-        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' }}>
+        <div className="px-5 pb-5 smooth-scroll" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
 
           {/* Search bar */}
           <div className="glass-card-sm flex items-center gap-2 px-3 py-2 mb-3">

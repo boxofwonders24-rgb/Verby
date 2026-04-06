@@ -49,6 +49,53 @@ const BUILT_IN_SIGNALS = [
     hint: { format: 'communication', tone: 'casual', detail: 'low' },
     confidence: 0.75,
   },
+  {
+    group: 'comment',
+    keywords: [
+      // Explicit comment intent — high confidence, won't collide with prompts
+      'comment', 'leave a comment', 'write a comment', 'post a comment', 'drop a comment',
+      'reply to', 'leave a reply', 'post a reply', 'write a reply',
+      'respond to this', 'respond to that', 'respond to their',
+      // Platform names — if they say the platform, they want a comment
+      'reddit', 'subreddit', 'on reddit',
+      'twitter', 'tweet', 'on twitter', 'x post', 'quote tweet', 'retweet',
+      'youtube comment', 'yt comment', 'on youtube',
+      'instagram comment', 'ig comment', 'on instagram', 'on ig',
+      'linkedin comment', 'on linkedin', 'linkedin post',
+      'hacker news', 'on hn',
+      'facebook comment', 'fb comment', 'on facebook',
+      'tiktok comment', 'on tiktok',
+      'on discord', 'discord message',
+      'forum post', 'forum reply', 'blog comment',
+      // Multi-word phrases that are clearly comment intent — not generic verbs
+      'chime in on', 'weigh in on', 'jump in on',
+      'add to the conversation', 'join the discussion', 'join the thread',
+      'put my two cents', 'throw in my two cents',
+      'share my thoughts on', 'give my take on', 'give my opinion on',
+      'clap back at', 'fire back at', 'push back on this', 'push back on that',
+      'call them out', 'call this out', 'call that out',
+      // Referencing someone else's post — clearly social context
+      'under this post', 'under that post', 'under their post',
+      'on this post', 'on that post', 'on their post', 'on his post', 'on her post',
+      'this guy said', 'this person said', 'someone posted', 'someone said',
+      'saw a post about', 'saw a thread about', 'saw a tweet about',
+      'this thread about', 'that thread about',
+      // Opinion framing that implies public reply
+      'hot take on', 'my take on this', 'my take on that',
+      'what i think about this', 'how i feel about this',
+      'let them know that', 'let people know', 'let the people know',
+      'tell them that', 'tell the people',
+      // More natural patterns
+      'say something back', 'write something back', 'get back to them',
+      'sound off on', 'speak on this', 'speak on that',
+      'shout out', 'give a shoutout',
+      'roast this', 'roast that', 'drag this',
+      'cosign this', 'cosign that', 'co-sign',
+      'ratio this', 'dunk on',
+    ],
+    hint: { format: 'comment', tone: 'conversational', detail: 'medium' },
+    confidence: 0.85,
+  },
 ];
 
 // ---------------------------------------------------------------------------

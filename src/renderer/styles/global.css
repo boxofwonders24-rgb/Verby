@@ -106,10 +106,31 @@ body {
   animation: rainbow-slide-reverse 9s linear infinite;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 8px; }
+/* Verby Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gradient-1), var(--accent-2), var(--gradient-2));
+  background-size: 100% 300%;
+  animation: verby-scroll-glow 4s ease infinite;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent-hover), var(--accent-2-hover), var(--gradient-3));
+  background-size: 100% 300%;
+  box-shadow: 0 0 12px var(--accent-glow), 0 0 4px var(--accent-2-glow);
+}
+@keyframes verby-scroll-glow {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 0% 100%; }
+}
 
 /* Base interactions */
 button {

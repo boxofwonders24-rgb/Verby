@@ -820,6 +820,18 @@ function registerHandlers(mainWindow) {
     // Check usage limits
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
+    // Use intelligence engine if enabled (default: on)
+    if (getSetting('useIntelligenceEngine') !== false) {
+      const provider = getSetting('defaultProvider') || 'claude';
+      const result = await generate(rawText, provider);
+      if (!db) throw new Error('Database not initialized.');
+      const detectedCat = result.format || category || 'general';
+      const id = db.save(rawText, result.output, detectedCat);
+      db.recordPattern(detectedCat, rawText.substring(0, 200), result.output.substring(0, 200));
+      db.incrementUsage(true);
+      return { id, optimized: result.output, category: detectedCat };
+    }
+    // Fallback to old pipeline
     const result = await engine.optimize(rawText, { category });
     if (!db) throw new Error('Database not initialized.');
     const detectedCat = result.detectedCategory || category || 'general';
@@ -834,6 +846,16 @@ function registerHandlers(mainWindow) {
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
     try {
+      // Use intelligence engine if enabled (default: on)
+      if (getSetting('useIntelligenceEngine') !== false) {
+        const provider = getSetting('defaultProvider') || 'claude';
+        const result = await generate(rawText, provider);
+        if (!db) throw new Error('Database not initialized.');
+        db.save(rawText, result.output, result.format || 'general');
+        db.incrementUsage(true);
+        return { result: result.output, type: result.format, hint: result.hint };
+      }
+      // Fallback to old pipeline
       const result = await engine.generateSmart(rawText);
       if (!db) throw new Error('Database not initialized.');
       db.save(rawText, result.result, result.type === 'email' ? 'email' : 'general');
@@ -953,7 +975,7 @@ function registerHandlers(mainWindow) {
       saveHistory: getSetting('saveHistory', true),
       sendAnalytics: getSetting('sendAnalytics', false),
       onboardingComplete: getSetting('onboardingComplete', false),
-      useIntelligenceEngine: getSetting('useIntelligenceEngine') || false,
+      useIntelligenceEngine: getSetting('useIntelligenceEngine') !== false,
     };
   });
 
@@ -1068,8 +1090,7 @@ function registerHandlers(mainWindow) {
   // === Intelligence Engine ===
 
   ipcMain.handle('intelligence-generate', async (_event, { text, provider }) => {
-    const useEngine = getSetting('useIntelligenceEngine');
-    if (!useEngine) {
+    if (getSetting('useIntelligenceEngine') === false) {
       return engine.optimize(text, provider || getSetting('defaultProvider'));
     }
     const result = await generate(text, provider || getSetting('defaultProvider'));
