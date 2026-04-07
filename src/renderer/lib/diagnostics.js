@@ -1,4 +1,4 @@
-import { getDiagnostics, getRecentLogs, getSettings, getPlatform } from './ipc.js'
+import { getDiagnostics, getRecentLogs, getSettings, getPlatform, checkPermissions } from './ipc.js'
 
 const SENSITIVE_SETTING_KEYS = ['licenseEmail', 'licenseKey', '_clearHistory']
 
@@ -13,11 +13,12 @@ function sanitizeSettings(settings) {
 }
 
 export async function collectDiagnostics() {
-  const [diagnostics, logs, settings, platform] = await Promise.all([
+  const [diagnostics, logs, settings, platform, permissions] = await Promise.all([
     getDiagnostics(),
     getRecentLogs(),
     getSettings(),
     getPlatform(),
+    checkPermissions(),
   ])
 
   return {
@@ -27,6 +28,8 @@ export async function collectDiagnostics() {
       isMac: platform.isMac,
       isWindows: platform.isWindows,
       features: platform.features || {},
+      microphone: permissions?.microphone || false,
+      accessibility: permissions?.accessibility || false,
     },
     settings_snapshot: sanitizeSettings(settings),
     error_logs: logs,

@@ -89,6 +89,7 @@ export const authSignInOAuth = (provider) => (verby.authSignInOAuth || noopAsync
 export const authSignOut = () => (verby.authSignOut || noopAsync)();
 export const authRefresh = () => (verby.authRefresh || noopAsync)();
 export const onAuthStateChanged = (cb) => (verby.onAuthStateChanged || noop)(cb);
+export const authGetSessionTokens = () => (verby.authGetSessionTokens || (() => Promise.resolve(null)))();
 
 // Permission checks (onboarding)
 export const checkPermissions = () => (verby.checkPermissions || (() => Promise.resolve({ microphone: false, accessibility: false })))();

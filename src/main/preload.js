@@ -147,6 +147,7 @@ contextBridge.exposeInMainWorld('verby', {
   authSignInOAuth: (provider) => ipcRenderer.invoke('auth-sign-in-oauth', provider),
   authSignOut: () => ipcRenderer.invoke('auth-sign-out'),
   authRefresh: () => ipcRenderer.invoke('auth-refresh'),
+  authGetSessionTokens: () => ipcRenderer.invoke('auth-get-session-tokens'),
   onAuthStateChanged: (callback) => {
     const handler = (_e, data) => callback(data);
     ipcRenderer.on('auth-state-changed', handler);

@@ -579,7 +579,6 @@ footer a:hover { color: var(--text-2); }
   text-align: center;
   padding: 40px 0;
   color: var(--text-2);
-  display: none;
 }
 
 .help-contact {

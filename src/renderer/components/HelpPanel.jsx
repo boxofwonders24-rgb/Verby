@@ -1,11 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import helpContent from '../../../site/data/help-content.json'
 import ReportIssueForm from './ReportIssueForm.jsx'
+import { getAppVersion } from '../lib/ipc.js'
 
 export default function HelpPanel({ onClose }) {
   const [search, setSearch] = useState('')
   const [openArticle, setOpenArticle] = useState(null)
   const [view, setView] = useState('help')
+  const [appVersion, setAppVersion] = useState('')
+
+  useEffect(() => {
+    getAppVersion().then(v => setAppVersion(v))
+  }, [])
 
   const filteredCategories = useMemo(() => {
     const q = search.toLowerCase().trim()
@@ -174,7 +180,7 @@ export default function HelpPanel({ onClose }) {
       {/* Footer */}
       <div className="px-4 py-2 text-center" style={{ borderTop: '1px solid var(--border)' }}>
         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-          Verby Help Center
+          Verby v{appVersion || '–'}
         </span>
       </div>
     </div>

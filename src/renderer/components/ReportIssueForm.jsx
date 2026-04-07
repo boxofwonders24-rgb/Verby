@@ -24,7 +24,7 @@ export default function ReportIssueForm({ onClose, onSubmitted }) {
   const [error, setError] = useState(null)
   const fileRef = useRef(null)
 
-  const charCount = description.replace(/<[^>]*>/g, '').trim().length
+  const charCount = description.trim().length
 
   async function handleSubmit(e) {
     e.preventDefault()

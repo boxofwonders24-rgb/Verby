@@ -258,6 +258,15 @@ function registerHandlers() {
     return getAuthState();
   });
 
+  // Expose session tokens to renderer (for report.js Supabase client)
+  ipcMain.handle('auth-get-session-tokens', async () => {
+    if (!currentSession) return null;
+    return {
+      access_token: currentSession.access_token,
+      refresh_token: currentSession.refresh_token
+    };
+  });
+
   // Sign out
   ipcMain.handle('auth-sign-out', async () => {
     if (!supabase) return;

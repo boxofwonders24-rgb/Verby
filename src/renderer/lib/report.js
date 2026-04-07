@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { collectDiagnostics } from './diagnostics.js'
+import { authGetSessionTokens } from './ipc.js'
 
 const SUPABASE_URL = 'https://xixefdlmnfpyxopzotne.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk'
@@ -46,15 +47,18 @@ export async function submitReport({ category, severity, description, screenshot
     return { success: false, error: 'Invalid severity.' }
   }
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const tokens = await authGetSessionTokens()
+  if (!tokens) {
     return { success: false, error: 'You must be signed in to submit a report.' }
   }
 
-  await supabase.auth.setSession({
-    access_token: session.access_token,
-    refresh_token: session.refresh_token
+  const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+    access_token: tokens.access_token,
+    refresh_token: tokens.refresh_token
   })
+  if (sessionError || !session) {
+    return { success: false, error: 'Authentication failed. Please sign in again.' }
+  }
 
   const diagnostics = await collectDiagnostics()
 
@@ -74,7 +78,7 @@ export async function submitReport({ category, severity, description, screenshot
       .upload(fileName, screenshotFile)
 
     if (uploadError) {
-      return { success: false, error: 'Failed to upload screenshot. Report submitted without it.' }
+      return { success: false, error: 'Failed to upload screenshot. Please try again.' }
     }
     screenshotUrl = fileName
   }
