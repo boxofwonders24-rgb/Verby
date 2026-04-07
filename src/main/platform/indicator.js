@@ -43,12 +43,6 @@ const INDICATOR_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="dot" id="dot"></div>
-  <script>
-    const { ipcRenderer } = require('electron');
-    ipcRenderer.on('set-color', (_, color) => {
-      document.getElementById('dot').style.setProperty('--color', color);
-    });
-  </script>
 </body>
 </html>`;
 
@@ -74,8 +68,8 @@ function createIndicatorWindow() {
     roundedCorners: false,
     type: 'panel', // macOS: doesn't steal focus; Windows: treated as toolbox window
     webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
+      contextIsolation: true,
+      nodeIntegration: false,
     },
     show: false,
   });
@@ -95,7 +89,9 @@ function show(color) {
   currentColor = color || '#6366F1';
   createIndicatorWindow();
   if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.webContents.send('set-color', currentColor);
+    indicatorWindow.webContents.executeJavaScript(
+      `document.getElementById('dot').style.setProperty('--color', '${currentColor.replace(/'/g, '')}')`
+    ).catch(() => {});
     indicatorWindow.showInactive();
   }
 }
@@ -109,7 +105,9 @@ function hide() {
 function setColor(color) {
   currentColor = color || '#6366F1';
   if (indicatorWindow && !indicatorWindow.isDestroyed()) {
-    indicatorWindow.webContents.send('set-color', currentColor);
+    indicatorWindow.webContents.executeJavaScript(
+      `document.getElementById('dot').style.setProperty('--color', '${currentColor.replace(/'/g, '')}')`
+    ).catch(() => {});
   }
 }
 
