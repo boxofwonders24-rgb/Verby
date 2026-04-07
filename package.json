@@ -1,6 +1,6 @@
 {
   "name": "verbyprompt",
-  "version": "0.6.0",
+  "version": "0.6.2",
   "description": "Voice-to-prompt desktop app",
   "author": "Stephen Grandy",
   "main": "src/main/index.js",
@@ -70,10 +70,6 @@
         {
           "from": "native/indicator",
           "to": "native/indicator"
-        },
-        {
-          "from": ".env",
-          "to": ".env"
         }
       ]
     },
@@ -108,13 +104,7 @@
           ]
         }
       ],
-      "icon": "assets/icon.ico",
-      "extraResources": [
-        {
-          "from": ".env",
-          "to": ".env"
-        }
-      ]
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": true,
