@@ -5,12 +5,9 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-// Supabase credentials — env var takes priority, embedded fallback for packaged builds.
-// The anon key is a public client key (safe to embed, same as putting it in frontend JS).
-const SUPABASE_URL = process.env.SUPABASE_URL
-  || 'https://xixefdlmnfpyxopzotne.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
-  || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk';
+// Supabase public client config — anon key is safe to embed (same as frontend JS).
+const SUPABASE_URL = 'https://xixefdlmnfpyxopzotne.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk';
 
 const AUTH_CALLBACK_PORT = 8914;
 const AUTH_CALLBACK_URL = `http://localhost:${AUTH_CALLBACK_PORT}/auth/callback`;

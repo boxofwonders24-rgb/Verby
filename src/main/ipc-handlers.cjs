@@ -10,6 +10,17 @@ const isDev = !app.isPackaged;
 let whisper, engine, dispatch, db;
 let _autoContext = null; // { appName, windowTitle } — set by main process
 
+// Speech-to-text often mangles "Verby" into phonetic variants.
+// Correct common mistranscriptions so the brand name stays intact.
+const VERBY_MISSPELLINGS = /\b(burbee\s*ai|burby\s*ai|verbi\s*ai|verbee\s*ai|vurbee?\s*ai|birby\s*ai|burbie\s*ai)\b/gi;
+// URL manglings — STT drops/swaps letters in "verbyai.com"
+const VERBY_URL_MISSPELLINGS = /\b(verbai|verbi|verbee|vurbee|burbee|burby|birby)\.com\b/gi;
+function correctSelfName(text) {
+  return text
+    .replace(VERBY_URL_MISSPELLINGS, 'verbyai.com')
+    .replace(VERBY_MISSPELLINGS, 'Verby AI');
+}
+
 // Auth gate — blocks API-consuming operations if user isn't authenticated.
 // In dev mode, skip the check so development isn't blocked.
 function requireAuth() {
@@ -57,11 +68,12 @@ async function checkProStatus() {
     const auth = getAuthState();
     if (auth.isAuthenticated) {
       const token = getAccessToken();
-      const supabaseUrl = process.env.SUPABASE_URL;
-      if (token && supabaseUrl) {
+      const supabaseUrl = 'https://xixefdlmnfpyxopzotne.supabase.co';
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk';
+      if (token) {
         const resp = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${auth.userId}&select=is_pro`, {
           headers: {
-            'apikey': process.env.SUPABASE_ANON_KEY || '',
+            'apikey': supabaseAnonKey,
             'Authorization': `Bearer ${token}`,
           },
         });
@@ -76,57 +88,6 @@ async function checkProStatus() {
     }
   } catch (err) {
     console.error('Supabase pro check failed:', err.message);
-  }
-
-  // Fallback: check Stripe
-  const email = getSetting('licenseEmail', '');
-  const stripeKey = process.env.STRIPE_SECRET_KEY;
-  if (!email || !stripeKey) {
-    _proStatusCache = { valid: false, checkedAt: Date.now() };
-    return false;
-  }
-
-  try {
-    const https = require('https');
-    const data = await new Promise((resolve, reject) => {
-      const req = https.request({
-        hostname: 'api.stripe.com',
-        path: `/v1/customers/search?query=email:'${encodeURIComponent(email)}'`,
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${stripeKey}` },
-      }, (res) => {
-        let body = '';
-        res.on('data', (c) => body += c);
-        res.on('end', () => resolve(JSON.parse(body)));
-      });
-      req.on('error', reject);
-      req.end();
-    });
-
-    if (data.data && data.data.length > 0) {
-      const customerId = data.data[0].id;
-      // Check for active subscriptions
-      const subs = await new Promise((resolve, reject) => {
-        const req = https.request({
-          hostname: 'api.stripe.com',
-          path: `/v1/subscriptions?customer=${customerId}&status=active&limit=1`,
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${stripeKey}` },
-        }, (res) => {
-          let body = '';
-          res.on('data', (c) => body += c);
-          res.on('end', () => resolve(JSON.parse(body)));
-        });
-        req.on('error', reject);
-        req.end();
-      });
-
-      const isActive = subs.data && subs.data.length > 0;
-      _proStatusCache = { valid: isActive, checkedAt: Date.now() };
-      return isActive;
-    }
-  } catch (err) {
-    console.error('Stripe check failed:', err.message);
   }
 
   _proStatusCache = { valid: false, checkedAt: Date.now() };
@@ -261,12 +222,14 @@ If CONVERSATIONAL:
 - No role assignment unless it genuinely helps
 
 If TASK:
-- Full structured prompt with:
-  - Role assignment ("You are an expert...")
-  - Clear deliverables and requirements
-  - Constraints, format, tone/style
-  - Output format specification
+- Structured prompt with role assignment ("You are a [specific expert]...")
+- Concrete deliverables — name the actual thing, not vague categories
+- Real constraints from what the user said — don't invent teams, processes, or stakeholders
+- Output format specification
 - Ready to paste into any AI
+- BE SPECIFIC: "Write 3 Reddit ad headlines under 80 chars" not "Develop a comprehensive marketing strategy"
+- No filler words: "comprehensive", "robust", "cutting-edge", "leverage", "streamline", "stakeholders"
+- Don't inflate a simple request into a 10-section manifesto
 
 If FIX:
 - Frame as a debugging/troubleshooting prompt
@@ -283,10 +246,12 @@ If REWRITE:
 - Output should be the rewritten content directly
 
 RULES FOR ALL TYPES:
-1. Preserve the user's actual goal
+1. Preserve the user's actual goal — use their words, not corporate abstractions
 2. Remove filler words, false starts, verbal tics
 3. Add context and specificity from detected app/project
-4. Keep it concise but complete`;
+4. Keep it concise but complete — tight and actionable, not padded
+5. No emojis in output
+6. Never talk TO the user — just output the optimized prompt`;
 
     // Inject active project context if available
     if (db) {
@@ -427,16 +392,17 @@ First classify the prompt type:
 
 Then optimize based on type:
 - CONVERSATIONAL: Clean up speech, keep natural tone, add specificity, restructure as a clear question
-- TASK: Full structured prompt with role assignment ("You are an expert..."), clear deliverables, constraints, format, output specification. Ready to paste into any AI.
+- TASK: Structured prompt with specific role assignment, concrete deliverables (name the actual thing), real constraints from what the user said. Be specific: "Write 3 ad headlines under 80 chars" not "Develop a comprehensive strategy." No filler words (comprehensive, robust, leverage, streamline, stakeholders). Don't inflate simple requests into manifestos. Ready to paste into any AI.
 - FIX: Frame as debugging prompt — what's happening, what was expected, ask AI to diagnose root cause then suggest fixes with explanations
 - REWRITE: Identify content to transform, specify the transformation (tone, length, audience), preserve original meaning
 
 Rules for all prompt types:
-1. Preserve the user's actual goal
+1. Preserve the user's actual goal — use their words, not corporate abstractions
 2. Remove filler words, false starts, verbal tics
 3. Add context and specificity
-4. Keep it concise but complete
+4. Keep it concise but complete — tight and actionable, not padded
 5. The result should be a BETTER version of what the user asked for, not a literal transcription
+6. No emojis in output
 
 OUTPUT FORMAT:
 Return a JSON object:
@@ -820,10 +786,12 @@ function registerHandlers(mainWindow) {
     // Check usage limits
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
+    // Fix common speech-to-text manglings of the app's own name
+    const correctedText = correctSelfName(rawText);
     // Use intelligence engine if enabled (default: on)
     if (getSetting('useIntelligenceEngine') !== false) {
       const provider = getSetting('defaultProvider') || 'claude';
-      const result = await generate(rawText, provider);
+      const result = await generate(correctedText, provider);
       if (!db) throw new Error('Database not initialized.');
       const detectedCat = result.format || category || 'general';
       const id = db.save(rawText, result.output, detectedCat);
@@ -832,7 +800,7 @@ function registerHandlers(mainWindow) {
       return { id, optimized: result.output, category: detectedCat };
     }
     // Fallback to old pipeline
-    const result = await engine.optimize(rawText, { category });
+    const result = await engine.optimize(correctedText, { category });
     if (!db) throw new Error('Database not initialized.');
     const detectedCat = result.detectedCategory || category || 'general';
     const id = db.save(rawText, result.optimized, detectedCat);
@@ -845,18 +813,20 @@ function registerHandlers(mainWindow) {
     requireAuth();
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
+    // Fix common speech-to-text manglings of the app's own name
+    const correctedText = correctSelfName(rawText);
     try {
       // Use intelligence engine if enabled (default: on)
       if (getSetting('useIntelligenceEngine') !== false) {
         const provider = getSetting('defaultProvider') || 'claude';
-        const result = await generate(rawText, provider);
+        const result = await generate(correctedText, provider);
         if (!db) throw new Error('Database not initialized.');
         db.save(rawText, result.output, result.format || 'general');
         db.incrementUsage(true);
         return { result: result.output, type: result.format, hint: result.hint };
       }
       // Fallback to old pipeline
-      const result = await engine.generateSmart(rawText);
+      const result = await engine.generateSmart(correctedText);
       if (!db) throw new Error('Database not initialized.');
       db.save(rawText, result.result, result.type === 'email' ? 'email' : 'general');
       db.incrementUsage(true);
@@ -871,8 +841,9 @@ function registerHandlers(mainWindow) {
     requireAuth();
     const limit = checkUsageLimit(false);
     if (!limit.allowed) throw new Error(limit.reason);
+    const correctedText = correctSelfName(rawText);
     try {
-      const cleaned = await engine.cleanupSpeech(rawText);
+      const cleaned = await engine.cleanupSpeech(correctedText);
       if (db) {
         db.save(rawText, cleaned, 'dictation');
         db.incrementUsage(false);
@@ -888,7 +859,8 @@ function registerHandlers(mainWindow) {
   ipcMain.handle('chat-optimize', async (_event, text) => {
     const limit = checkUsageLimit(true);
     if (!limit.allowed) throw new Error(limit.reason);
-    const result = await engine.optimize(text, {});
+    const correctedText = correctSelfName(text);
+    const result = await engine.optimize(correctedText, {});
     if (!db) throw new Error('Database not initialized.');
     const cat = result.detectedCategory || 'general';
     const id = db.save(text, result.optimized, cat);
@@ -1084,7 +1056,7 @@ function registerHandlers(mainWindow) {
   });
 
   ipcMain.handle('get-upgrade-url', async () => {
-    return process.env.STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00';
+    return 'https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00';
   });
 
   // === Intelligence Engine ===
@@ -1128,34 +1100,10 @@ function setAutoContext(ctx) {
 }
 
 async function backupMemoryToSupabase() {
-  try {
-    const data = memory.exportAll();
-    if (data.entities.length === 0) return;
-
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !supabaseKey) return;
-
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const compressed = JSON.stringify(data);
-    const { error } = await supabase
-      .from('memory_backups')
-      .upsert({
-        user_id: getSetting('licenseEmail') || 'local',
-        backup_data: compressed,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
-
-    if (error) {
-      console.error('[Memory Backup] Supabase error:', error);
-    } else {
-      console.log('[Memory Backup] Backed up', data.entities.length, 'entities');
-    }
-  } catch (err) {
-    console.error('[Memory Backup] Failed:', err);
-  }
+  // TODO: Move to Vercel API route — service role key must never be on the client.
+  // For now, memory is local-only (SQLite). Supabase backup will be re-enabled
+  // via POST /api/memory-backup with user's auth token.
+  console.log('[Memory Backup] Disabled — awaiting server-side implementation');
 }
 
 module.exports = { registerHandlers, setAutoContext, getSetting, backupMemoryToSupabase };
