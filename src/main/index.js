@@ -640,6 +640,48 @@ app.whenReady().then(async () => {
     }
   });
 
+  // Diagnostics (help / issue reporting)
+  ipcMain.handle('get-diagnostics', async () => {
+    const os = require('os');
+    return {
+      appVersion: app.getVersion(),
+      osInfo: `${os.platform()} ${os.release()} (${os.arch()})`,
+      nodeVersion: process.versions.node,
+      electronVersion: process.versions.electron,
+    };
+  });
+
+  ipcMain.handle('get-recent-logs', async () => {
+    const path = require('path');
+    const fsSync = require('fs');
+    const logPath = path.join(app.getPath('userData'), 'logs');
+
+    try {
+      if (!fsSync.existsSync(logPath)) return [];
+      const files = fsSync.readdirSync(logPath)
+        .filter(f => f.endsWith('.log'))
+        .sort()
+        .slice(-1);
+
+      if (files.length === 0) return [];
+
+      const content = fsSync.readFileSync(path.join(logPath, files[0]), 'utf8');
+      const lines = content.split('\n').filter(Boolean).slice(-20);
+
+      const sanitized = lines.map(line =>
+        line
+          .replace(/sk-[a-zA-Z0-9_-]{20,}/g, '[REDACTED_KEY]')
+          .replace(/eyJ[a-zA-Z0-9_-]{20,}/g, '[REDACTED_TOKEN]')
+          .replace(/\/Users\/[^/\s]+/g, '/Users/[REDACTED]')
+          .replace(/C:\\Users\\[^\\\s]+/g, 'C:\\Users\\[REDACTED]')
+          .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
+      );
+      return sanitized;
+    } catch (e) {
+      return [];
+    }
+  });
+
 
   // Alt+Space = prompt mode (show window + toggle recording)
   globalShortcut.register('Alt+Space', () => {

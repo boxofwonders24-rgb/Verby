@@ -172,4 +172,8 @@ contextBridge.exposeInMainWorld('verby', {
   memoryGetEntities: () => ipcRenderer.invoke('memory-get-entities'),
   memoryUpsertEntity: (data) => ipcRenderer.invoke('memory-upsert-entity', data),
   memoryExport: () => ipcRenderer.invoke('memory-export'),
+
+  // Diagnostics (help system)
+  getDiagnostics: () => ipcRenderer.invoke('get-diagnostics'),
+  getRecentLogs: () => ipcRenderer.invoke('get-recent-logs'),
 });

@@ -117,3 +117,9 @@ export const memoryUpsertEntity = (data) =>
 
 export const memoryExport = () =>
   window.verby?.memoryExport?.() ?? Promise.resolve(null);
+
+// Diagnostics (help system)
+export const getDiagnostics = () =>
+  (verby.getDiagnostics || (() => Promise.resolve({ appVersion: '0.0.0', osInfo: 'unknown', nodeVersion: '', electronVersion: '' })))();
+export const getRecentLogs = () =>
+  (verby.getRecentLogs || (() => Promise.resolve([])))();
