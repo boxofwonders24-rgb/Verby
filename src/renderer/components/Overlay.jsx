@@ -7,6 +7,7 @@ import useDictation from '../hooks/useDictation';
 import { transcribeAudio, onToggleRecording, chatOptimize, setContext, getContext, onOpenSettings } from '../lib/ipc';
 import { intelligenceGenerate, intelligenceRecordCopy } from '../lib/ipc';
 import MemoryInspector from './MemoryInspector';
+import HelpPanel from './HelpPanel.jsx';
 
 const CATEGORIES = ['general', 'business', 'coding', 'marketing', 'creative', 'research', 'automation'];
 
@@ -73,6 +74,7 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
   const [sessionLog, setSessionLog] = useState([]);
   const [lastHint, setLastHint] = useState(null);
   const [showInspector, setShowInspector] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [historySearch, setHistorySearch] = useState('');
   const [historyFilter, setHistoryFilter] = useState('all');
   const chatInputRef = useRef(null);
@@ -199,6 +201,30 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
           <span className="font-logo text-lg" style={{ background: 'linear-gradient(to right, #fff, var(--accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Verby</span>
         </div>
         <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => setShowHelp(true)}
+            className="icon-btn"
+            title="Help"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </button>
           <button onClick={onOpenSettings} className="icon-btn" title="Settings">{Icons.settings}</button>
         </div>
       </div>
@@ -461,6 +487,20 @@ export default function Overlay({ onOpenSettings, theme, onToggleTheme }) {
         visible={showInspector}
         onClose={() => setShowInspector(false)}
       />
+      {showHelp && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          width: 340,
+          height: '100%',
+          zIndex: 9999,
+          boxShadow: '-4px 0 24px rgba(0,0,0,0.3)',
+          borderLeft: '1px solid var(--border)'
+        }}>
+          <HelpPanel onClose={() => setShowHelp(false)} />
+        </div>
+      )}
     </div>
   );
 }
