@@ -45,24 +45,11 @@ function getUsageToday() {
 
 let _proStatusCache = { valid: false, checkedAt: 0 };
 
-// Admin Pro emails — always unlimited, no API check needed
-const ADMIN_EMAILS = ['boxofwonders24@gmail.com', 'sgrandy@syntrixdev.com'];
-
 async function checkProStatus() {
   // Cache for 1 hour
   if (Date.now() - _proStatusCache.checkedAt < 3600000) return _proStatusCache.valid;
 
-  // Check admin list first (instant, no network)
-  try {
-    const { getAuthState } = require('./auth');
-    const auth = getAuthState();
-    if (auth.isAuthenticated && ADMIN_EMAILS.includes(auth.email)) {
-      _proStatusCache = { valid: true, checkedAt: Date.now() };
-      return true;
-    }
-  } catch {}
-
-  // Check Supabase profile (set via admin)
+  // Check Supabase profile — is_pro or is_admin grants unlimited access
   try {
     const { getAuthState, getAccessToken } = require('./auth');
     const auth = getAuthState();
@@ -71,7 +58,7 @@ async function checkProStatus() {
       const supabaseUrl = 'https://xixefdlmnfpyxopzotne.supabase.co';
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk';
       if (token) {
-        const resp = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${auth.userId}&select=is_pro`, {
+        const resp = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${auth.userId}&select=is_pro,is_admin`, {
           headers: {
             'apikey': supabaseAnonKey,
             'Authorization': `Bearer ${token}`,
@@ -79,7 +66,7 @@ async function checkProStatus() {
         });
         if (resp.ok) {
           const profiles = await resp.json();
-          if (profiles[0]?.is_pro) {
+          if (profiles.length > 0 && (profiles[0].is_pro || profiles[0].is_admin)) {
             _proStatusCache = { valid: true, checkedAt: Date.now() };
             return true;
           }
