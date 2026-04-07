@@ -75,6 +75,7 @@ export const onUpdateError = (cb) => (verby.onUpdateError || noop)(cb);
 export const onUpdateBlockedRecording = (cb) => (verby.onUpdateBlockedRecording || noop)(cb);
 export const installUpdate = () => (verby.installUpdate || noopAsync)();
 export const getAppVersion = () => (verby.getAppVersion || (() => Promise.resolve('0.0.0')))();
+export const checkForUpdates = () => (verby.checkForUpdates || noopAsync)();
 
 // Recording state sync
 export const notifyRecordingStarted = () => (verby.notifyRecordingStarted || noop)();

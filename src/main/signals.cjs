@@ -56,12 +56,14 @@ const BUILT_IN_SIGNALS = [
       'comment', 'leave a comment', 'write a comment', 'post a comment', 'drop a comment',
       'reply to', 'leave a reply', 'post a reply', 'write a reply',
       'respond to this', 'respond to that', 'respond to their',
-      // Platform names — if they say the platform, they want a comment
-      'reddit', 'subreddit', 'on reddit',
-      'twitter', 'tweet', 'on twitter', 'x post', 'quote tweet', 'retweet',
+      // Platform-specific comment phrases — require comment/reply context,
+      // bare platform names like "reddit" alone would hijack creation intents
+      // (e.g. "create an ad campaign for Reddit" is creation, not a comment)
+      'reddit comment', 'subreddit comment', 'on reddit',
+      'twitter reply', 'tweet reply', 'on twitter', 'x post', 'quote tweet', 'retweet',
       'youtube comment', 'yt comment', 'on youtube',
       'instagram comment', 'ig comment', 'on instagram', 'on ig',
-      'linkedin comment', 'on linkedin', 'linkedin post',
+      'linkedin comment', 'on linkedin',
       'hacker news', 'on hn',
       'facebook comment', 'fb comment', 'on facebook',
       'tiktok comment', 'on tiktok',
@@ -203,17 +205,31 @@ function mergeHints(matches) {
     }
   }
 
-  // Communication overrides creation when both present -- but only when
-  // no custom signal was applied (custom always wins is the final authority).
+  // Override rules (only when no custom signal was applied — custom is final authority).
   if (!customMatch) {
     const hasComm = matches.some((m) => m.group === 'communication' || m.group === 'casual_communication');
     const hasCreation = matches.some((m) => m.group === 'creation');
+    const hasComment = matches.some((m) => m.group === 'comment');
+
+    // Communication overrides creation when both present.
     if (hasComm && hasCreation) {
       const commMatch = matches.find((m) => m.group === 'communication' || m.group === 'casual_communication');
       if (commMatch) {
         base.format = commMatch.hint.format;
         base.tone = commMatch.hint.tone;
         base.detail = commMatch.hint.detail;
+      }
+    }
+
+    // Creation overrides comment when both present — "create an ad for Reddit"
+    // is creation intent, not a comment. Comment only wins when there's no
+    // creation signal (e.g. "reply to this thread on reddit").
+    if (hasCreation && hasComment && !hasComm) {
+      const creationMatch = matches.find((m) => m.group === 'creation');
+      if (creationMatch) {
+        base.format = creationMatch.hint.format;
+        base.tone = creationMatch.hint.tone;
+        base.detail = creationMatch.hint.detail;
       }
     }
   }

@@ -46,6 +46,16 @@ function initAutoUpdater(window) {
     ipcMain.handle('get-app-version', () => {
       return app.getVersion();
     });
+
+    ipcMain.handle('check-for-updates', async () => {
+      try {
+        const result = await autoUpdater.checkForUpdates();
+        return { checking: true };
+      } catch (err) {
+        console.error('[updater] Manual check failed:', err.message);
+        return { error: err.message };
+      }
+    });
   }
 
   // --- Update events ---

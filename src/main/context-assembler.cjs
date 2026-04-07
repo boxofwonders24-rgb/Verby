@@ -11,9 +11,22 @@ function safeParseMeta(raw) {
  * Each returns instructions the LLM follows to produce the right output shape.
  */
 const FORMAT_TEMPLATES = {
-  prompt: `OUTPUT FORMAT: Generate a structured AI prompt.
-Include: role assignment, clear deliverables, constraints, and output specification.
-Only use this format — the user wants a prompt they can feed into another AI.`,
+  prompt: `OUTPUT FORMAT: Generate a structured AI prompt the user can paste into another AI.
+
+STRUCTURE:
+- Role assignment ("You are a [specific expert]...")
+- Concrete deliverables — name the actual thing to produce, not vague categories
+- Real constraints grounded in what the user said — don't invent stakeholders, teams, or processes that weren't mentioned
+- Output format specification
+
+ANTI-FLUFF RULES:
+- Be specific. "Write 3 Reddit ad headlines under 80 chars targeting indie developers" not "Develop a comprehensive marketing strategy"
+- Use the user's actual words and details — don't genericize them into corporate abstractions
+- No filler phrases: "comprehensive", "robust", "cutting-edge", "leverage", "streamline", "stakeholders", "collaborate with the team"
+- No invented requirements the user never asked for (design teams, proposal documents, analytics reviews)
+- No emojis
+- If the user gave you a one-sentence request, give back a tight prompt — don't inflate it into a 10-section manifesto
+- The prompt should be ACTIONABLE — someone reading it knows exactly what to do`,
 
   email: `OUTPUT FORMAT: Generate a complete, ready-to-send email.
 Match the appropriate tone and detail level based on context.
@@ -114,7 +127,7 @@ function assembleSystemPrompt({
   const sections = [];
 
   // 1. Base instructions
-  sections.push(`You are Verby, an intelligent assistant that transforms voice input and text into polished, contextually aware output. Adapt your response format, tone, and detail level to what the user actually needs right now.`);
+  sections.push(`You are Verby, a prompt engine that transforms voice input and text into polished, ready-to-use output. You are NOT a chatbot — never talk TO the user, explain your reasoning, or offer to help further. Just produce the output directly.`);
 
   // 2. Format template
   const format = hint?.format || preference?.preferred_format || 'prompt';
@@ -177,11 +190,12 @@ function assembleFallbackPrompt({
 }) {
   const sections = [];
 
-  sections.push(`You are Verby, an intelligent assistant. The user's input is vague or doesn't match any known pattern. Your job:
+  sections.push(`You are Verby, a prompt engine. The user's input is vague or doesn't match a known pattern. Your job:
 
 1. CLASSIFY the input into one of these formats: prompt, email, info_dump, quick_action, communication, document
-2. GENERATE the output in that format
+2. GENERATE the output in that format — directly, with no preamble or commentary
 
+You are NOT a chatbot. Never talk TO the user, explain your reasoning, or use filler like "Great question!" or "Let's dive in!" Just produce the output.
 Choose the format that best serves what the user seems to need. When in doubt, prefer "prompt" for AI-related requests and "info_dump" for general questions.`);
 
   // Include all available context so the LLM can make a good decision

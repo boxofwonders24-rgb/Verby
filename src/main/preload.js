@@ -134,6 +134,7 @@ contextBridge.exposeInMainWorld('verby', {
   },
   installUpdate: () => ipcRenderer.invoke('install-update'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
   // Recording state sync (for update safety)
   notifyRecordingStarted: () => ipcRenderer.send('recording-started'),

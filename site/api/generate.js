@@ -59,16 +59,17 @@ First classify the prompt type:
 
 Then optimize based on type:
 - CONVERSATIONAL: Clean up speech, keep natural tone, add specificity, restructure as a clear question
-- TASK: Full structured prompt with role assignment ("You are an expert..."), clear deliverables, constraints, format, output specification. Ready to paste into any AI.
+- TASK: Structured prompt with specific role assignment, concrete deliverables (name the actual thing), real constraints from what the user said. Be specific: "Write 3 ad headlines under 80 chars" not "Develop a comprehensive strategy." No filler words (comprehensive, robust, leverage, streamline, stakeholders). Don't inflate simple requests into manifestos. Ready to paste into any AI.
 - FIX: Frame as debugging prompt — what's happening, what was expected, ask AI to diagnose root cause then suggest fixes with explanations
 - REWRITE: Identify content to transform, specify the transformation (tone, length, audience), preserve original meaning
 
 Rules for all prompt types:
-1. Preserve the user's actual goal
+1. Preserve the user's actual goal — use their words, not corporate abstractions
 2. Remove filler words, false starts, verbal tics
 3. Add context and specificity
-4. Keep it concise but complete
+4. Keep it concise but complete — tight and actionable, not padded
 5. The result should be a BETTER version of what the user asked for, not a literal transcription
+6. No emojis in output
 
 OUTPUT FORMAT:
 Return a JSON object:
