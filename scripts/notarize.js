@@ -2,7 +2,10 @@ const { notarize } = require('@electron/notarize');
 const path = require('path');
 
 // Load .env since build process doesn't have dotenv
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+// In dev: dotenv loads .env before electron-builder runs.
+// In CI: secrets are injected as environment variables.
+// Only load .env if it exists (dev builds).
+try { require('dotenv').config({ path: path.join(__dirname, '..', '.env') }); } catch {}
 
 exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
