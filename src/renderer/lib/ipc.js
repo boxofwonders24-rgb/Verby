@@ -73,6 +73,8 @@ export const onUpdateProgress = (cb) => (verby.onUpdateProgress || noop)(cb);
 export const onUpdateDownloaded = (cb) => (verby.onUpdateDownloaded || noop)(cb);
 export const onUpdateError = (cb) => (verby.onUpdateError || noop)(cb);
 export const onUpdateBlockedRecording = (cb) => (verby.onUpdateBlockedRecording || noop)(cb);
+export const onUpdateChecking = (cb) => (verby.onUpdateChecking || noop)(cb);
+export const onUpdateNotAvailable = (cb) => (verby.onUpdateNotAvailable || noop)(cb);
 export const installUpdate = () => (verby.installUpdate || noopAsync)();
 export const getAppVersion = () => (verby.getAppVersion || (() => Promise.resolve('0.0.0')))();
 export const checkForUpdates = () => (verby.checkForUpdates || noopAsync)();

@@ -10,22 +10,12 @@ let isRecording = false;
 let checkInterval = null;
 let errorCount = 0;
 let handlersRegistered = false;
+let updaterReady = false;
 
 function initAutoUpdater(window) {
   mainWindow = window;
 
-  // Guard: skip if token not set (prevents shipping broken builds)
-  if (!GH_READ_TOKEN) {
-    console.error('[updater] No GH_READ_TOKEN set — auto-update disabled');
-    return;
-  }
-
-  // Configure for private repo
-  autoUpdater.requestHeaders = { Authorization: `token ${GH_READ_TOKEN}` };
-  autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true;
-
-  // --- IPC handlers (register once to avoid crash on window re-creation) ---
+  // --- IPC handlers (register once, regardless of token) ---
   if (!handlersRegistered) {
     handlersRegistered = true;
 
@@ -48,8 +38,11 @@ function initAutoUpdater(window) {
     });
 
     ipcMain.handle('check-for-updates', async () => {
+      if (!updaterReady) {
+        return { error: 'Auto-updater not configured' };
+      }
       try {
-        const result = await autoUpdater.checkForUpdates();
+        await autoUpdater.checkForUpdates();
         return { checking: true };
       } catch (err) {
         console.error('[updater] Manual check failed:', err.message);
@@ -58,9 +51,24 @@ function initAutoUpdater(window) {
     });
   }
 
+  // Guard: skip auto-update setup if token not set
+  if (!GH_READ_TOKEN) {
+    console.error('[updater] No GH_READ_TOKEN set — auto-update disabled');
+    return;
+  }
+
+  // Configure for private repo
+  autoUpdater.requestHeaders = { Authorization: `token ${GH_READ_TOKEN}` };
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  updaterReady = true;
+
   // --- Update events ---
   autoUpdater.on('checking-for-update', () => {
     console.log('[updater] Checking for update...');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-checking');
+    }
   });
 
   autoUpdater.on('update-available', (info) => {
@@ -74,6 +82,9 @@ function initAutoUpdater(window) {
   autoUpdater.on('update-not-available', () => {
     console.log('[updater] Up to date');
     errorCount = 0;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-not-available');
+    }
   });
 
   autoUpdater.on('download-progress', (progress) => {
@@ -92,8 +103,7 @@ function initAutoUpdater(window) {
   autoUpdater.on('error', (err) => {
     console.error('[updater] Error:', err.message);
     errorCount++;
-    // Surface to user only after repeated failures (3+) — no raw error details to renderer
-    if (errorCount >= 3 && mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-error');
     }
   });

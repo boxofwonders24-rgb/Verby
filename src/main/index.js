@@ -1,7 +1,9 @@
-// Load .env in dev only — packaged builds must not contain .env
+// Load .env — in dev from project root, in production from Resources
 const path_env = require('path');
 const { app: _app } = require('electron');
-if (!_app.isPackaged) {
+if (_app.isPackaged) {
+  require('dotenv').config({ path: path_env.join(process.resourcesPath, '.env') });
+} else {
   require('dotenv').config({ path: path_env.join(__dirname, '..', '..', '.env') });
 }
 

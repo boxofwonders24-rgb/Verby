@@ -13,12 +13,16 @@ let _autoContext = null; // { appName, windowTitle } — set by main process
 // Speech-to-text often mangles "Verby" into phonetic variants.
 // Correct common mistranscriptions so the brand name stays intact.
 const VERBY_MISSPELLINGS = /\b(burbee\s*ai|burby\s*ai|verbi\s*ai|verbee\s*ai|vurbee?\s*ai|birby\s*ai|burbie\s*ai)\b/gi;
+// Standalone name manglings (without "ai") — "Verbi app", "Burbee app", etc.
+const VERBY_STANDALONE = /\b(verbi|verbee|burbee|burby|vurbee|birby|burbie)\b(?!\s*ai|\.\w)/gi;
 // URL manglings — STT drops/swaps letters in "verbyai.com"
 const VERBY_URL_MISSPELLINGS = /\b(verbai|verbi|verbee|vurbee|burbee|burby|birby)\.com\b/gi;
 function correctSelfName(text) {
+  if (!text) return text;
   return text
     .replace(VERBY_URL_MISSPELLINGS, 'verbyai.com')
-    .replace(VERBY_MISSPELLINGS, 'Verby AI');
+    .replace(VERBY_MISSPELLINGS, 'Verby AI')
+    .replace(VERBY_STANDALONE, 'Verby');
 }
 
 // Auth gate — blocks API-consuming operations if user isn't authenticated.

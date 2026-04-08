@@ -132,6 +132,16 @@ contextBridge.exposeInMainWorld('verby', {
     ipcRenderer.on('update-blocked-recording', handler);
     return () => ipcRenderer.removeListener('update-blocked-recording', handler);
   },
+  onUpdateChecking: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('update-checking', handler);
+    return () => ipcRenderer.removeListener('update-checking', handler);
+  },
+  onUpdateNotAvailable: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('update-not-available', handler);
+    return () => ipcRenderer.removeListener('update-not-available', handler);
+  },
   installUpdate: () => ipcRenderer.invoke('install-update'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),

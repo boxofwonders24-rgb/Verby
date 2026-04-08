@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, installUpdate, checkForUpdates, authGetState, authSignOut, getPlatform, openSystemPrefs } from '../lib/ipc';
+import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, onUpdateChecking, onUpdateNotAvailable, installUpdate, checkForUpdates, authGetState, authSignOut, getPlatform, openSystemPrefs } from '../lib/ipc';
 
 const SectionHeader = ({ children }) => (
   <p className="text-[11px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -184,6 +184,9 @@ export default function SettingsPanel({ onBack, onRunSetup }) {
 
   useEffect(() => {
     const cleanups = [
+      onUpdateChecking(() => {
+        setUpdateState('checking');
+      }),
       onUpdateAvailable((data) => {
         setUpdateVersion(data.version);
         setUpdateState('downloading');
@@ -194,6 +197,9 @@ export default function SettingsPanel({ onBack, onRunSetup }) {
       onUpdateDownloaded((data) => {
         setUpdateVersion(data.version);
         setUpdateState('ready');
+      }),
+      onUpdateNotAvailable(() => {
+        setUpdateState('up-to-date');
       }),
       onUpdateError(() => {
         setUpdateState('error');
@@ -219,11 +225,6 @@ export default function SettingsPanel({ onBack, onRunSetup }) {
     const result = await checkForUpdates();
     if (result && result.error) {
       setUpdateState('error');
-    } else {
-      // If no update found, the state will stay 'checking' briefly then reset
-      setTimeout(() => {
-        setUpdateState((s) => s === 'checking' ? 'up-to-date' : s);
-      }, 5000);
     }
   };
 
