@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, onUpdateChecking, onUpdateNotAvailable, installUpdate, checkForUpdates, authGetState, authSignOut, getPlatform, openSystemPrefs } from '../lib/ipc';
+import { getSettings, setSetting, activateLicense, getUsage, getUpgradeUrl, getPortalUrl, getAppVersion, onUpdateAvailable, onUpdateProgress, onUpdateDownloaded, onUpdateError, onUpdateBlockedRecording, onUpdateChecking, onUpdateNotAvailable, installUpdate, checkForUpdates, authGetState, authSignOut, getPlatform, openSystemPrefs } from '../lib/ipc';
 
 const SectionHeader = ({ children }) => (
   <p className="text-[11px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -75,10 +75,19 @@ function ProSection() {
     <div>
       <SectionHeader>Plan</SectionHeader>
       {usage.isPro ? (
-        <div className="p-5 rounded-xl text-center" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid var(--border-accent)' }}>
-          <p className="text-sm font-semibold gradient-text mb-1">Verby Pro</p>
-          <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Unlimited dictations & AI enhancement</p>
-          <p className="text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>{usage.total} prompts today</p>
+        <div className="space-y-3">
+          <div className="p-5 rounded-xl text-center" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid var(--border-accent)' }}>
+            <p className="text-sm font-semibold gradient-text mb-1">Verby Pro</p>
+            <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Unlimited dictations & AI enhancement</p>
+            <p className="text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>{usage.total} prompts today</p>
+          </div>
+          <button
+            onClick={async () => { const url = await getPortalUrl(); if (url) window.open(url); }}
+            className="w-full py-3 rounded-xl text-[13px] font-medium text-center"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+          >
+            Manage Subscription
+          </button>
         </div>
       ) : (
         <div className="space-y-3">

@@ -1050,6 +1050,10 @@ function registerHandlers(mainWindow) {
     return 'https://buy.stripe.com/aFafZhgFpa0k4edfDm2Nq00';
   });
 
+  ipcMain.handle('get-portal-url', async () => {
+    return 'https://billing.stripe.com/p/login/aFafZhgFpa0k4edfDm2Nq00';
+  });
+
   // === Intelligence Engine ===
 
   ipcMain.handle('intelligence-generate', async (_event, { text, provider }) => {

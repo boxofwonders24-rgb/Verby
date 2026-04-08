@@ -73,6 +73,7 @@ contextBridge.exposeInMainWorld('verby', {
   getUsage: () => ipcRenderer.invoke('get-usage'),
   activateLicense: (email) => ipcRenderer.invoke('activate-license', email),
   getUpgradeUrl: () => ipcRenderer.invoke('get-upgrade-url'),
+  getPortalUrl: () => ipcRenderer.invoke('get-portal-url'),
 
   // Chat — type-to-prompt
   chatOptimize: (text) => ipcRenderer.invoke('chat-optimize', text),

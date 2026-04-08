@@ -43,6 +43,7 @@ export const hideIndicator = () => (verby.hideIndicator || noop)();
 export const getUsage = () => (verby.getUsage || (() => Promise.resolve({ total: 0, limit: 20, isPro: false })))();
 export const activateLicense = (email) => (verby.activateLicense || noopAsync)(email);
 export const getUpgradeUrl = () => (verby.getUpgradeUrl || (() => Promise.resolve('')))();
+export const getPortalUrl = () => (verby.getPortalUrl || (() => Promise.resolve('')))();
 
 // Chat — type-to-prompt
 export const chatOptimize = (text) => (verby.chatOptimize || noopAsync)(text);
