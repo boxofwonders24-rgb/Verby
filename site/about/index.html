@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050508">
+  <title>About Verby — Built by Syntrix LLC to Make Voice the Fastest Input</title>
+  <meta name="description" content="Verby is an AI voice-to-text desktop app built by Syntrix LLC, founded by Stephen Grandy. Learn about our mission to make voice the fastest way to interact with any app on your desktop.">
+  <meta name="keywords" content="about Verby, Syntrix LLC, Stephen Grandy, AI voice to text, voice dictation app, who made Verby">
+  <link rel="canonical" href="https://verbyai.com/about">
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="About Verby — Built by Syntrix LLC">
+  <meta property="og:description" content="Verby is an AI voice-to-text desktop app built by Syntrix LLC, founded by Stephen Grandy. Learn about our mission to make voice the fastest way to interact with any app.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://verbyai.com/about">
+  <meta property="og:site_name" content="Verby">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://verbyai.com/og/homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Verby — Built by Syntrix LLC">
+  <meta name="twitter:description" content="Verby is an AI voice-to-text desktop app built by Syntrix LLC, founded by Stephen Grandy. Learn about our mission to make voice the fastest way to interact with any app.">
+  <meta name="twitter:site" content="@verbyai">
+  <meta name="twitter:image" content="https://verbyai.com/og/homepage.png">
+  <!-- BreadcrumbList JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://verbyai.com/"},
+      {"@type": "ListItem", "position": 2, "name": "About", "item": "https://verbyai.com/about"}
+    ]
+  }
+  </script>
+  <!-- Person JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Stephen Grandy",
+    "jobTitle": "Founder",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Syntrix LLC",
+      "url": "https://syntrixdev.com"
+    },
+    "url": "https://verbyai.com/about",
+    "sameAs": ["https://twitter.com/verbyai"]
+  }
+  </script>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/Inter-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Page header */
+    .page-header {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+    .page-header h1 {
+      font-size: clamp(32px, 5vw, 48px); font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .page-header p {
+      font-size: 18px; color: var(--text-2); line-height: 1.6;
+      max-width: 560px; margin: 0 auto;
+    }
+
+    /* About sections */
+    .about-section {
+      padding: 48px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .about-section:first-of-type {
+      border-top: none;
+    }
+    .about-section h2 {
+      font-size: 24px; font-weight: 700; margin-bottom: 16px;
+    }
+    .about-section p {
+      font-size: 15px; color: var(--text-2); line-height: 1.7; max-width: 640px;
+    }
+    .about-section p + p {
+      margin-top: 16px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex; gap: 24px; flex-wrap: wrap; margin-top: 28px;
+    }
+    .stat-card {
+      flex: 1; min-width: 160px;
+      padding: 20px 24px; border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+    }
+    .stat-card .stat-number {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #7c3aed, #6366F1, #818CF8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-card .stat-label {
+      font-size: 13px; color: var(--text-2); margin-top: 4px;
+    }
+
+    /* Contact CTA */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0 60px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .cta-section h2 {
+      font-size: 32px; font-weight: 700; margin-bottom: 16px;
+    }
+    .cta-section p {
+      font-size: 16px; color: var(--text-2); margin-bottom: 32px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .page-header { padding: 50px 0 40px; }
+      .about-section { padding: 36px 0; }
+      .stats-row { flex-direction: column; gap: 16px; }
+      .cta-section { padding: 60px 0 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora"><div></div><div></div><div></div></div>
+
+  <div class="container">
+    <nav>
+      <a href="/" class="logo">
+        <svg class="logo-icon" viewBox="0 0 120 120" fill="none">
+          <defs>
+            <linearGradient id="nav-g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#818CF8"/>
+              <stop offset="40%" stop-color="#6366F1"/>
+              <stop offset="100%" stop-color="#14B8A6"/>
+            </linearGradient>
+            <linearGradient id="nav-g2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#C4B5FD"/>
+              <stop offset="100%" stop-color="#6366F1"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(60,60)">
+            <rect x="-46" y="-7" width="5" height="14" rx="2.5" fill="url(#nav-g1)" opacity=".4"/>
+            <rect x="-37" y="-16" width="5" height="32" rx="2.5" fill="url(#nav-g1)" opacity=".55"/>
+            <rect x="-28" y="-27" width="6" height="54" rx="3" fill="url(#nav-g1)" opacity=".75"/>
+            <rect x="-18" y="-37" width="6" height="74" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+            <rect x="-8" y="-29" width="6" height="58" rx="3" fill="url(#nav-g1)" opacity=".95"/>
+            <rect x="2" y="-45" width="7" height="90" rx="3.5" fill="url(#nav-g2)"/>
+            <rect x="14" y="-24" width="6" height="48" rx="3" fill="url(#nav-g1)" opacity=".9"/>
+            <rect x="24" y="-17" width="6" height="34" rx="3" fill="url(#nav-g1)" opacity=".7"/>
+            <rect x="34" y="-11" width="6" height="22" rx="3" fill="url(#nav-g1)" opacity=".5"/>
+            <circle cx="42" cy="2" r="2.5" fill="#14B8A6" opacity=".65"/>
+          </g>
+        </svg>
+        <span class="gradient">Verby</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/features">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="/help">Help</a>
+        <a href="/download" class="btn btn-primary" style="padding: 8px 20px; font-size: 13px;">Download</a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+      <h1 style="font-family: 'Sora', sans-serif">About <span class="gradient">Verby</span></h1>
+      <p>Verby was built to make voice the fastest way to interact with any app on your desktop. No menus, no switching windows, no clipboard gymnastics. Just hold a key, speak, and the text appears where your cursor is.</p>
+    </section>
+
+    <!-- The Story -->
+    <section class="about-section">
+      <h2 style="font-family: 'Sora', sans-serif">The Story</h2>
+      <p>Verby is built by <strong>Syntrix LLC</strong>, an indie software studio founded by <strong>Stephen Grandy</strong>. Syntrix focuses on AI-powered productivity tools that solve real problems without unnecessary complexity. Verby is its flagship product.</p>
+      <p>The idea for Verby came from a simple frustration: voice dictation tools were either too slow, too inaccurate, or locked inside a single app. None of them worked the way you actually use a computer &mdash; jumping between email, code editors, chat apps, and browsers dozens of times a day. Verby was built to work everywhere, at the system level, with AI that cleans up your speech in real time.</p>
+      <p>Verby launched on Mac and later expanded to Windows. It is actively developed as a solo product by Stephen, with a focus on speed, privacy, and doing one thing extremely well.</p>
+    </section>
+
+    <!-- The Product -->
+    <section class="about-section">
+      <h2 style="font-family: 'Sora', sans-serif">The Product</h2>
+      <p>Verby is an AI voice-to-text application for Mac and Windows. It transcribes your voice using OpenAI Whisper, enhances the output with AI, and injects the result directly at your cursor in any application. No copy-paste, no intermediate windows.</p>
+      <p>People use Verby to write emails, craft AI prompts, reply to comments on Reddit and social media, take notes, and dictate clean text into any input field. It runs as a lightweight system tray app and activates with a single hotkey.</p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">500K+</div>
+          <div class="stat-label">Downloads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2</div>
+          <div class="stat-label">Platforms (Mac & Windows)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">6</div>
+          <div class="stat-label">AI-Powered Modes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="cta-section">
+      <h2 style="font-family: 'Sora', sans-serif">Get in Touch</h2>
+      <p>Have a question, partnership idea, or just want to say hello? We would love to hear from you.</p>
+      <a href="/contact" class="btn btn-primary">Contact Us</a>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a></p>
+    </footer>
+  </div>
+  <script defer src="/particles.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>

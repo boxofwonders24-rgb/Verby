@@ -30,12 +30,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050508">
   <title>Verby — Free AI Voice-to-Text App for Mac & Windows</title>
-  <meta name="description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — free for Mac. Try 20 free dictations today. 60-second setup.">
+  <meta name="description" content="Talk to any app. Verby turns your voice into emails, AI prompts, Reddit comments, social replies, and clean text — free for Mac. Try 20 free dictations today. 60-second setup.">
   <meta name="keywords" content="voice to text app, AI dictation software, speech to text desktop, voice typing Mac, voice typing Windows, AI email generator, voice prompt tool, hands free typing">
   <link rel="canonical" href="https://verbyai.com/">
   <!-- Open Graph / Social -->
   <meta property="og:title" content="Verby — Free AI Voice-to-Text App for Mac | Try 20 Free Dictations">
-  <meta property="og:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor. Free for Mac and Windows.">
+  <meta property="og:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, Reddit comments, social replies, and clean text — injected at your cursor. Free for Mac and Windows.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://verbyai.com">
   <meta property="og:site_name" content="Verby">
@@ -46,7 +46,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Verby — AI Voice-to-Text App for Mac & Windows">
-  <meta name="twitter:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, and clean text — injected at your cursor.">
+  <meta name="twitter:description" content="Talk to any app. Verby turns your voice into emails, AI prompts, Reddit comments, social replies, and clean text — injected at your cursor.">
   <meta name="twitter:site" content="@verbyai">
   <meta name="twitter:image" content="https://verbyai.com/og/homepage.png">
   <!-- Structured Data -->
@@ -92,6 +92,7 @@
       "Voice-to-text dictation",
       "AI email generation",
       "Smart prompt enhancement",
+      "Reddit and social comment replies",
       "System-wide text injection",
       "Context-aware AI",
       "Speech cleanup"
@@ -166,12 +167,20 @@
     "sameAs": [
       "https://twitter.com/verbyai"
     ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "email": "support@verbyai.com",
-      "contactType": "customer support",
-      "url": "https://verbyai.com/contact"
-    }
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "email": "support@verbyai.com",
+        "contactType": "customer support",
+        "url": "https://verbyai.com/contact"
+      },
+      {
+        "@type": "ContactPoint",
+        "email": "hello@verbyai.com",
+        "contactType": "sales",
+        "url": "https://verbyai.com/contact"
+      }
+    ]
   }
   </script>
   <!-- WebSite Schema -->
@@ -509,7 +518,7 @@
     <section class="hero">
       <div class="badge">Voice-Powered AI for Mac & Windows</div>
       <h1 style="font-family: 'Sora', sans-serif">AI Voice-to-Text App<br><span class="gradient">for Mac & Windows</span></h1>
-      <p class="subtitle">Hold a key and speak naturally. Verby writes emails, crafts prompts, and cleans up your speech — injected instantly wherever your cursor is. No typing. No copy-paste.</p>
+      <p class="subtitle">Hold a key and speak naturally. Verby writes emails, crafts prompts, replies to Reddit and social comments, and cleans up your speech — injected instantly wherever your cursor is. No typing. No copy-paste.</p>
       <div class="ctas">
         <a href="#download" class="btn btn-primary">Download Free</a>
         <a href="#pricing" class="btn btn-secondary">See Pricing</a>
@@ -773,7 +782,7 @@
           <p class="use-case-caption">Meeting notes: spoken recap becomes structured action items</p>
         </div>
 
-        <!-- Use Case 6: LinkedIn Post -->
+        <!-- Use Case 6: Reddit & Social Comments -->
         <div>
           <div class="app-mockup">
             <div class="mockup-titlebar">
@@ -786,23 +795,29 @@
             <div class="mockup-body">
               <div class="mockup-label" style="color: var(--accent);">You said</div>
               <div class="mockup-card" style="margin-bottom: 10px;">
-                <p class="mockup-text" style="font-style: italic;">"write a LinkedIn post about how I just shipped a feature in half the time using voice coding, mention it was an AI integration"</p>
+                <p class="mockup-text" style="font-style: italic;">"reply to this reddit comment, I actually tried that approach and the latency was way better after switching to websockets, also mention the benchmarks I ran"</p>
               </div>
               <div style="text-align: center; margin: 6px 0;">
                 <span style="color: var(--accent); font-size: 16px;">↓</span>
               </div>
-              <div class="mockup-label" style="color: #14B8A6;">LinkedIn post</div>
+              <div class="mockup-label" style="color: #14B8A6;">Reddit comment</div>
               <div class="mockup-card accent">
-                <p class="mockup-text-bright">Just shipped a new AI integration in half the time it would've taken me typing.</p>
-                <p class="mockup-text" style="margin-top: 6px;">The secret? Voice coding. I spoke my intent, got structured prompts, and let AI handle the boilerplate. What used to be a full day of work became a focused 4-hour session.</p>
-                <p class="mockup-text" style="margin-top: 6px;">The future of development isn't just AI — it's voice + AI.</p>
+                <p class="mockup-text-bright">I actually went down this road and switching to WebSockets made a huge difference. Latency dropped from ~200ms to around 40ms in my benchmarks.</p>
+                <p class="mockup-text" style="margin-top: 6px;">The key was ditching the polling approach entirely — once you're on a persistent connection the overhead basically disappears. Happy to share my benchmark setup if you want to compare.</p>
               </div>
-              <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                <span class="mockup-badge teal-badge">Injected at cursor in LinkedIn</span>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                <span class="mockup-badge purple">Platform: Reddit</span>
+                <span class="mockup-badge teal-badge">Tone: matched</span>
+              </div>
+              <div style="margin-top: 12px;">
+                <div class="mockup-label" style="color: var(--text-3);">Also works on</div>
+                <div class="mockup-app-pills">
+                  <span>YouTube</span><span>LinkedIn</span><span>Instagram</span><span>TikTok</span><span>Facebook</span><span>Forums</span>
+                </div>
               </div>
             </div>
           </div>
-          <p class="use-case-caption">Social posts: turn ideas into polished content instantly</p>
+          <p class="use-case-caption">Social comments: speak your reply, Verby matches the platform's tone</p>
         </div>
 
       </div>
@@ -836,6 +851,11 @@
           <div class="feature-icon">🧹</div>
           <h3>Speech Cleanup</h3>
           <p>Hold <span class="violet"><strong>Ctrl</strong></span> to dictate. Verby cleans up grammar and filler words while keeping your natural voice.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💬</div>
+          <h3>Social Comments & Replies</h3>
+          <p>Say <em>"reply to this Reddit comment..."</em> and Verby writes a reply that matches the platform — Reddit, YouTube, LinkedIn, Instagram, and more.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">🔄</div>
@@ -948,6 +968,16 @@
           <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">7 Best Voice-to-Text Apps for Mac in 2026</p>
           <p style="font-size: 12px; color: #475569;">15 min read</p>
         </a>
+        <a href="/blog/verby-vs-dragon" style="padding: 20px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s;">
+          <p style="font-size: 11px; color: #6366F1; font-weight: 600; margin-bottom: 8px;">COMPARISON</p>
+          <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">Verby vs Dragon NaturallySpeaking: 2026 Comparison</p>
+          <p style="font-size: 12px; color: #475569;">12 min read</p>
+        </a>
+        <a href="/blog/verby-vs-otter" style="padding: 20px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.2s;">
+          <p style="font-size: 11px; color: #6366F1; font-weight: 600; margin-bottom: 8px;">COMPARISON</p>
+          <p style="font-size: 15px; font-weight: 600; color: #F1F5F9; margin-bottom: 6px;">Verby vs Otter.ai: Dictation vs Transcription</p>
+          <p style="font-size: 12px; color: #475569;">10 min read</p>
+        </a>
       </div>
     </section>
 
@@ -959,6 +989,7 @@
             <a href="/features" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Features</a>
             <a href="/pricing" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Pricing</a>
             <a href="/download" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Download</a>
+            <a href="/creators" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Creators</a>
           </div>
           <div>
             <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">Resources</p>
@@ -967,9 +998,9 @@
             <a href="/blog/voice-dictation-with-chatgpt" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice Dictation with ChatGPT</a>
           </div>
           <div>
-            <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">More</p>
-            <a href="/blog/type-faster-with-voice-dictation" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Type Faster with Voice</a>
-            <a href="/blog/voice-to-email-never-type-again" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Voice-to-Email Guide</a>
+            <p style="font-weight: 700; margin-bottom: 12px; color: var(--text);">Support</p>
+            <a href="/contact" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Contact</a>
+            <a href="/help" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Help Center</a>
             <a href="https://syntrixdev.com" target="_blank" rel="noopener noreferrer" style="display: block; color: var(--text-3); text-decoration: none; margin-bottom: 8px; font-size: 14px;">Built by Syntrix</a>
           </div>
         </div>
