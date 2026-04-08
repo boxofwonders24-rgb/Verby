@@ -25,6 +25,16 @@ const HALLUCINATIONS = new Set([
   'this is a voice dictation recording of someone speaking naturally',
 ]);
 
+// Wrap a promise with a timeout — rejects if it takes too long
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 export default function useDictation() {
   const [isDictating, setIsDictating] = useState(false);
   const [dictationStatus, setDictationStatus] = useState('idle'); // idle | listening | processing
@@ -107,15 +117,12 @@ export default function useDictation() {
 
         try {
           const arrayBuffer = await blob.arrayBuffer();
-          const transcript = await transcribeAudio(arrayBuffer);
+          const transcript = await withTimeout(transcribeAudio(arrayBuffer), 15000, 'transcribeAudio');
 
           // Filter out Whisper hallucinations
           const cleaned = (transcript || '').trim();
           if (!cleaned || HALLUCINATIONS.has(cleaned.toLowerCase())) {
             console.log(`Filtered hallucination or empty: "${cleaned}"`);
-            hideIndicator();
-            setDictationStatus('idle');
-            setIsDictating(false);
             return;
           }
 
@@ -125,7 +132,7 @@ export default function useDictation() {
           // Fn path: full AI enhancement (intent detection + email/prompt generation)
           if (enhancedMode && !isRawMode.current) {
             try {
-              const response = await generateSmart(cleaned);
+              const response = await withTimeout(generateSmart(cleaned), 30000, 'generateSmart');
               if (response && response.result) {
                 finalText = response.result;
                 intentType = response.type || 'prompt';
@@ -138,7 +145,7 @@ export default function useDictation() {
           // Ctrl path: light speech cleanup (grammar, filler words, punctuation)
           else if (isRawMode.current) {
             try {
-              const cleanedText = await cleanupSpeech(cleaned);
+              const cleanedText = await withTimeout(cleanupSpeech(cleaned), 15000, 'cleanupSpeech');
               if (cleanedText) {
                 finalText = cleanedText;
                 intentType = 'cleanup';
@@ -151,13 +158,13 @@ export default function useDictation() {
 
           // Inject into active field (skip voice commands for AI-generated content)
           const injectOptions = (intentType === 'email' || intentType === 'cleanup') ? { skipVoiceCommands: true } : undefined;
-          const injected = await injectText(finalText, injectOptions);
+          await withTimeout(injectText(finalText, injectOptions), 10000, 'injectText');
 
           // Log it
           setDictationLog((prev) => [
             {
               raw: cleaned,
-              final: injected || finalText,
+              final: finalText,
               enhanced: enhancedMode,
               intentType: intentType,
               time: new Date().toISOString(),
@@ -166,11 +173,11 @@ export default function useDictation() {
           ].slice(0, 50)); // keep last 50
         } catch (err) {
           console.error('Dictation error:', err);
+        } finally {
+          hideIndicator();
+          setDictationStatus('idle');
+          setIsDictating(false);
         }
-
-        hideIndicator();
-        setDictationStatus('idle');
-        setIsDictating(false);
       };
 
       mediaRecorder.current.start(250); // request data every 250ms
