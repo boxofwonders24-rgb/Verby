@@ -615,13 +615,15 @@
     }
 
     window.toggleAccordion = function (btn) {
-      var li = btn.closest('li');
+      var li = btn.closest('.help-accordion > li');
+      if (!li) return;
       var isOpen = li.classList.contains('open');
-      var siblings = li.parentElement.querySelectorAll('li');
-      siblings.forEach(function (sib) {
-        sib.classList.remove('open');
-        sib.querySelector('button').setAttribute('aria-expanded', 'false');
-      });
+      var siblings = li.parentElement.children;
+      for (var i = 0; i < siblings.length; i++) {
+        siblings[i].classList.remove('open');
+        var sibBtn = siblings[i].querySelector(':scope > button');
+        if (sibBtn) sibBtn.setAttribute('aria-expanded', 'false');
+      }
       if (!isOpen) {
         li.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
