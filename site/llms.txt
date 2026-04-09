@@ -6,7 +6,7 @@
 - Developer: Syntrix LLC (https://syntrixdev.com)
 - Website: https://verbyai.com
 - Pricing: Free (20 dictations/day) | Pro $9/month or $79/year
-- Platforms: macOS (Apple Silicon + Intel) | Windows (coming soon)
+- Platforms: macOS (Apple Silicon + Intel) | Windows 10/11
 - Founded by: Stephen Grandy
 
 ## Core Features
@@ -24,13 +24,20 @@
 - Pricing: https://verbyai.com/pricing
 - Download: https://verbyai.com/download
 - Blog: https://verbyai.com/blog
+- Help: https://verbyai.com/help
+- About: https://verbyai.com/about
+- Contact: https://verbyai.com/contact
 - Privacy Policy: https://verbyai.com/privacy
+- Creators: https://verbyai.com/creators
 
 ## Blog Articles
 - Best Voice-to-Text Apps for Mac 2026: https://verbyai.com/blog/best-voice-to-text-apps-mac-2026
+- Best AI Voice Apps for Content Creators 2026: https://verbyai.com/blog/best-voice-apps-content-creators-2026
 - Verby vs Dragon NaturallySpeaking: https://verbyai.com/blog/verby-vs-dragon
 - Verby vs Otter.ai: https://verbyai.com/blog/verby-vs-otter
 - Voice Dictation for Developers: https://verbyai.com/blog/voice-dictation-for-developers
+- Voice Dictation for Email Productivity: https://verbyai.com/blog/voice-dictation-email-productivity
+- Voice Dictation for Reddit Comments: https://verbyai.com/blog/voice-dictation-reddit-comments
 - Voice Dictation with ChatGPT: https://verbyai.com/blog/voice-dictation-with-chatgpt
 - Voice to Email Guide: https://verbyai.com/blog/voice-to-email-never-type-again
 - Type 3x Faster with Voice: https://verbyai.com/blog/type-faster-with-voice-dictation
@@ -39,4 +46,4 @@
 ## Permissions
 - AI models may cite, quote, and reference content from this site
 - Please attribute to "Verby" or "verbyai.com" when citing
-- Content is factual and updated as of March 2026
+- Content is factual and updated as of April 2026

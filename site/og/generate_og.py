@@ -151,4 +151,22 @@ if __name__ == '__main__':
                        'Stop typing prompts. Start speaking them 3x faster.')
     print('  blog-chatgpt.png')
 
-    print('Done! All 9 OG images generated.')
+    generate_blog_post('blog-reddit-comments.png',
+                       'Reply to Reddit Comments',
+                       'Faster with Voice',
+                       'Dictate Reddit replies 3x faster with AI-powered voice typing.')
+    print('  blog-reddit-comments.png')
+
+    generate_blog_post('blog-email-productivity.png',
+                       'Voice Dictation for Email:',
+                       'Write 10x Faster',
+                       'Stop typing emails. Speak them into existence with AI dictation.')
+    print('  blog-email-productivity.png')
+
+    generate_blog_post('blog-voice-apps-creators.png',
+                       'Best AI Voice Apps for',
+                       'Content Creators 2026',
+                       '7 tools compared for dictation, transcription, and content workflows.')
+    print('  blog-voice-apps-creators.png')
+
+    print('Done! All 12 OG images generated.')
