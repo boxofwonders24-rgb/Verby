@@ -8,19 +8,19 @@
         {
           "id": "mic-access",
           "question": "How do I grant microphone access?",
-          "answer": "<h4>Mac</h4><ol><li>Open <strong>System Settings → Privacy & Security → Microphone</strong></li><li>Find <strong>Verby</strong> in the list and toggle it on</li><li>If Verby isn't listed, click the <strong>+</strong> button and add it from your Applications folder</li><li>Restart Verby after granting access</li></ol><h4>Windows</h4><ol><li>Open <strong>Settings → Privacy → Microphone</strong></li><li>Ensure <strong>Allow apps to access your microphone</strong> is turned on</li><li>Scroll down and make sure Verby is toggled on</li></ol>",
+          "answer": "<p>Microphone access is required for all of Verby's <a href='/features'>voice dictation features</a>.</p><h4>Mac</h4><ol><li>Open <strong>System Settings → Privacy & Security → Microphone</strong></li><li>Find <strong>Verby</strong> in the list and toggle it on</li><li>If Verby isn't listed, click the <strong>+</strong> button and add it from your Applications folder</li><li>Restart Verby after granting access</li></ol><h4>Windows</h4><ol><li>Open <strong>Settings → Privacy → Microphone</strong></li><li>Ensure <strong>Allow apps to access your microphone</strong> is turned on</li><li>Scroll down and make sure Verby is toggled on</li></ol><p>Don't have Verby yet? <a href='/download'>Download it free</a>.</p>",
           "tags": ["microphone", "permissions", "mac", "windows", "setup"]
         },
         {
           "id": "accessibility-permissions",
           "question": "How do I enable accessibility permissions?",
-          "answer": "<h4>Mac</h4><ol><li>Open <strong>System Settings → Privacy & Security → Accessibility</strong></li><li>Click the lock icon to make changes</li><li>Find <strong>Verby</strong> and toggle it on</li><li>If prompted, click <strong>Restart</strong> to apply changes</li></ol><h4>Windows</h4><p>Accessibility permissions are granted automatically on Windows. If text injection isn't working, try running Verby as Administrator once.</p>",
+          "answer": "<p>Accessibility permissions are required for Verby's <a href='/features'>system-wide text injection</a> — the feature that places text directly at your cursor.</p><h4>Mac</h4><ol><li>Open <strong>System Settings → Privacy & Security → Accessibility</strong></li><li>Click the lock icon to make changes</li><li>Find <strong>Verby</strong> and toggle it on</li><li>If prompted, click <strong>Restart</strong> to apply changes</li></ol><h4>Windows</h4><p>Accessibility permissions are granted automatically on Windows. If text injection isn't working, try running Verby as Administrator once.</p>",
           "tags": ["accessibility", "permissions", "mac", "windows", "text injection"]
         },
         {
           "id": "screen-recording",
           "question": "Why does Verby need screen recording permission?",
-          "answer": "<p>Verby uses screen recording permission on Mac to detect which app you're currently using. This powers the <strong>auto-context</strong> feature — Verby adjusts its behavior based on whether you're in an email client, code editor, or chat app.</p><ol><li>Open <strong>System Settings → Privacy & Security → Screen Recording</strong></li><li>Toggle <strong>Verby</strong> on</li><li>Restart Verby after granting access</li></ol><p>Verby never records or stores your screen content.</p>",
+          "answer": "<p>Verby uses screen recording permission on Mac to detect which app you're currently using. This powers the <a href='/features'>context awareness feature</a> — Verby adjusts its behavior based on whether you're in an email client, code editor, or chat app.</p><ol><li>Open <strong>System Settings → Privacy & Security → Screen Recording</strong></li><li>Toggle <strong>Verby</strong> on</li><li>Restart Verby after granting access</li></ol><p>Verby never records or stores your screen content. See our <a href='/privacy'>privacy policy</a> for details.</p>",
           "tags": ["screen recording", "permissions", "mac", "auto-context", "privacy"]
         },
         {
@@ -32,7 +32,7 @@
         {
           "id": "hotkey-conflicts",
           "question": "My hotkey isn't working or conflicts with another app",
-          "answer": "<p>Verby uses these default hotkeys:</p><ul><li><strong>Alt+Space</strong> — Toggle recording</li><li><strong>Fn key (hold)</strong> — Push-to-talk (Mac only)</li><li><strong>Ctrl+Shift+Space</strong> — Toggle dictation mode</li></ul><p>If another app uses the same shortcut, that app may capture it first. Common conflicts:</p><ul><li><strong>Spotlight (Mac)</strong> — Uses Cmd+Space by default (no conflict)</li><li><strong>Alfred/Raycast</strong> — May use Alt+Space. Change theirs or Verby's</li><li><strong>Windows PowerToys</strong> — May capture Alt+Space for window management</li></ul><p>To fix: close the conflicting app, or change its shortcut. Verby's shortcuts will be customizable in a future update.</p>",
+          "answer": "<p>Verby uses these default hotkeys (see all <a href='/features'>features and hotkeys</a>):</p><ul><li><strong>Alt+Space</strong> — Toggle recording</li><li><strong>Fn key (hold)</strong> — Push-to-talk for <a href='/features'>AI-enhanced dictation</a> (Mac only)</li><li><strong>Ctrl (hold)</strong> — Push-to-talk for <a href='/features'>speech cleanup</a> (Mac only)</li><li><strong>Ctrl+Shift+Space</strong> — Toggle dictation mode</li></ul><p>If another app uses the same shortcut, that app may capture it first. Common conflicts:</p><ul><li><strong>Spotlight (Mac)</strong> — Uses Cmd+Space by default (no conflict)</li><li><strong>Alfred/Raycast</strong> — May use Alt+Space. Change theirs or Verby's</li><li><strong>Windows PowerToys</strong> — May capture Alt+Space for window management</li></ul><p>To fix: close the conflicting app, or change its shortcut. Verby's shortcuts will be customizable in a future update.</p>",
           "tags": ["hotkey", "shortcut", "alt+space", "conflict", "keyboard"]
         }
       ]
@@ -45,31 +45,31 @@
         {
           "id": "accuracy",
           "question": "How can I improve transcription accuracy?",
-          "answer": "<ul><li><strong>Speak clearly</strong> at a normal pace — rushing reduces accuracy</li><li><strong>Use a good microphone</strong> — built-in laptop mics work but a headset or USB mic is much better</li><li><strong>Reduce background noise</strong> — close windows, move away from fans/AC</li><li><strong>Speak in complete phrases</strong> rather than single words — the AI model uses context to improve accuracy</li><li><strong>Check your input device</strong> — make sure Verby is using the right microphone in your system sound settings</li></ul>",
+          "answer": "<p>Verby uses OpenAI Whisper for <a href='/features'>AI-enhanced transcription</a>. Here are tips to get the best results:</p><ul><li><strong>Speak clearly</strong> at a normal pace — rushing reduces accuracy</li><li><strong>Use a good microphone</strong> — built-in laptop mics work but a headset or USB mic is much better</li><li><strong>Reduce background noise</strong> — close windows, move away from fans/AC</li><li><strong>Speak in complete phrases</strong> rather than single words — the AI model uses context to improve accuracy</li><li><strong>Check your input device</strong> — make sure Verby is using the right microphone in your system sound settings</li></ul>",
           "tags": ["accuracy", "quality", "microphone", "noise", "tips"]
         },
         {
           "id": "languages",
           "question": "What languages does Verby support?",
-          "answer": "<p>Verby supports <strong>50+ languages</strong> through its speech-to-text engine. The most accurate results are in:</p><ul><li>English (US, UK, AU)</li><li>Spanish</li><li>French</li><li>German</li><li>Japanese</li><li>Chinese (Mandarin)</li><li>Portuguese</li><li>Italian</li><li>Korean</li></ul><p>Other languages are supported but may have lower accuracy. Verby auto-detects your language — no configuration needed.</p>",
+          "answer": "<p>Verby supports <strong>50+ languages</strong> through its speech-to-text engine. The most accurate results are in:</p><ul><li>English (US, UK, AU)</li><li>Spanish</li><li>French</li><li>German</li><li>Japanese</li><li>Chinese (Mandarin)</li><li>Portuguese</li><li>Italian</li><li>Korean</li></ul><p>Other languages are supported but may have lower accuracy. Verby auto-detects your language — no configuration needed. <a href='/download'>Download Verby</a> to try it in your language.</p>",
           "tags": ["languages", "multilingual", "supported", "auto-detect"]
         },
         {
           "id": "text-not-appearing",
           "question": "Transcription not appearing or text isn't being injected",
-          "answer": "<ol><li><strong>Check accessibility permission</strong> — text injection requires this on Mac (see Setup & Permissions)</li><li><strong>Check the auto-inject setting</strong> — open Settings and make sure <strong>Auto-inject text</strong> is toggled on</li><li><strong>Click into a text field first</strong> — Verby injects text at the cursor position. Make sure a text input is focused</li><li><strong>Try a different app</strong> — some apps (like Terminal or certain Electron apps) may not support text injection</li><li><strong>Restart Verby</strong> — if permissions were recently granted, the app may need a restart</li></ol>",
+          "answer": "<p>Verby's <a href='/features'>text injection</a> places transcribed text directly at your cursor. If it's not working:</p><ol><li><strong>Check accessibility permission</strong> — text injection requires this on Mac (see Setup & Permissions above)</li><li><strong>Check the auto-inject setting</strong> — open Settings and make sure <strong>Auto-inject text</strong> is toggled on</li><li><strong>Click into a text field first</strong> — Verby injects text at the cursor position. Make sure a text input is focused</li><li><strong>Try a different app</strong> — some apps (like Terminal or certain Electron apps) may not support text injection</li><li><strong>Restart Verby</strong> — if permissions were recently granted, the app may need a restart</li></ol>",
           "tags": ["text injection", "not working", "missing text", "accessibility"]
         },
         {
           "id": "formatting",
           "question": "How do I control punctuation and formatting?",
-          "answer": "<p>Verby automatically adds punctuation based on your speech patterns. Tips:</p><ul><li><strong>Pause briefly</strong> at the end of sentences for automatic periods</li><li><strong>Say \"question mark\"</strong> or <strong>\"exclamation point\"</strong> to insert them</li><li><strong>Say \"new line\"</strong> or <strong>\"new paragraph\"</strong> for line breaks</li><li><strong>Say \"comma\"</strong> for explicit comma placement</li></ul><p>For more control, use Verby's <strong>Styles</strong> feature to set a tone (professional, casual, etc.) which affects formatting output.</p>",
+          "answer": "<p>Verby automatically adds punctuation based on your speech patterns. Tips:</p><ul><li><strong>Pause briefly</strong> at the end of sentences for automatic periods</li><li><strong>Say \"question mark\"</strong> or <strong>\"exclamation point\"</strong> to insert them</li><li><strong>Say \"new line\"</strong> or <strong>\"new paragraph\"</strong> for line breaks</li><li><strong>Say \"comma\"</strong> for explicit comma placement</li></ul><p>For more control, use Verby's <strong>Styles</strong> feature to set a tone (professional, casual, etc.) which affects formatting output. Learn more about <a href='/features'>all Verby features</a>.</p>",
           "tags": ["punctuation", "formatting", "commands", "voice commands"]
         },
         {
           "id": "voice-commands",
           "question": "What voice commands can I use?",
-          "answer": "<p>Verby supports natural voice commands during dictation:</p><ul><li><strong>\"Delete that\"</strong> — removes the last injected text</li><li><strong>\"New line\" / \"New paragraph\"</strong> — inserts line breaks</li><li><strong>\"Period\" / \"Comma\" / \"Question mark\"</strong> — inserts punctuation</li><li><strong>\"Select all\" / \"Copy\" / \"Paste\"</strong> — triggers keyboard shortcuts</li></ul><p>Voice commands work in dictation mode (Ctrl+Shift+Space). In prompt mode (Alt+Space), your speech is processed by the AI instead.</p>",
+          "answer": "<p>Verby supports natural voice commands during dictation:</p><ul><li><strong>\"Delete that\"</strong> — removes the last injected text</li><li><strong>\"New line\" / \"New paragraph\"</strong> — inserts line breaks</li><li><strong>\"Period\" / \"Comma\" / \"Question mark\"</strong> — inserts punctuation</li><li><strong>\"Select all\" / \"Copy\" / \"Paste\"</strong> — triggers keyboard shortcuts</li></ul><p>Voice commands work in dictation mode (Ctrl+Shift+Space). In prompt mode (Alt+Space), your speech is processed by the AI to generate <a href='/features'>smart prompts, emails, and social replies</a>.</p>",
           "tags": ["voice commands", "dictation", "delete", "commands"]
         }
       ]
@@ -82,25 +82,25 @@
         {
           "id": "overlay-not-showing",
           "question": "The overlay isn't showing up",
-          "answer": "<ol><li><strong>Check if Verby is running</strong> — look for the Verby icon in your menu bar (Mac) or system tray (Windows)</li><li><strong>Press Alt+Space</strong> — this toggles the overlay visibility</li><li><strong>Check Show in Dock setting</strong> — if disabled, the overlay may be behind other windows. Click the menu bar icon to bring it forward</li><li><strong>Restart Verby</strong> — quit completely and reopen</li><li><strong>Check display settings</strong> — on multi-monitor setups, the overlay may appear on a different screen</li></ol>",
+          "answer": "<ol><li><strong>Check if Verby is running</strong> — look for the Verby icon in your menu bar (Mac) or system tray (Windows)</li><li><strong>Press Alt+Space</strong> — this toggles the overlay visibility</li><li><strong>Check Show in Dock setting</strong> — if disabled, the overlay may be behind other windows. Click the menu bar icon to bring it forward</li><li><strong>Restart Verby</strong> — quit completely and reopen</li><li><strong>Check display settings</strong> — on multi-monitor setups, the overlay may appear on a different screen</li></ol><p>If you haven't installed Verby yet, <a href='/download'>download it here</a>.</p>",
           "tags": ["overlay", "not showing", "hidden", "window", "display"]
         },
         {
           "id": "recording-stuck",
           "question": "The recording indicator is stuck",
-          "answer": "<ol><li><strong>Press Alt+Space</strong> to stop the current recording</li><li>If that doesn't work, <strong>press Escape</strong></li><li><strong>Check your microphone</strong> — if the mic was disconnected during recording, the indicator may freeze</li><li><strong>Restart Verby</strong> — quit from the menu bar/tray and reopen</li><li>If this happens frequently, please <strong>report the issue</strong> using the help panel so we can investigate</li></ol>",
+          "answer": "<ol><li><strong>Press Alt+Space</strong> to stop the current recording</li><li>If that doesn't work, <strong>press Escape</strong></li><li><strong>Check your microphone</strong> — if the mic was disconnected during recording, the indicator may freeze</li><li><strong>Restart Verby</strong> — quit from the menu bar/tray and reopen</li><li>If this happens frequently, please email <a href='mailto:verbysupport@syntrixdev.com'>verbysupport@syntrixdev.com</a> so we can investigate</li></ol>",
           "tags": ["recording", "stuck", "indicator", "frozen", "microphone"]
         },
         {
           "id": "high-cpu",
           "question": "Verby is using too much CPU or memory",
-          "answer": "<ul><li><strong>Check your history size</strong> — a very large prompt history can slow things down. Go to Settings and clear old history</li><li><strong>Close and reopen Verby</strong> — this resets memory usage</li><li><strong>Check for updates</strong> — newer versions include performance improvements</li><li><strong>Disable auto-context</strong> if you don't need it — it polls the active window periodically</li></ul><p>Normal CPU usage should be under 5% when idle. During recording and transcription, brief spikes to 15-30% are normal.</p>",
+          "answer": "<ul><li><strong>Check your history size</strong> — a very large prompt history can slow things down. Go to Settings and clear old history</li><li><strong>Close and reopen Verby</strong> — this resets memory usage</li><li><strong>Check for updates</strong> — newer versions include performance improvements. Visit the <a href='/download'>download page</a> for the latest</li><li><strong>Disable <a href='/features'>auto-context</a></strong> if you don't need it — it polls the active window periodically</li></ul><p>Normal CPU usage should be under 5% when idle. During recording and transcription, brief spikes to 15-30% are normal.</p>",
           "tags": ["cpu", "memory", "performance", "slow", "battery"]
         },
         {
           "id": "shortcut-not-responding",
           "question": "Keyboard shortcut not responding",
-          "answer": "<ol><li><strong>Make sure Verby is running</strong> — check the menu bar/system tray</li><li><strong>Check for hotkey conflicts</strong> — see the \"Hotkey conflicts\" article under Setup</li><li><strong>On Mac:</strong> Go to System Settings → Privacy & Security → Accessibility and make sure Verby is listed and enabled</li><li><strong>On Windows:</strong> Try running Verby as Administrator once</li><li><strong>Restart Verby</strong> — global shortcuts sometimes need to be re-registered after sleep/wake</li></ol>",
+          "answer": "<ol><li><strong>Make sure Verby is running</strong> — check the menu bar/system tray</li><li><strong>Check for hotkey conflicts</strong> — see the \"Hotkey conflicts\" article under Setup above</li><li><strong>On Mac:</strong> Go to System Settings → Privacy & Security → Accessibility and make sure Verby is listed and enabled</li><li><strong>On Windows:</strong> Try running Verby as Administrator once</li><li><strong>Restart Verby</strong> — global shortcuts sometimes need to be re-registered after sleep/wake</li></ol><p>See the full list of <a href='/features'>hotkeys and features</a>.</p>",
           "tags": ["shortcut", "hotkey", "not working", "keyboard", "alt+space"]
         },
         {
@@ -119,13 +119,13 @@
         {
           "id": "activate-license",
           "question": "How do I activate my license key?",
-          "answer": "<ol><li>Open Verby and go to <strong>Settings</strong> (gear icon)</li><li>Scroll to the <strong>Account</strong> section</li><li>Enter your <strong>email address</strong> (the one you used to purchase)</li><li>Click <strong>Activate</strong></li><li>Your Pro features will unlock immediately</li></ol><p>If activation fails, make sure you're using the exact email from your purchase confirmation. Contact <a href='mailto:verbysupport@syntrixdev.com'>verbysupport@syntrixdev.com</a> if issues persist.</p>",
+          "answer": "<ol><li>Open Verby and go to <strong>Settings</strong> (gear icon)</li><li>Scroll to the <strong>Account</strong> section</li><li>Enter your <strong>email address</strong> (the one you used to purchase)</li><li>Click <strong>Activate</strong></li><li>Your Pro features will unlock immediately</li></ol><p>If activation fails, make sure you're using the exact email from your purchase confirmation. Contact <a href='mailto:verbysupport@syntrixdev.com'>verbysupport@syntrixdev.com</a> if issues persist.</p><p>Don't have Pro yet? <a href='/pricing'>See pricing plans</a>.</p>",
           "tags": ["license", "activate", "pro", "key", "purchase"]
         },
         {
           "id": "check-plan",
           "question": "How do I check my plan and usage?",
-          "answer": "<ol><li>Open Verby and go to <strong>Settings</strong></li><li>Your current plan is shown in the <strong>Account</strong> section</li><li>Daily usage (transcriptions today) is displayed below your plan</li></ol><p><strong>Free plan:</strong> Limited daily transcriptions<br><strong>Pro plan:</strong> Unlimited transcriptions + advanced features</p>",
+          "answer": "<ol><li>Open Verby and go to <strong>Settings</strong></li><li>Your current plan is shown in the <strong>Account</strong> section</li><li>Daily usage (transcriptions today) is displayed below your plan</li></ol><p><strong>Free plan:</strong> Limited daily transcriptions<br><strong>Pro plan:</strong> Unlimited transcriptions + all <a href='/features'>advanced features</a> including email generation, smart prompts, and context awareness</p><p>Compare plans on the <a href='/pricing'>pricing page</a>.</p>",
           "tags": ["plan", "usage", "free", "pro", "limits"]
         },
         {
@@ -143,7 +143,7 @@
         {
           "id": "reset-account",
           "question": "How do I reset my account?",
-          "answer": "<p>To reset your Verby account data:</p><ol><li>Open Settings → scroll to the bottom</li><li>Click <strong>Clear History</strong> to remove all saved prompts</li><li>Sign out and sign back in to refresh your session</li></ol><p>To delete your account entirely, email <a href='mailto:verbysupport@syntrixdev.com'>verbysupport@syntrixdev.com</a> and we'll remove all your data within 48 hours.</p>",
+          "answer": "<p>To reset your Verby account data:</p><ol><li>Open Settings → scroll to the bottom</li><li>Click <strong>Clear History</strong> to remove all saved prompts</li><li>Sign out and sign back in to refresh your session</li></ol><p>To delete your account entirely, email <a href='mailto:verbysupport@syntrixdev.com'>verbysupport@syntrixdev.com</a> and we'll remove all your data within 48 hours. See our <a href='/privacy'>privacy policy</a> for data handling details.</p>",
           "tags": ["reset", "delete account", "clear data", "sign out"]
         }
       ]
