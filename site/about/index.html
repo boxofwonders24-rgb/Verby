@@ -53,9 +53,6 @@
   </script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/fonts/Inter-Variable.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <style>
     /* Page header */
@@ -190,15 +187,24 @@
     <section class="about-section">
       <h2 style="font-family: 'Sora', sans-serif">The Story</h2>
       <p>Verby is built by <strong>Syntrix LLC</strong>, an indie software studio founded by <strong>Stephen Grandy</strong>. Syntrix focuses on AI-powered productivity tools that solve real problems without unnecessary complexity. Verby is its flagship product.</p>
-      <p>The idea for Verby came from a simple frustration: voice dictation tools were either too slow, too inaccurate, or locked inside a single app. None of them worked the way you actually use a computer &mdash; jumping between email, code editors, chat apps, and browsers dozens of times a day. Verby was built to work everywhere, at the system level, with AI that cleans up your speech in real time.</p>
+      <p>The idea for Verby came from a simple frustration: voice is the fastest input method humans have. We speak roughly 150 words per minute but type only 40&ndash;80. Despite that, every voice dictation tool Stephen tried was either too slow, too inaccurate, locked inside a single app, or priced for enterprise budgets. None of them worked the way you actually use a computer &mdash; jumping between email, code editors, chat apps, and browsers dozens of times a day.</p>
+      <p>Stephen wanted something that sat at the system level, stayed out of the way, and just worked. Press a key, talk, and clean text appears wherever the cursor is. No dedicated dictation window. No copy-paste step. No per-app plugins. When nothing on the market did that reliably, he built it himself.</p>
       <p>Verby launched on Mac and later expanded to Windows. It is actively developed as a solo product by Stephen, with a focus on speed, privacy, and doing one thing extremely well.</p>
+    </section>
+
+    <!-- The Mission -->
+    <section class="about-section">
+      <h2 style="font-family: 'Sora', sans-serif">The Mission</h2>
+      <p>The goal behind Verby is straightforward: make voice the primary input method for desktop computing. Keyboards are not going away, but for the majority of text you produce in a day &mdash; emails, messages, notes, prompts, comments &mdash; speaking is faster and easier than typing.</p>
+      <p>Most people already dictate on their phones. Verby brings that same speed to the desktop, with the accuracy and formatting polish that a professional workflow demands. Every feature decision comes back to one question: does this make voice input faster, cleaner, or more useful in everyday work?</p>
     </section>
 
     <!-- The Product -->
     <section class="about-section">
       <h2 style="font-family: 'Sora', sans-serif">The Product</h2>
-      <p>Verby is an AI voice-to-text application for Mac and Windows. It transcribes your voice using OpenAI Whisper, enhances the output with AI, and injects the result directly at your cursor in any application. No copy-paste, no intermediate windows.</p>
-      <p>People use Verby to write emails, craft AI prompts, reply to comments on Reddit and social media, take notes, and dictate clean text into any input field. It runs as a lightweight system tray app and activates with a single hotkey.</p>
+      <p>Verby is an AI voice-to-text application for Mac and Windows. It uses <strong>OpenAI Whisper</strong> for transcription &mdash; the same model used by professional transcription services &mdash; and enhances the raw output with AI to fix grammar, remove filler words, and format the text for its destination. The finished text is injected directly at your cursor through system-wide text injection, so it works in any application: browsers, email clients, code editors, Slack, Discord, Notion, and everything else.</p>
+      <p>People use Verby to write emails, craft AI prompts, reply to comments on Reddit and social media, take notes, and dictate clean text into any input field. It runs as a lightweight system tray app and activates with a single hotkey. There are six AI-powered modes that adapt the output to different contexts, from casual messages to professional writing.</p>
+      <p>Verby offers a <strong>free tier with 20 dictations per day</strong> &mdash; enough for most casual users. The <strong>Pro plan</strong> removes that limit and unlocks additional features for power users who rely on voice throughout their workday. No trial period, no feature gates on the free tier. You get the full Verby experience from day one.</p>
 
       <div class="stats-row">
         <div class="stat-card">
@@ -216,15 +222,36 @@
       </div>
     </section>
 
+    <!-- Milestones -->
+    <section class="about-section">
+      <h2 style="font-family: 'Sora', sans-serif">Milestones</h2>
+      <p>Verby is under active development. Here is where things stand:</p>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">Mac</div>
+          <div class="stat-label">First platform launched</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">Windows</div>
+          <div class="stat-label">Second platform shipped</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">11</div>
+          <div class="stat-label">Blog posts published</div>
+        </div>
+      </div>
+      <p style="margin-top: 20px;">New features, performance improvements, and platform updates ship regularly. The <a href="/blog" style="color: #818CF8; text-decoration: underline;">blog</a> covers each release and shares tips for getting the most out of voice dictation.</p>
+    </section>
+
     <!-- Contact CTA -->
     <section class="cta-section">
       <h2 style="font-family: 'Sora', sans-serif">Get in Touch</h2>
-      <p>Have a question, partnership idea, or just want to say hello? We would love to hear from you.</p>
+      <p>Have a question, partnership idea, or just want to say hello? Reach out at <a href="mailto:verbysupport@syntrixdev.com" style="color: #818CF8;">verbysupport@syntrixdev.com</a> or use the form below.</p>
       <a href="/contact" class="btn btn-primary">Contact Us</a>
     </section>
 
     <footer>
-      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a></p>
+      <p>&copy; 2026 Verby by Syntrix LLC. All rights reserved. &middot; <a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Service</a></p>
     </footer>
   </div>
   <script defer src="/particles.js"></script>
