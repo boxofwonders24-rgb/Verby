@@ -169,4 +169,16 @@ if __name__ == '__main__':
                        '7 tools compared for dictation, transcription, and content workflows.')
     print('  blog-voice-apps-creators.png')
 
-    print('Done! All 12 OG images generated.')
+    generate_blog_post('blog-vs-wispr-flow.png',
+                       'Verby vs Wispr Flow:',
+                       'AI Dictation Compared',
+                       'Features, pricing, and platform support — which app wins in 2026?')
+    print('  blog-vs-wispr-flow.png')
+
+    generate_blog_post('blog-vs-superwhisper.png',
+                       'Verby vs Superwhisper:',
+                       'Cloud AI vs Offline',
+                       'Privacy, accuracy, and AI features compared for 2026.')
+    print('  blog-vs-superwhisper.png')
+
+    print('Done! All 14 OG images generated.')
