@@ -6,3 +6,9 @@ dist/
 *.log
 *.db
 .DS_Store
+
+# Swift Package Manager build artifacts
+.build/
+*.o
+*.d
+*.swp
