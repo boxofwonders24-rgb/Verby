@@ -1,0 +1,27 @@
+{
+  "object" : {
+    "artifacts" : [
+
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "verbycore",
+          "kind" : "fileSystem",
+          "location" : "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore",
+          "name" : "VerbyCore"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore"
+        },
+        "subpath" : "verbycore"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

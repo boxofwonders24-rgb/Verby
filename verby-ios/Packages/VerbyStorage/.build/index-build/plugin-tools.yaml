@@ -1,0 +1,43 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "PackageStructure": ["<PackageStructure>"]
+  "VerbyCore-arm64-apple-macosx26.0-debug.module": ["<VerbyCore-arm64-apple-macosx26.0-debug.module>"]
+  "main": []
+  "test": []
+default: "main"
+commands:
+  "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Config/AppConstants.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Keychain/KeychainHelper.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/AppSettings.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Device.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Subscription.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Transcript.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/UserProfile.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/SettingsStore.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/SyncService.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/TranscriptStore.swift"]
+    outputs: ["/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/sources"]
+    description: "Write auxiliary file /Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/sources"
+
+  "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<VerbyCore-arm64-apple-macosx26.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/Modules/VerbyCore.swiftmodule"]
+    outputs: ["<VerbyCore-arm64-apple-macosx26.0-debug.module>"]
+
+  "C.VerbyCore-arm64-apple-macosx26.0-debug.module":
+    tool: shell
+    inputs: ["/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Config/AppConstants.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Keychain/KeychainHelper.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/AppSettings.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Device.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Subscription.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/Transcript.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Models/UserProfile.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/SettingsStore.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/SyncService.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyCore/Sources/VerbyCore/Protocols/TranscriptStore.swift","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/sources"]
+    outputs: ["/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/Modules/VerbyCore.swiftmodule"]
+    description: "Compiling Swift Module 'VerbyCore' (10 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","VerbyCore","-emit-dependencies","-emit-module","-emit-module-path","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/Modules/VerbyCore.swiftmodule","-output-file-map","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/output-file-map.json","-parse-as-library","-incremental","@/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/sources","-I","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx10.13","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j12","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-emit-objc-header","-emit-objc-header-path","/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/index-build/arm64-apple-macosx/debug/VerbyCore.build/include/VerbyCore-Swift.h","-swift-version","5","-Xfrontend","-experimental-lazy-typecheck","-Xfrontend","-experimental-skip-all-function-bodies","-Xfrontend","-experimental-allow-module-with-compiler-errors","-Xfrontend","-empty-abi-descriptor","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","verbycore"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: []
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

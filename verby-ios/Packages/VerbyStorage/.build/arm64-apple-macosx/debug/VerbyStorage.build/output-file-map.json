@@ -1,0 +1,19 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/master.swiftdeps"
+  },
+  "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/Sources/VerbyStorage/AppGroup/AppGroupContainer.swift": {
+    "dependencies": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/AppGroupContainer.d",
+    "object": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/AppGroupContainer.swift.o",
+    "swiftmodule": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/AppGroupContainer~partial.swiftmodule",
+    "swift-dependencies": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/AppGroupContainer.swiftdeps",
+    "diagnostics": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/AppGroupContainer.dia"
+  },
+  "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/Sources/VerbyStorage/CoreData/PersistenceController.swift": {
+    "dependencies": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/PersistenceController.d",
+    "object": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/PersistenceController.swift.o",
+    "swiftmodule": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/PersistenceController~partial.swiftmodule",
+    "swift-dependencies": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/PersistenceController.swiftdeps",
+    "diagnostics": "/Users/lotsofsocks/Development/verbyprompt/verby-ios/Packages/VerbyStorage/.build/arm64-apple-macosx/debug/VerbyStorage.build/PersistenceController.dia"
+  }
+}
