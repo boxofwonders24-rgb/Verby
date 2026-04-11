@@ -1010,6 +1010,7 @@
   <script defer src="/particles.js"></script>
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/t.js"></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 
 <!-- Mobile Email Capture -->
@@ -1039,19 +1040,35 @@
     var email = document.getElementById('mobileEmail').value;
     if(!email) return;
 
-    // Store in Supabase + send download link email
+    var utm = new URLSearchParams(location.search).get('utm_source')||null;
+
+    // Insert directly into Supabase (reliable client-side capture)
+    fetch('https://xixefdlmnfpyxopzotne.supabase.co/rest/v1/email_leads',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeGVmZGxtbmZweXhvcHpvdG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4ODc1MjMsImV4cCI6MjA4OTQ2MzUyM30.QIPct51hKESfJa0X8yylXFJj_F-5fV_1zwsvz6DPxOk',
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({email:email, source:document.referrer||'direct', utm_source:utm})
+    }).then(function(){
+      form.style.display='none';
+      document.getElementById('mobileCaptureSuccess').style.display='block';
+    }).catch(function(){
+      form.style.display='none';
+      document.getElementById('mobileCaptureSuccess').style.display='block';
+    });
+
+    // Also try API route to send the download email (may fail, non-blocking)
     fetch('/api/send-download-link',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email:email, utm_source:new URLSearchParams(location.search).get('utm_source')||null})
+      body:JSON.stringify({email:email, utm_source:utm})
     }).catch(function(){});
 
     // Track as Lead
     if(typeof fbq!=='undefined') fbq('track','Lead',{content_name:'Mobile Email Capture'});
     if(typeof rdt!=='undefined') rdt('track','Lead');
-
-    form.style.display='none';
-    document.getElementById('mobileCaptureSuccess').style.display='block';
   });
 })();
 </script>
